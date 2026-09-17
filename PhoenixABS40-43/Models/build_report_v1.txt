@@ -1,0 +1,66 @@
+==============================================================================
+Phoenix ABS 40-43 -- aft motor retention, v1
+==============================================================================
+
+[1] build + heal
+  heal AftRetainerBase   faces 2730 (faceted -- heal skipped), solids 1, 11511.1 mm3
+  heal MotorRetainerCap  faces 3843 (faceted -- heal skipped), solids 1, 8609.7 mm3
+  heal FwdCenteringRing  faces 4 -> 4, solids 1, 2654.6 mm3
+  heal AftSectionSealed  faces 2768 (faceted -- heal skipped), solids 1, 27688.8 mm3
+  heal Fin               faces 23 -> 19, solids 1, 5185.9 mm3
+  heal AftFinCan         faces 2903 (faceted -- heal skipped), solids 1, 43926.9 mm3
+
+[2] per-solid mass + envelope
+  AftRetainerBase     11511.1 mm3  12.09 g  dia  43.0  Z  -13.5.. 58.9  solids 1
+  MotorRetainerCap     8609.7 mm3   9.04 g  dia  45.5  Z  -17.0..  0.0  solids 1
+  FwdCenteringRing     2654.6 mm3   2.79 g  dia  39.7  Z    0.0..  3.0  solids 1
+  AftSectionSealed    27688.8 mm3  29.07 g  dia  43.0  Z  -13.5.. 58.9  solids 1
+  Fin                  5185.9 mm3   5.45 g  dia  66.7  Z    0.6.. 51.4  solids 1
+  AftFinCan           43926.9 mm3  46.12 g  dia 132.7  Z  -13.5.. 58.9  solids 1
+  cfg A cap+base:    21.13 g  (target <= 22 g)  PASS
+  cfg B cap+sect:    38.11 g  cap + sealed section
+
+[3] watertight (mesh vs CAD solid)
+  AftRetainerBase    14374 facets  vol err 0.0005%  open edges 0  solid True   PASS
+  MotorRetainerCap   13602 facets  vol err 0.0418%  open edges 0  solid True   PASS
+  FwdCenteringRing    1064 facets  vol err 0.0313%  open edges 0  solid True   PASS
+  AftSectionSealed   17904 facets  vol err 0.0014%  open edges 0  solid True   PASS
+  Fin                   52 facets  vol err 0.0000%  open edges 0  solid True   PASS
+  AftFinCan          18998 facets  vol err 0.0133%  open edges 0  solid True   PASS
+
+[4] thread + fit -- checked by Models/verify_aft_retention.py
+  boss thread  major 38.4 / minor 36.0, pitch 3.0, single-start RH
+  cap thread   crest 36.4 / root  38.8, 0.2 radial / 0.1 flank clearance
+  engagement   10.0 mm full thread; boss tip -> cap floor 1.0 mm
+  seat cone    r 19.2->21.5 over Z -2.3->0.0; both parts on r = z + 21.5
+
+[5] motor bay geometry (clearances ray-cast by the verifier)
+  motor Z -14.1 .. 55.9 (70.0 mm long)
+  motor aft face -> cap lip       0.400 mm   PASS (want 0.4 +/- 0.1)
+  retaining lip r 7.5..9.0 = 1.5 mm radial on the casing rim
+  ring ID 21.2 over tube OD 20.8 = 0.4 mm diametral glue gap
+
+[6] mass + CG vs the .ork baseline (128 g @ 228 mm)
+  cfg A -- bonded insert into a separate airframe
+    parts 23.91 g at 378.5 mm, less 5.00 g displaced (cardboard rings + engine block)
+    net +18.91 g -> CG 247.4 mm (+19.4 mm, 0.45 cal)
+    + DESIGN.md s3 tube corr. -> CG 241.0 mm (+13.0 mm, 0.30 cal)
+  cfg B -- sealed aft section + 3 bonded fins
+    parts 54.45 g at 361.6 mm, less 29.75 g displaced (rings/block + 51.4 mm of tube + the .ork fin set)
+    net +24.69 g -> CG 249.6 mm (+21.6 mm, 0.50 cal)
+    + DESIGN.md s3 tube corr. -> CG 243.1 mm (+15.1 mm, 0.35 cal)
+  cfg C -- one-piece fin can (fins printed in)
+    parts 55.16 g at 361.5 mm, less 29.75 g displaced (rings/block + 51.4 mm of tube + the .ork fin set)
+    net +25.41 g -> CG 250.1 mm (+22.1 mm, 0.51 cal)
+    + DESIGN.md s3 tube corr. -> CG 243.6 mm (+15.6 mm, 0.36 cal)
+  -> the fin resize must recover this ON TOP of DESIGN.md s4's ~1.0 cal
+  overall length 380.0 -> 397.0 mm (cap protrudes 17.0)
+
+[7] export
+  AftRetainerBase .step + .stl
+  MotorRetainerCap .step + .stl
+  FwdCenteringRing .step + .stl
+  AftSectionSealed .step + .stl
+  Fin .step + .stl
+  AftFinCan .step + .stl
+  PhoenixABS40-43_aft_retention_v1.FCStd

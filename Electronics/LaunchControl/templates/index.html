@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Launch Control</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>RSP4 Launch Control</h1>
+  </header>
+
+  <main>
+    <section class="panel" id="fc-panel">
+      <h2>Flight computer</h2>
+      <div class="row"><span class="label">Link</span><span id="fc-reachable" class="pill pill-unknown">--</span></div>
+      <div class="row"><span class="label">Flight state</span><span id="fc-state">--</span></div>
+      <div class="row"><span class="label">Wireless armed</span><span id="fc-armed">--</span></div>
+      <div class="row"><span class="label">Deploy fired</span><span id="fc-deployed">--</span></div>
+      <div class="row"><span class="label">Sample age</span><span id="fc-sample-age">--</span></div>
+      <button id="fc-arm-btn">Wireless ARM flight computer</button>
+      <p id="fc-arm-msg" class="msg"></p>
+    </section>
+
+    <section class="panel danger" id="srb-panel">
+      <h2>SRB launch control</h2>
+      <div class="row"><span class="label">Continuity</span><span id="srb-continuity" class="pill pill-unknown">--</span></div>
+      <div class="row"><span class="label">Arm switch</span><span id="srb-arm-sense" class="pill pill-unknown">--</span></div>
+      <div class="row"><span class="label">Latch</span><span id="srb-fired" class="pill pill-unknown">--</span></div>
+
+      <div class="fire-controls">
+        <button id="srb-arm-btn">ARM</button>
+        <button id="srb-fire-btn" disabled>FIRE</button>
+      </div>
+      <p id="srb-window-msg" class="msg"></p>
+      <p id="srb-msg" class="msg"></p>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

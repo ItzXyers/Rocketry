@@ -1,0 +1,19 @@
+[Unit]
+Description=Create the wlan0_ap virtual interface (phone-facing hotspot) alongside wlan0 (station link to the flight computer)
+# Same physical radio as wlan0 -- see README.md's radio-topology section and
+# the `iw phy0 info` verification step. wlan0 itself is expected to be
+# `unmanaged` in NetworkManager and driven by wpa_supplicant (see
+# network/wpa_supplicant-wlan0.conf) so it isn't fighting this unit or
+# hostapd for the interface.
+Before=hostapd.service
+After=sys-subsystem-net-devices-wlan0.device
+Requires=sys-subsystem-net-devices-wlan0.device
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/launchcontrol/scripts/setup_wlan0_ap.sh
+ExecStop=/sbin/iw dev wlan0_ap del
+
+[Install]
+WantedBy=multi-user.target

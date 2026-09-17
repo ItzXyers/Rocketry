@@ -1,0 +1,94 @@
+PHOENIX ABS 40-43   AVIONICS BAY PACKING   BUILD REPORT  v1
+document : PhoenixABS40-43_avbay_packing_v1.FCStd
+companion: Avionics/avionics_bay_packing_40mm.md  (the study this models)
+frame    : origin on tube axis; aft face of component zone = Z0; +Z -> nose;
+           +X east, +Y north.  SG90 shifted 2 mm west (x_c = -2).
+bore     : 40.0 ID / 43.0 OD reference stub.  running limit R = 19.5.
+battery  : Option B (EEMB LP852040, 620 mAh).
+==========================================================================
+
+PER-BODY ENVELOPE
+--------------------------------------------------------------------------
+body                        bbox dx.dy.dz      Zmin   Zmax    Rmax
+TubeStub_ID40_OD43          43.0.43.0.57.0     -3.0   54.0   21.50
+Comp_Servo_SG90             12.6.22.7.23.0      0.0   23.0   14.06
+Comp_Battery_1S_620mAh      8.5.20.0.40.5       0.0   40.5   17.37
+Comp_Nano_ESP32             5.0.18.0.45.0       0.0   45.0   17.32
+Comp_USB_Charger_BQ25302    15.0.5.0.23.0       0.0   23.0   18.58
+Comp_BMP388_baro            5.0.25.4.18.0      25.0   43.0   15.28
+Comp_ADXL375_accel          5.0.25.4.18.0      25.0   43.0   13.17
+Comp_SmallParts_Allowance   16.0.5.7.23.0       0.0   23.0   18.97
+Sled                        30.2.22.8.45.0      0.0   45.0   16.53
+AftClosure                  39.4.39.4.3.0      -3.0    0.0   19.70
+FwdClosure                  39.4.39.4.3.0      45.0   48.0   19.70
+
+CONTAINMENT   Rmax of each internal body vs 19.5 running limit / 20.0 ID
+--------------------------------------------------------------------------
+Comp_Servo_SG90             Rmax  14.06   to ID  5.94   OK
+Comp_Battery_1S_620mAh      Rmax  17.37   to ID  2.63   OK
+Comp_Nano_ESP32             Rmax  17.32   to ID  2.68   OK
+Comp_USB_Charger_BQ25302    Rmax  18.58   to ID  1.42   TIGHT (<1.5 mm to ID)
+Comp_BMP388_baro            Rmax  15.28   to ID  4.72   OK
+Comp_ADXL375_accel          Rmax  13.17   to ID  6.83   OK
+Comp_SmallParts_Allowance   Rmax  18.97   to ID  1.03   TIGHT (<1.5 mm to ID)
+Sled                        Rmax  16.53   to ID  3.47   OK
+AftClosure                  Rmax  19.70   to ID  0.30   past 19.5 running limit (still inside ID)
+FwdClosure                  Rmax  19.70   to ID  0.30   past 19.5 running limit (still inside ID)
+
+  AftClosure/FwdClosure at R19.70 are press discs (ID - 0.3) meant to reach the
+  wall.  The two TIGHT bodies are the USB charger and the small-parts allowance
+  in the lobes -- the study's own point that lobe packing, not length, is the limit.
+
+INTERFERENCE   solid common() volume mm^3   (>1.0 = clash)
+--------------------------------------------------------------------------
+  clashes: 0    coincident-face touches: 0
+
+MIN GAPS  (Shape.distToShape, mm)
+--------------------------------------------------------------------------
+  Comp_Servo_SG90             <-> Comp_Battery_1S_620mAh      1.40
+  Comp_Servo_SG90             <-> Comp_Nano_ESP32             1.50
+  Comp_Servo_SG90             <-> Sled                        0.00
+  Comp_Battery_1S_620mAh      <-> Sled                        0.00
+  Comp_Nano_ESP32             <-> Sled                        0.00
+  Comp_BMP388_baro            <-> Comp_ADXL375_accel          0.00
+  Comp_BMP388_baro            <-> Comp_Servo_SG90             2.00
+  Comp_SmallParts_Allowance   <-> Comp_Servo_SG90             0.15
+  Comp_USB_Charger_BQ25302    <-> Comp_Servo_SG90             0.65
+
+LENGTHS
+--------------------------------------------------------------------------
+  component zone      Z 0.0 .. 45.0   = 45.0 mm   (Comp_Nano_ESP32 governs)
+  aft closure         Z -3.0 .. 0.0   =  3.0 mm
+  fwd closure         Z 45.0 .. 48.0  =  3.0 mm
+  harness/access gap  Z 48.0 .. 54.0  =  6.0 mm
+  COMPLETE BAY        Z -3.0 .. 54.0  = 57.0 mm
+  Option A 750 mAh battery  ->  zone 48 mm, bay 60 mm
+  harness routed internally ->  bay 51 mm floor
+
+MASS
+--------------------------------------------------------------------------
+  Comp_Servo_SG90                9.0 g   23x12.4x22.7 body, tabs trimmed
+  Comp_Battery_1S_620mAh        12.5 g   EEMB LP852040  40.5x20x8.5
+  Comp_Nano_ESP32                5.0 g   ABX00083  45x18x5 (headers trimmed) -- LENGTH DRIVER
+  Comp_USB_Charger_BQ25302       2.0 g   ~23x15x5 flat, south lobe (width est.)
+  Comp_BMP388_baro               2.5 g   ~25x18x5 on edge, centre gap fwd of servo
+  Comp_ADXL375_accel             2.0 g   25.4x17.8x5 on edge, centre gap
+  Comp_SmallParts_Allowance     14.0 g   S7V8F5 reg + microSD rdr + buzzer + C1 + 2N7000 + reed + SW1/SW2 + wiring slack
+  ELECTRONICS TOTAL             47.0 g
+  Sled (computed)                3.8 g   printed, 3622 mm^3 ABS @1050 -- NOT 'electronics'
+  Closures (computed)            7.7 g   2x R19.7x3 ABS discs
+  DESIGN.md 7.11 budgets 30 g for FC+batt+wiring+servo  ->  this set is ~17 g over
+
+MODEL SIMPLIFICATIONS  (read before taking any dimension downstream)
+--------------------------------------------------------------------------
+  * every Comp_* body is a bounding box, not part geometry.  Real SG90 sides
+    taper and its top is not a solid 22.7 slab; real PCBs are ~1.6 mm + parts.
+  * Comp_SmallParts_Allowance is ONE 14 g block for the regulator, microSD
+    reader, buzzer, C1, 2N7000, reed switch, SW1/SW2 and wiring -- which also
+    fill interstitial gaps this block does not represent.
+  * charger / BMP388 breakout / buzzer / C1 / switch dims are estimates.
+  * radial static port (~Z12) and the USB-C / microSD / buzzer wall cut-outs
+    are NOT modeled; FwdClosure is a plain disc.
+  * Sled = 2 spine walls + mid rib + fwd bridge + 2 outboard lips.  No fastener
+    bosses, no strain reliefs, no aft-closure register.
+  * GPS, deploy MOSFET Q2, O-rings excluded per the study scope.

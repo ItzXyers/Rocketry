@@ -1,0 +1,48 @@
+=== Building Thumbscrew ===
+=== Building Deflector Cradle ===
+=== Building Leg ===
+=== Building Hinge Pin ===
+
+=== WATERTIGHT / VOLUME REPORT ===
+LaunchPad_Hub                facets=  8730 isSolid=True  vol=   89067.7mm3 diff=0.0134%  bbox=BoundBox (-59, -54.0955, 0, 49, 54.0955, 92)
+LaunchPad_Thumbscrew         facets=  9570 isSolid=True  vol=    1491.4mm3 diff=0.0249%  bbox=BoundBox (-7.91, -7.99752, 0, 7.91, 7.99752, 22)
+LaunchPad_DeflectorCradle    facets=  3312 isSolid=True  vol=  216796.7mm3 diff=0.0029%  bbox=BoundBox (-95, -95, 0, 95, 95, 11)
+LaunchPad_Leg_x3             facets= 34676 isSolid=True  vol=   54075.6mm3 diff=0.0027%  bbox=BoundBox (-2, -20, -9, 204, 27.9972, 9)
+LaunchPad_HingePin_x3        facets=   908 isSolid=True  vol=     716.6mm3 diff=0.0347%  bbox=BoundBox (-4.5, -4.49927, 0, 4.5, 4.49927, 24)
+
+=== VERIFICATION ===
+[PASS] LaunchPad_Hub: isSolid=True diff%=0.0134
+[PASS] LaunchPad_Thumbscrew: isSolid=True diff%=0.0249
+[PASS] LaunchPad_DeflectorCradle: isSolid=True diff%=0.0029
+[PASS] LaunchPad_Leg_x3: isSolid=True diff%=0.0027
+[PASS] LaunchPad_HingePin_x3: isSolid=True diff%=0.0347
+[PASS] screw<->hub thread interference: common_vol=0.0000mm3 (threshold 0.0683)
+[PASS] screw hole clear of rod bore: common_vol=0.0000mm3 (closest approach 3.30mm vs bore radius 2.12mm)
+[PASS] threaded ear material depth 6.60mm >= nominal thread engagement 6.00mm
+[PASS] rod (dia 4.0) passes through hub bore cleanly
+[PASS] grip length 60.0mm >= 8x rod dia (32.0mm)
+[PASS] clamp slit open at mid-wall radius (compliance gap present)
+[PASS] leg-vs-hub overlap across fold sweep: max 0.00mm3 (threshold 50mm3 -- real body/lug collision would read in the hundreds)
+[PASS] leg-leg collision across fold sweep: none found
+[INFO] stowed envelope estimate: dia 174mm x 200mm
+[PASS] plate overhang @ 90mm plate: x=50.0mm y=50.0mm (need >= 15.0mm)
+[PASS] plate overhang @ 150mm plate: x=20.0mm y=20.0mm (need >= 15.0mm)
+[PASS] LaunchPad_Hub bbox 108.0x108.2x92.0 fits 256x256x250
+[PASS] LaunchPad_Thumbscrew bbox 15.8x16.0x22.0 fits 256x256x250
+[PASS] LaunchPad_DeflectorCradle bbox 190.0x190.0x11.0 fits 256x256x250
+[PASS] LaunchPad_Leg_x3 bbox 206.0x48.0x18.0 fits 256x256x250
+[PASS] LaunchPad_HingePin_x3 bbox 9.0x9.0x24.0 fits 256x256x250
+
+=== MASS ESTIMATE (solid volume x ABS density, upper-bound reference) ===
+LaunchPad_Hub                   89.08 cm3 ea  ~ 92.64 g ea  x1 = ~ 92.64 g
+LaunchPad_Thumbscrew             1.49 cm3 ea  ~  1.55 g ea  x1 = ~  1.55 g
+LaunchPad_DeflectorCradle      216.80 cm3 ea  ~225.48 g ea  x1 = ~225.48 g
+LaunchPad_Leg_x3                54.08 cm3 ea  ~ 56.24 g ea  x3 = ~168.72 g
+LaunchPad_HingePin_x3            0.72 cm3 ea  ~  0.75 g ea  x3 = ~  2.24 g
+TOTAL (100% solid basis): ~490.6 g
+
+=== Building Assembly preview ===
+
+Saved LaunchPad.FCStd and exported STL/OBJ to Print Files/
+
+DEPLOY_ANGLE_DEG = 33.74  LEG_DROP = 105.53mm  GRIP_LENGTH = 60.0mm  POST_LEN = 72.0mm

@@ -1,0 +1,35 @@
+[Unit]
+Description=RSP4 launch control webapp
+# Needs the hotspot (for the phone) and, ideally, the station link to the
+# flight computer up first -- but must not fail to start if the flight
+# computer isn't reachable yet (fc_client.py degrades to "offline" on its
+# own). hostapd is a hard After= since the fire endpoints being reachable
+# at all depends on the hotspot existing.
+After=network.target hostapd.service wlan0-ap-iface.service wpa_supplicant@wlan0.service
+Wants=hostapd.service wlan0-ap-iface.service wpa_supplicant@wlan0.service
+
+[Service]
+Type=simple
+User=launchcontrol
+Group=gpio
+WorkingDirectory=/opt/launchcontrol
+# /var/lib/launchcontrol, not anywhere under /opt/launchcontrol -- the
+# launchcontrol user doesn't own the install tree (root does, from the
+# `cp -r` in README.md's install steps), and _write_latch()'s os.makedirs()
+# would otherwise hit PermissionError on first fire. See README.md's
+# install steps for creating this directory with the right owner.
+Environment=LAUNCHCONTROL_LATCH_PATH=/var/lib/launchcontrol/fired.latch
+StateDirectory=launchcontrol
+# Single process, single thread pool (waitress's default) -- MUST stay one
+# process. Arm tokens and IgnitionController's fired/armed state live in
+# this process's memory; multiple worker processes (e.g. gunicorn -w N)
+# would each get their own copy. See app.py's main().
+ExecStart=/opt/launchcontrol/venv/bin/waitress-serve --host=0.0.0.0 --port=8080 app:app
+Restart=on-failure
+RestartSec=2
+# Firing a real igniter must never survive an OOM-kill silently -- fail
+# loud, don't retry into an unknown GPIO state.
+OOMPolicy=stop
+
+[Install]
+WantedBy=multi-user.target

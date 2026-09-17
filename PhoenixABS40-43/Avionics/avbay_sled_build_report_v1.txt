@@ -1,0 +1,86 @@
+==============================================================================
+Phoenix ABS 40-43 -- avionics bay ELECTRONICS SLED  v1   (v3 repack)
+==============================================================================
+
+frame: avbay_packing_build_report_v2.txt  (Z=0 aft, +Z to nose, +x E, +y N)
+constraint: component zone Z 0..48 held -- no length growth
+charger BQ25302 + its wall slot deleted; battery charges off-vehicle (JST-PH)
+
+[1] build + heal
+  heal Sled           faces 244 -> 160, solids 1,     7376.0 mm3
+
+[2] v3 pack -- component list  (dx.dy.dz  Zmin  Zmax  Rmax)
+  Servo_SG90    28.0.12.0.22.7   25.3  48.0   17.49
+  Nano_ESP32    18.0. 5.0.45.0    0.0  45.0   18.79
+  BMP388        22.0. 4.0.40.0    0.0  40.0   15.56
+  Battery       20.0. 8.5.40.5    0.0  40.5   18.45
+  ADXL375       18.0. 4.0.26.0    0.0  26.0   16.12
+  Piezo         15.0.11.0.19.0    0.0  19.0   18.82
+  SmallParts    13.5. 3.1.22.0    0.0  22.0   16.38
+  Sled          37.9.27.1.48.7   -0.9  47.8   19.39   <- the sled
+
+[0] CONTAINMENT  (Rmax vs 19.5 moving / 20.0 ID)
+  Servo_SG90   Rmax  17.49  toID  2.51   PASS  
+  Nano_ESP32   Rmax  18.79  toID  1.21   PASS  strap-retained (outboard of the sled skin)
+  BMP388       Rmax  15.56  toID  4.44   PASS  
+  Battery      Rmax  18.45  toID  1.55   PASS  
+  ADXL375      Rmax  16.12  toID  3.88   PASS  
+  Piezo        Rmax  18.82  toID  1.18   PASS  strap-retained (outboard of the sled skin)
+  SmallParts   Rmax  16.38  toID  3.62   PASS  
+  Sled         Rmax  19.39  toID  0.61   PASS 
+  component zone  Z 0.0 .. 48.0   PASS
+
+[I] FIT  --  RAW = the as-drawn sled overlapping each component keep-out,
+           BEFORE trim.  RAW>0 is expected: it is pocket walls / rails /
+           bosses reaching into the board's space.  For the 6 RIGID parts
+           that volume is then cut away (post-cut common -> 0); the risk it
+           leaves a wall too thin is flagged in [N], not yet auto-checked.
+           SmallParts is a conformable allowance -- it is NOT cut; its RAW is
+           how much wiring volume yields to structure.
+  Servo_SG90   RAW    238.9 mm3   (post-cut 0.0)
+  Nano_ESP32   RAW      0.0 mm3   (post-cut 0.0)
+  BMP388       RAW      3.7 mm3   (post-cut 0.0)
+  Battery      RAW    126.9 mm3   (post-cut 0.0)
+  ADXL375      RAW    457.0 mm3   (post-cut 0.0)
+  Piezo        RAW    117.5 mm3   (post-cut 0.0)
+  SmallParts   RAW    109.8 mm3   (allowance yields)
+  Knob(ref)    RAW      0.0 mm3  (clear)
+  component-vs-component clashes  (ADXL clipped to its real Z<=25.3):
+    none
+
+[M] MASS
+  sled (ABS, solid-equiv)    7376.0 mm3      7.7 g
+  + fasteners: 2x M2.5 (BMP388 aft pair), 4x M2.5 (ADXL), 2x M2 (piezo breakout),
+               2x M2 (SG90 ears, axial); Nano = strap, no screws; 1x JST-PH pigtail
+
+[N] NOTES / OPEN
+  * RETENTION:
+      screw-down  BMP388  -- aft hole pair, boss on the inboard face, screw from
+                             OUTBOARD (4.4 to ID, countersunk); fwd pair = rails
+                             over the servo top
+                  ADXL375 -- 4 bosses on the +y face, screw head on the -y side
+                  Piezo breakout -- 2 bosses, screw from the radial-INBOARD side
+                             (nothing added by the sound port / skin)
+                  SG90 ears -- 2 axial screws from the +Z side into aft bosses
+      strap       Nano (1.21 to ID) -- rails + 0.6 lip + Kapton; its 4 holes get
+                             inboard dimples for optional shear pins, no retention load
+                  Piezo can (1.18) -- nested + strap over the 11 mm can
+      tray        Battery -- inboard-open U-channel + 0.6 lip + JST-PH pigtail (swap)
+  * hole PATTERNS are still ASSUMED (NANO_HOLE_P* / BMP_HOLE_P* / ADXL_HOLE_P* /
+    PIEZO_HOLE_* / SERVO_TAB_*).  Topology + screw direction are now real; the boss
+    (x,z) centres move when the measured patterns land -- a constants-only edit.
+  * wall thickness after the pocket-clearance cut is not auto-checked -- eyeball the
+    thin walls (esp. the BMP388 rails over the servo) in CAD before printing.
+  * BMP388 rides over the servo top at 1.0 mm (Z 25.3..40) -- under the 1.5 design gap.
+  * ADXL is 26 mm; 25.3 mm clear before the servo -> trim the PCB edge or clock the
+    Qwiic stub 0.7 mm.  Pocket is modelled at 25.3.
+  * static port: north lobe at Z 12 is now Nano+BMP388.  Re-site the airframe port to
+    the EAST crescent ~Z 12 (fin gap); baro only needs shared air (cassette [S]).
+  * small-parts = ~14 g allowance in an open shelf; measure S7V8F5 / microSD rdr /
+    C1 / SW1 / SW2 for real before this is frozen.
+  * NOT modelled yet: sled-to-anchor-coupler (fwd) and sled-to-aft-closure (aft)
+    registration; static-port vent path; print orientation / support / split.
+
+[E] EXPORT
+  PhoenixABS40-43_avbay_ElectronicsSled_v1 .step + .stl
+  sled_ASSEMBLY_v1.stl  (sled + component envelopes, flight position)

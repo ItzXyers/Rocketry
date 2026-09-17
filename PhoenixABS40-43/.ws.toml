@@ -1,0 +1,22 @@
+# ws workspace layout — managed by ws
+# x/y = top-left corner,  w/h = size,  all as fractions of the work area (0.0-1.0)
+# Per-terminal options:  dir = "C:\\path"  cmd = "npm start"  profile = "WSL"
+
+# [defaults] — what 'ws go' / 'ws cmd' mean here without flags
+[defaults]
+editor = false
+terminals = 2
+activate = true
+
+# [run] — commands auto-run in each terminal for this directory subtree
+[run]
+on_go = ["claude"]
+on_go_once = ["Start-Process \"C:\\Users\\dick_\\AppData\\Local\\Programs\\FreeCAD 1.1\\bin\\freecad.exe\"█"]
+on_cmd = ["claude"]
+
+[layout]
+vscode       = { x = 0.50, y = 0.50, w = 0.50, h = 0.50 }
+terminal1    = { x = 0.00, y = 0.00, w = 0.50, h = 0.50 }
+terminal2    = { x = 0.50, y = 0.00, w = 0.50, h = 0.50 }
+terminal3    = { x = 0.00, y = 0.50, w = 0.50, h = 0.50 }
+

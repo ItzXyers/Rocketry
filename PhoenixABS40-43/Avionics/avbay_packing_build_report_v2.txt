@@ -1,0 +1,124 @@
+PHOENIX ABS 40-43   AVIONICS BAY PACKING   BUILD REPORT  v2   (servo aligned to the ejection knob)
+document : PhoenixABS40-43_avbay_packing_v2.FCStd     supersedes v1 (free/aft servo)
+companion: Avionics/avionics_bay_packing_40mm.md  section 8
+
+KNOB INTERFACE  (from Models/PhoenixABS40-43_ejection_poc_v1.FCStd)
+------------------------------------------------------------------------------
+  knob rotation axis   X = -8.00 , Y = 0.00   (offset west, clears the DIA6 piston shaft)
+  knob D-flat (aft)    ejection-POC Z = -73.0
+  frame map            this_Z = ejectionPOC_Z + 121.0   ->  D-flat at this_Z = 48.0
+  servo output shaft   X = -8.00 , Y = 0.00 , axis || +Z         == knob axis, exactly
+  Ref_EjectionKnob / Ref_EjectionCage_nose / Ref_PistonShaft_armed = real POC solids, +121 Z
+
+SERVO POSITION  -- and why it is already as far forward as it can go
+------------------------------------------------------------------------------
+  Coaxial with an off-axis (X=-8) knob, the SG90's 22.7 mm body must lie on that
+  line at the FORWARD face, case toward the tube centre (X -14.0 .. +8.8), Z 25.3..48.
+  Clearances to the ejection hardware:
+     servo case  -> knob D-flat         0.00 mm  (abutting; coupler enters the knob)
+     servo case  -> cage nose           8.00 mm
+     servo stack -> piston shaft, ARMED 6.95 mm   <-- the gap the user asked about
+     servo stack -> piston shaft, FIRED 46.13 mm
+  The 6.95 mm ahead of the servo is the KNOB (Z 48..60.5); the piston's retracted
+  stub sits at Z 58 (POC Z-63 +121).  There is no usable pocket to move the servo
+  further forward on this axis.  Reclaiming length needs a 2:1 crank/link from an
+  off-axis servo to the knob crank pin (EJECTION_POC_DESIGN.md 10.3) -- a mechanism
+  change, out of scope here.
+
+  Servo torque path: the two SG90 mounting tabs (Comp_Servo_SG90_tab W/E) seat in
+  cradle pockets -- shelf under + fore/aft walls -- gap to sled 0.00 = captured.
+  They react the ~85 N.mm knob torque; without them the case would spin in the channel.
+
+PER-BODY ENVELOPE
+------------------------------------------------------------------------------
+body                        bbox dx.dy.dz      Zmin   Zmax    Rmax
+TubeStub_ID40_OD43          43.0.43.0.64.0     -3.0   61.0   21.50
+Comp_Servo_SG90             22.8.12.0.22.7     25.3   48.0   15.23
+Comp_Servo_SG90_coupler     5.0.5.0.4.0        48.0   52.0    5.50
+Comp_Servo_SG90_tabW        2.6.11.0.2.4       45.4   47.8   17.49
+Comp_Servo_SG90_tabE        2.6.11.0.2.4       45.4   47.8   12.66
+Comp_Battery_1S_620mAh      20.0.8.5.40.5       0.0   40.5   19.04
+Comp_Nano_ESP32             18.0.5.0.45.0       0.0   45.0   15.81
+Comp_BMP388_baro            18.0.5.0.24.4       0.0   24.4   11.10
+Comp_ADXL375_accel          18.0.5.0.24.4       0.0   24.4   11.10
+Comp_USB_Charger_BQ25302    5.0.14.4.23.0       0.0   23.0   16.28
+Comp_SmallParts_Allowance   8.0.14.4.20.0       0.0   20.0   18.54
+Sled                        28.4.30.0.48.0      0.0   48.0   19.39
+AftClosure                  39.4.39.4.3.0      -3.0    0.0   19.70
+Ref_EjectionKnob            20.0.20.0.12.5     48.0   60.5   17.85
+
+CONTAINMENT  (Rmax vs 19.5 running / 20.0 ID)
+------------------------------------------------------------------------------
+  Comp_Servo_SG90             Rmax  15.23  to ID  4.77  OK
+  Comp_Servo_SG90_coupler     Rmax   5.50  to ID 14.50  OK
+  Comp_Servo_SG90_tabW        Rmax  17.49  to ID  2.51  OK
+  Comp_Servo_SG90_tabE        Rmax  12.66  to ID  7.34  OK
+  Comp_Battery_1S_620mAh      Rmax  19.04  to ID  0.96  TIGHT (<1.5 to ID)
+  Comp_Nano_ESP32             Rmax  15.81  to ID  4.19  OK
+  Comp_BMP388_baro            Rmax  11.10  to ID  8.90  OK
+  Comp_ADXL375_accel          Rmax  11.10  to ID  8.90  OK
+  Comp_USB_Charger_BQ25302    Rmax  16.28  to ID  3.72  OK
+  Comp_SmallParts_Allowance   Rmax  18.54  to ID  1.46  TIGHT (<1.5 to ID)
+  Sled                        Rmax  19.39  to ID  0.61  TIGHT (<1.5 to ID)
+  AftClosure                  Rmax  19.70  to ID  0.30  past 19.5, inside ID
+  Battery-flat corner R19.0 (~1 mm to ID) and its channel walls R19.4 are the binding
+  clearance -- the SAME finding as v1's lobe pack, slightly tighter.  AftClosure R19.7
+  is a press disc.  Retention on the flat battery must add nothing on the outboard face.
+
+INTERFERENCE  (common() mm^3, >1 = clash)
+------------------------------------------------------------------------------
+  clashes: 0   coincident-face touches: 0
+
+MIN GAPS
+------------------------------------------------------------------------------
+  Comp_Servo_SG90             <-> Comp_Nano_ESP32           2.00
+  Comp_Servo_SG90             <-> Comp_Battery_1S_620mAh    1.70
+  Comp_Servo_SG90             <-> Comp_BMP388_baro          0.90
+  Comp_Nano_ESP32             <-> Comp_BMP388_baro          1.50
+  Comp_Battery_1S_620mAh      <-> Comp_ADXL375_accel        1.20
+  Comp_USB_Charger_BQ25302    <-> Comp_ADXL375_accel        0.50  <- both dims ESTIMATED; 0.5 is inside the dimensional uncertainty
+
+LENGTHS  (same accounting for v1 and v2)
+------------------------------------------------------------------------------
+  component zone        Z 0.0 .. 48.0  = 48.0 mm
+  aft closure                                 3.0 mm
+  aft service allowance (harness loop)        3.0 mm
+  forward bulkhead      none -- servo case abuts the ejection knob
+  COMPLETE BAY                              = 54.0 mm
+
+  vs v1 (free servo, same accounting):  zone 45 -> 48  (+3 mm)
+                                        fwd bulkhead 3 -> 0  (-3 mm)
+                                        COMPLETE BAY 54 -> 54  (length-neutral)
+  The real cost of aligning to the knob is not length: it is the Nano and battery
+  going FLAT on the wall (battery corner clearance 2.7 -> 1.0 mm), and the servo
+  torque now carried by the cradle pockets.
+
+MASS
+------------------------------------------------------------------------------
+  Comp_Servo_SG90                9.0 g  SG90 22.8x12x22.7; output shaft on knob axis (-8,0) || +Z; case toward tube centre; cable exits aft
+  Comp_Servo_SG90_coupler        0.0 g  spline + printed D-flat coupler into the knob (mass folded into the servo)
+  Comp_Servo_SG90_tabW           0.0 g  SG90 mounting tab -- reacts the ~85 N.mm knob torque into the cradle pocket
+  Comp_Servo_SG90_tabE           0.0 g  SG90 mounting tab -- torque path (pocket + screw)
+  Comp_Battery_1S_620mAh        12.5 g  EEMB LP852040 40.5x20x8.5 -- FLAT, south wall; worst corner ~R19.0 (TIGHT, ~1 mm to ID)
+  Comp_Nano_ESP32                5.0 g  ABX00083 45x18x5 -- FLAT, north wall (servo displaced it from the lobe)
+  Comp_BMP388_baro               2.5 g  ~25x18x5 flat, aft, N of axis (est. dims)
+  Comp_ADXL375_accel             2.0 g  25.4x17.8x5 flat, aft, S of axis
+  Comp_USB_Charger_BQ25302       2.0 g  ~23x15x5 on edge, west crescent (est. dims)
+  Comp_SmallParts_Allowance     14.0 g  S7V8F5 + microSD rdr + buzzer + C1 + 2N7000 + reed + SW1/SW2 + wiring (west crescent also spare)
+  ELECTRONICS TOTAL             47.0 g
+  Sled (computed)                2.8 g  printed ABS 2675 mm^3 -- NOT 'electronics'
+  AftClosure (computed)          3.8 g
+  DESIGN.md 7.11 budgets 30 g (FC+batt+wiring+servo) -> this set ~17 g over (logging FC)
+
+MODEL SIMPLIFICATIONS
+------------------------------------------------------------------------------
+  * Comp_* are bounding solids; SG90 case boxed at 22.8x12x22.7 + two tab flanges.
+  * SmallParts_Allowance = one 14 g block (regulator, microSD rdr, buzzer, C1, 2N7000,
+    reed, SW1/SW2, wiring); the west crescent is spare volume for it too.
+  * charger / BMP388 breakout / buzzer / C1 / switch dims ESTIMATED -- the 0.5 mm
+    charger<->ADXL gap is within that uncertainty; measure before a printed sled.
+  * Sled is a concept cradle+channel: tab pockets modeled, but no fastener bosses,
+    no aft-closure register, no strain reliefs.
+  * radial static port and the USB-C / microSD / buzzer wall cut-outs not modeled.
+  * knob axis assumed to share the packing frame's +X; if the ejection module clocks
+    the other way, mirror the servo to X = +8.

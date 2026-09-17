@@ -1,0 +1,200 @@
+================================================================================
+Phoenix ABS 40-43 -- ejection POC, sliding-catch v1
+================================================================================
+
+mechanism:  knob 0..180 deg  ->  crank pin swings  ->  slider moves 6.0 mm
+  ARMED phi 0   : crank pin at x -5.00  (dead centre)  notch over the collar
+  FIRED phi 180 : crank pin at x -11.00  (dead centre)  notch cleared
+  catch: pinned CatchCollar, top face Z -56.0 = the slider underside; the shaft
+         is d6 SOLID (one d1.5 collar-pin cross-hole); PistonHead + Shaft REJOINED (rev e)
+  cocking stop: collar underside Z -60.0 onto the ledge shelf Z -61.0 = 1.0 mm
+
+[1] build + heal
+  heal TubeStub      faces  15 ->  15, solids 1,   30115.1 mm3
+  heal Cage          faces  86 ->  81, solids 1,   20673.0 mm3
+  heal BulkheadDisc  faces  20 ->  20, solids 1,    8956.4 mm3
+  heal PistonShaft   faces  13 ->  13, solids 1,   12801.1 mm3
+  heal Slider        faces  22 ->  20, solids 1,     390.8 mm3
+  heal CatchCollar   faces   8 ->   7, solids 1,     106.8 mm3
+  heal Knob          faces  28 ->  28, solids 1,    2379.9 mm3
+  heal DummyNose     faces  18 ->  18, solids 1,   19847.0 mm3
+
+[2] mass + envelope
+  TubeStub      30115.1 mm3   31.62 g   R  21.5   Z   -79.0 ..   92.0
+  Cage          20673.0 mm3   21.71 g   R  19.8   Z   -67.0 ..   -3.3
+  BulkheadDisc   8956.4 mm3    9.40 g   R  19.8   Z    -8.0 ..    0.0
+  PistonShaft   12801.1 mm3   13.44 g   R  19.0   Z   -63.0 ..   57.0
+  Slider          390.8 mm3    0.41 g   R  13.3   Z   -56.0 ..  -52.0
+  CatchCollar     106.8 mm3    0.11 g   R   4.5   Z   -60.0 ..  -56.0
+  Knob           2379.9 mm3    2.50 g   R  18.0   Z   -75.0 ..  -62.5
+  DummyNose     19847.0 mm3   20.84 g   R  19.5   Z    67.0 ..  100.0
+  mechanism printed subtotal   47.57 g  (+ d3 crank pin, R-clip, 3x M3, spring)
+
+[0] CONTAINMENT -- fits the d40 bore
+  TubeStub     R_max  21.50   (airframe -- exempt)
+  Cage         R_max  19.75  <= 19.9   PASS
+  BulkheadDisc R_max  19.75  <= 19.9   PASS
+  PistonShaft  R_max  19.00  <= 19.5   PASS
+  Slider       R_max  13.34  <= 19.5   PASS
+  CatchCollar  R_max   4.50  <= 19.5   PASS
+  Knob         R_max  18.00  <= 19.5   PASS
+  DummyNose    R_max  19.50  <= 19.9   PASS
+  slider+knob swept 0..180 deg   R_max  19.24 at 180 deg  <= 19.5   PASS
+  servo keepout R_corner 18.27  Z -94.7..-72.0  <= 19.5   PASS
+
+[3] watertight
+  TubeStub       1888 facets  err 0.051%  open 0  PASS
+  Cage           5582 facets  err 0.073%  open 0  PASS
+  BulkheadDisc   2712 facets  err 0.089%  open 0  PASS
+  PistonShaft    3922 facets  err 0.117%  open 0  PASS
+  Slider          156 facets  err 0.021%  open 0  PASS
+  CatchCollar    1040 facets  err 0.095%  open 0  PASS
+  Knob           1982 facets  err 0.083%  open 0  PASS
+  DummyNose      3386 facets  err 0.100%  open 0  PASS
+
+[4] spring fit + shaft guide + ASSEMBLY
+  cocked spring (free coils) clear of disc + cage     0.00 mm3  PASS
+  cocked spring (free coils) clear of head + shaft    0.00 mm3  PASS
+  d6 shaft vs assumed spring ID >= 7.2    PASS
+  cocked: shaft engaged in disc bore  8.0 mm   PASS
+  fired : shaft engaged in disc bore  8.0 mm   PASS
+  nothing on the shaft below Z -8 fouls the d6.8 bore (slide-on)    0.00 mm3  PASS
+  leg peg present  24.7 mm3 ; disc hole open  0.00 mm3 ; locating fit +0.20 mm dia   PASS
+
+[F] FDM FIT GAPS -- arithmetic on the clearance block, no booleans
+    a boolean .common().Volume reads 0 mm3 for a 0.00 mm gap AND a 0.50 mm
+    gap, so every check below [5]/[7] passed on v1's jammed parts. THIS is
+    the check that a fit is loose enough to actually go together / move.
+  slider top under the lip        +0.50 mm   >= 0.50      PASS
+  slider each side vs the rails   +0.25 mm   >= 0.25      PASS
+  d6 shaft in the disc bore  rad  +0.40 mm   >= 0.40      PASS
+  knob shaft in the journal  rad  +0.40 mm   >= 0.40      PASS
+  RBF pin in knob + carrier  rad  +0.25 mm   >= 0.25      PASS
+  locating peg in disc hole  dia  +0.20 mm   0.10..0.40   PASS
+  disc OD to the tube bore   rad  +0.25 mm   >= 0.25      PASS
+  crank pin in the drive slot  X  +0.40 mm   >= 0.20      PASS
+  U-notch round the d6 shaft rad  +0.40 mm   >= 0.40      PASS
+  collar in the ledge pocket  rad +0.40 mm   >= 0.40      PASS
+  collar under the plate bore rad +0.40 mm   >= 0.40      PASS
+  crank pin sweep in the ledge    +0.40 mm   >= 0.40      PASS
+  collar D-flat vs the pin sweep  +0.40 mm   >= 0.40      PASS
+  slider -Y web at the notch      +1.40 mm   >= 1.20      PASS
+  knob spigot in its counterbore  +0.40 mm   >= 0.40      PASS
+  collar CLAMP on the shaft  dia +0.10 mm   -0.15..0.15  PASS
+  collar pin fit in its hole  dia +0.05 mm   -0.02..0.07  PASS
+  collar pin end in the ledge pocket +0.60 mm   >= 0.40      PASS
+  cbore-root fillet peak vs spring +0.60 mm   >= 0.00      PASS
+  spring-seat land vs the d6 shaft +2.75 mm   >= 1.20      PASS
+  --> all fit gaps PASS ; thinnest running gap 0.25 mm (slider each side vs the rails) -- scrape/sand
+      there first if a part still binds
+
+[T] THIN FEATURES -- solid thinner than one NOZZLE_W (0.4 mm) does not print
+    [F] checks gaps BETWEEN parts; [T] checks thin solid INSIDE one part -- the
+    class that silently dropped the collar's 0.25 mm locating rib (now deleted).
+    NB these rows are NAMED features, not a general scan: each is tied to live
+    constants (so a bad edit fails it) but a NEW thin feature elsewhere is not
+    caught until it gets a row here.
+  collar wall at the D-flat (y=0)   -0.05 mm  vs 0.4   FAIL (ACCEPTED -- see below)
+      -> the collar prints as a C, not a D.  ACCEPTED and can't be fixed in this layout: the flat is pinned at exactly CL_ROT off the crank-pin sweep and the d6.1 bore can't shrink.  Harmless now the load goes through the PIN, not a bond arc (that -X side is inside the notch anyway).  Do NOT read this FAIL as a regression.
+  collar wall around the pin hole   +1.23 mm  vs 0.4   PASS
+  DummyNose drag band relief        +0.80 mm  vs 0.4   PASS
+  disc rim wall at the peg holes    +0.55 mm  vs 0.4   thin -- fragile
+      -> 10.12 -- prints, but fragile.  If a peg hole splits on assembly, pull LEG_RC in 0.5.
+  hub core solid: counterbore floor Z 42.5 -> tether hole   100% solid   PASS
+
+[5] the catch -- slider rim on the CatchCollar top face  (6.14)
+  ARMED: collar-top bearing on the notch rim  11.69 mm2   PASS
+  ARMED: bearing stress 2.91 MPa  vs ~40                PASS
+  FIRED: collar footprint still on the slider  0.000 mm3   PASS
+  FIRED: nearest slider material r 5.250  vs collar r 4.5  margin +0.75 mm   PASS
+  reaction PLATE above the slider  2834.2 mm3   PASS  (v1 reacted into a 2 mm lip)
+  slider seating on the cage 59.5 of 184.5 mm2 ; support centroid Y +4.16 vs +1.35
+  unloaded droop at the notch 0.62 mm  vs the 1.00 mm cocking gap   PASS
+  cocking stop: collar on the ledge shelf 21.56 mm2 -> 1.58 MPa   PASS
+  collar PIN d1.5: double-shear 3.5 mm2 -> 9.62 MPa  vs ~30 for ABS   PASS
+  collar PIN bearing: 3.8 MPa on the shaft hole, 7.8 MPa on the halves  vs ~40   PASS
+  FIRED slider vs bulkhead (rails/ledge only, small)     0.0 mm3  PASS
+
+[5b] LOAD DIRECTION -- does the catch resist the way the spring pushes?  (6.14)
+     The spring drives the piston and shaft +Z.  A face that only reacts -Z
+     holds nothing: the shaft lifts straight off it.  v1 reacted -Z.
+  free +Z travel from ARMED, incl. 0.05 mm pin slack  0.075 mm  <= 0.10   PASS
+     (0.10 is a TRIPWIRE for a wrong-side catch -- the defect it guards was
+      2.05 mm.  The impact DAF rides on COLLAR_COCK_GAP (1.0 mm), not this;
+      a hole reamed 0.05 mm loose reads ~0.12 here and changes nothing real.)
+  cocking overpress is BOUNDED by the stop: 1.00 mm max (design, not operator)
+  fixed cage ABOVE the slider (takes the +Z load)  2884.0 mm3  = the reaction PLATE
+  fixed cage BELOW the slider (slider shelf + stop)  3809.1 mm3
+  worst case: 1.00 mm drop onto the slider, shaft stretch 0.029 mm -> DAF 9.4
+      d6 shaft GROSS tension 1.20 MPa x 9.4 = 11.3 MPa  (above the pin)
+      d6 shaft NET at the d1.5 pin hole 1.78 MPa x DAF 9.4 x Kt 2.0 = 33.4 MPa vs ~40 in-plane   PASS
+      (the DAF is a RIGID drop -- it ignores slider + plate bending, which are
+       far more compliant than the shaft and take most of the impact; realistic
+       margin at the pin hole is ~3x.  Cure: a d6 CF rod (10.2) -- ~50x.)
+  side-load to break at the counterbore root (L 106 mm):  8.0 N AXIAL / 4.0 N shaft-up
+  side-load to break at the d1.5 pin hole  (L 111 mm, net Z conservative):  2.1 N AXIAL / 1.1 N shaft-up
+      -> 2.1 N is the handling limit (careless knock, not an operating load)   WEAK -- finding 4: handle the piston by the head, gently; a d6 CF rod down the finished head (10.2) is the robust fix
+
+[6] crank -- pin in the slot, dead centres, effort
+  crank pin stays in the slot over 0..180 deg   0/37 out   PASS
+  ARMED & FIRED are crank dead centres (dX/dphi = 0)  ->  hold is geometric   PASS
+  slide friction 6.8 N  ->  knob torque ~20 N.mm  ->  finger 2.0 N   PASS
+  SG90 147 N.mm  ->  7.2x headroom, 180 deg sweep (add a 2:1 arm if the servo won't)
+
+[7] collisions (parts in place)
+  piston disc sweep vs cage                   0.0 mm3   PASS
+  piston disc sweep vs the fixed bulkhead disc      0.0 mm3   PASS
+  ARMED slider vs shaft                       0.0 mm3   PASS
+  FIRED knob vs cage                          0.0 mm3   PASS
+  knob shaft vs piston shaft (both frames)      0.0 mm3   PASS
+  shaft vs cage (ARMED)                       0.0 mm3   PASS
+  PistonShaft swept 0..40 vs cage + disc      0.0 mm3   PASS
+  PistonShaft swept 0..40 vs cage             0.0 mm3   PASS
+  PistonShaft swept 0..40 vs disc             0.0 mm3   PASS
+  COLLAR swept 0..40 vs cage                  0.0 mm3   PASS
+  COLLAR swept 0..40 vs disc                  0.0 mm3   PASS
+  CRANK PIN swept vs cage                     0.0 mm3   PASS
+  CRANK PIN swept vs collar                   0.0 mm3   PASS
+  CRANK PIN swept vs piston shaft             0.0 mm3   PASS
+  CRANK PIN engages the slider slot          24.7 mm3   PASS
+
+[8] RBF -- R-clip through knob + carrier locks the knob
+  ARMED clip passes the knob hole   0.00 mm3   PASS
+  knob turned 30 deg: clip fouls the knob   33.24 mm3   PASS
+  RBF hole is drilled through SOLID carrier  82.1 of  94.2 mm3   PASS
+
+[P] printed pins vs the pins this script MODELS  (two files, one geometry)
+  CRANK_LEN  18.5 mm  needs 18.5 (PIN_TOP_Z - PIN_BOT_Z)   PASS
+  RBF_LEN    16.0 mm  needs >= 16.0 (knob bottom -> carrier top + 3)   PASS
+  CRANK_D    3.0 mm  needs 3.0 (2 x CRANK_PIN_R)   PASS
+  COLLAR_LEN 8.6 mm  needs 8.6 (2 x COLLAR_R - 0.4)   PASS
+  COLLAR_D   1.5 mm  needs 1.5 (2 x COLLAR_PIN_R)   PASS
+
+[9] features present (non-vacuous)
+  window cut                                   PASS
+  access slot cut                              PASS
+  slider U-notch open                          PASS
+  crank slot open                              PASS
+  shaft d6, OD unbroken + ONLY the d1.5 pin hole (min OD d6.00, solid-vs-want +0.003% ; band +-0.1% inside the 0.39% pin hole) PASS
+    -> net section modulus at the pin hole 56% of gross (d1.5, conservative slot) PASS
+  collar halves are IDENTICAL, not mirrored    PASS
+
+[10] export
+  TubeStub     step + stl + ready-to-print  (vertical as-is, brim, no supports)
+  Cage         step + stl + ready-to-print  (carrier end on the bed, legs up; light tree-support the ledge overhang)
+  BulkheadDisc step + stl + ready-to-print  (flat, seat face down, no supports)
+  PistonShaft  step + stl + ready-to-print  (AXIAL -- laid horizontal so the perimeters run ALONG the shaft (bending in-plane ~40 MPa vs ~20 interlayer, ~2x -- [5b]).  The d38 head disc then prints EDGE-ON: support its lower ~third and the sideways-facing d11.5 spring pocket; the counterbore-root fillet bridges.  Brim.  Expect 0.2-0.4 mm sag/elephant-foot on the shaft (0.4 mm bore clearance) -- sand it round, and ream the d1.5 collar-pin cross-hole (it prints egg-shaped as an unsupported side hole, and it is the pin's bearing surface).  Printed ALONE (~117 mm), NOT on the plate.  (A d6 CF rod epoxied down the finished head is the robust upgrade -- 10.2.))
+  Slider       step + stl + ready-to-print  (flat on the bed as-is, no supports)
+  CatchCollar  step + stl + ready-to-print  (ASSEMBLY REFERENCE ONLY -- no Ready-to-Print STL (a d9 ring cannot go onto a shaft that must thread the d6.8 bulkhead bore). Print CatchCollarHalf x2: FLAT as exported, 4.0 mm tall, curved face up, split face VERTICAL, no supports. Do not stand it on the split face -- that face mates the other half and the d1.5 pin crosses it; the load-bearing TOP face wants to print clean too. As exported they print as smooth perimeter walls; on the bed they would get elephant's foot. Ream the pin hole after printing.)
+  Knob         step + stl + ready-to-print  (grip face on the bed, D-flat up)
+  DummyNose    step + stl + ready-to-print  (base on the bed, tip up)
+
+[11] print plate  (Ejection System/Print Plate/ -- GENERATED, was hand-made)
+  pins imported from ejection_poc_test_pins.py: 3 crank (d3.0 x 18.5) + 2 RBF (d2.0 x 16.0) + 2 collar (d1.5 x 8.6)
+  8 objects: Cage, BulkheadDisc, DummyNose, Knob, TestPins, Slider, CatchCollarHalf_B, CatchCollarHalf_A
+  footprint 182.0 x 78.4 mm on a 220 x 220 bed   PASS
+  tallest object on the plate 63.7 mm   (TubeStub ~171 mm and PistonShaft ~117 mm axial are deliberately NOT on it -- print those two alone)
+  no two objects overlap   worst 0.000 mm3    PASS
+  tightest XY gap 12.00 mm  >= 12.0 (brim room) (DummyNose / Knob)   PASS
+  3MF readback: 8 objects, 8 build items, 0 bad triangle indices   PASS
+  wrote plate_v1.3mf + .stl

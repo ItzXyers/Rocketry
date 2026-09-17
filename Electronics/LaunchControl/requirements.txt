@@ -1,0 +1,12 @@
+Flask>=3.0,<4
+gpiozero>=2.0,<3
+requests>=2.31,<3
+waitress>=3.0,<4
+
+# gpiozero's hardware backend on Raspberry Pi OS Bookworm. NOT installable
+# via pip on non-Pi hardware -- install via apt on the Pi instead:
+#   sudo apt install python3-lgpio
+# and leave it out of this venv's pip install on any other machine (e.g.
+# running tests/ on a dev laptop, which uses gpiozero's mock pin factory
+# instead and never touches lgpio).
+# lgpio

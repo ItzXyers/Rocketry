@@ -1,0 +1,111 @@
+================================================================================
+Phoenix ABS 40-43 -- avionics bay SERVICEABLE CASSETTE  v1
+================================================================================
+
+frame: avbay_packing_build_report_v2.txt  (Z=0 aft of the component zone, +Z to nose)
+joint: transverse BENCH-service joint at Z 62.0  (~station 181, DESIGN.md 7.8)
+       opened for service only -- flight recovery separates at the NOSE (7.5)
+cassette leaves as one: anchor coupler + cage + knob + servo + sled + electronics
+       + aft closure ; the servo-to-knob coupler is never broken
+
+[1] build + heal
+  heal SvcRetentionBand faces  11 ->  11, solids 1,     3624.3 mm3
+  heal SvcAnchorCoupler faces  19 ->  19, solids 1,    20204.6 mm3
+  heal SvcAftClosure    faces  12 ->  12, solids 1,     3467.1 mm3
+  heal SvcBatteryTray   faces  16 ->  16, solids 1,     1341.4 mm3
+
+[2] mass + envelope  (flight parts; ref bodies are bounding solids, not parts)
+  SvcRetentionBand    3624.3 mm3    3.81 g   R 21.50   Z    62.0 ..   77.0
+  SvcAnchorCoupler   20204.6 mm3   21.21 g   R 19.40   Z    56.0 ..   74.0
+  SvcAftClosure       3467.1 mm3    3.64 g   R 19.00   Z    -6.0 ..    0.0
+  SvcBatteryTray      1341.4 mm3    1.41 g   R 19.39   Z    -0.8 ..   41.3
+  serviceable-cassette printed additions subtotal   30.07 g
+  (+ 3x M3 screws, 1x JST-PH pigtail -- the only bought hardware this adds)
+
+[0] CONTAINMENT
+  SvcRetentionBand R_max  21.50  <= 21.55   PASS  (flush with the skin -- the aft-section wall, thickened inward to r19.6)
+  SvcAnchorCoupler R_max  19.40  <= 19.90   PASS  
+  SvcAftClosure    R_max  19.00  <= 19.90   PASS  
+  SvcBatteryTray   R_max  19.39  <= 19.44   PASS  (in the sled's radial shadow)
+  Env_Sled         R_max  19.39  <= 20.00   PASS  (v2 pack envelope)
+  Env_Battery      R_max  19.04  <= 20.00   PASS  (v2 pack envelope)
+  Env_Knob         R_max  17.99  <= 20.00   PASS  (v2 pack envelope)
+
+[E] EXTRACTION SWEEP -- does the cassette actually slide out?
+    the whole point of the exercise.  A static .common() at one position
+    reads 0 mm3 for a 0.00 mm gap AND a 0.50 mm gap (ejection POC 6.11), so
+    this does BOTH: a swept boolean for hard interference, and arithmetic on
+    the radial profile for the actual running clearance.
+  swept boolean: worst cassette-vs-fixed interference 0.000 mm3 at +0.0 mm   PASS
+  running clearance: min +0.20 mm  (cassette r 19.40 vs band r 19.60 at world Z 69.3, +0.0 mm)
+  of which, the SLED dragging through the band on the way out: +0.20 mm
+  PASS   <-- TIGHT (< 0.5 mm)
+      the register fit (0.20) is CL_REG by design; the sled pass-through (0.20) is
+      the same tightness the v2 pack already has to the bore -- the real fix is a
+      shorter flight-computer board (packing md section 7), not a fatter band.
+  note: the v2 aft closure at r19.70 would foul the band by 0.10 mm -- hence r19.00 + spigot
+
+[R] RETENTION LOAD PATH -- 3x M3 radial, band <-> anchor coupler
+    >>> OPEN.  RECOVERY_SNATCH_N = 250 N is a PLACEHOLDER for the wrong-event
+    >>> reason as much as the wrong-number one: the governing load is the EJECTION
+    >>> snatch (~5.1 m/s separation arrested over the shock cord, 7.5) -- a few
+    >>> hundred N -- not canopy opening shock (~10-30 N).  Needs F_max (7.3) then
+    >>> a packed drop (7.9 test 4).  If it lands high the flush band is marginal
+    >>> and the 3-lug BAYONET is the answer, not a fallback.
+  screw bearing on the band wall  19.4 mm2  ->  12.90 MPa  vs 40  OPEN
+  screw shank shear (A2 steel)    27.2 mm2  ->  9.18 MPa  vs 250  OPEN
+  edge distance screw <-> tube cut  7.0 mm  = 2.3 x d   PASS (>= 2d)
+  band wall for the screw          1.9 mm  (vs a bare 1.5 mm tube wall)   THIN
+  ALT if [R] fails once measured: 3-lug bayonet ring (spreads the load round the
+  full circumference, no radial holes) -- costs ~4 mm of length.  See packing md 9.
+
+[K] CLOCKING -- one key, so the cassette re-indexes to one orientation
+  aft-closure key is a real solid   21.0 mm3   PASS
+  key <-> motor-bulkhead slot fit   +0.30 mm/face  (CL_KEY)   PASS
+  fwd register is plain round (no 2nd clock)   dR 0.00 mm   PASS
+  the 3 screw holes are MATCH-DRILLED at first build so they cannot fight the key
+  wall ports that must re-index: static port Z 12 (N lobe) ; USB-C Z 10 ; microSD Z 10
+  witness marks: paint a line across the band index notch and the fwd-tube seam
+
+[S] STATIC PORT -- plain hole, shared air, no obstruction
+  wall inner face at the port stays at r20.0 (no inward boss)   PASS
+  north lobe at Z 12 is open to the port  (cassette fills 504.0 of 864.0 mm3)   PASS
+
+[B] BATTERY SWAP -- JST pigtail + inboard-open pocket
+  tray R_max 19.39  <= sled r 19.39  (nothing added outboard of the cell)   PASS
+  inboard face of the pocket is open (0.0 mm3 of wall across it)   PASS
+  cell clears the tray on a straight inboard lift  (foul 0.0 mm3)   PASS
+  outboard lip retains the cell in flight  (483.5 mm3 of lip)   PASS
+  JST pigtail exit slot is open   (0.0 mm3 of wall left in the slot)   PASS
+  recharge-in-place still works with NO disassembly: USB-C slot + BQ25302 (packing md 5)
+
+[9] features present (non-vacuous)
+  band M3 hole open                PASS
+  anchor d6.8 bore open            PASS
+  anchor spring seat cut           PASS
+  aft-closure spigot present       PASS
+  battery pocket hollow            PASS
+  tray outboard face is just a lip PASS
+
+[10] export
+  SvcRetentionBand -> Models/PhoenixABS40-43_avbay_SvcRetentionBand_v1.step + .stl
+  SvcAnchorCoupler -> Models/PhoenixABS40-43_avbay_SvcAnchorCoupler_v1.step + .stl
+  SvcAftClosure    -> Models/PhoenixABS40-43_avbay_SvcAftClosure_v1.step + .stl
+  SvcBatteryTray   -> Models/PhoenixABS40-43_avbay_SvcBatteryTray_v1.step + .stl
+
+[A] assembly STL  (everything in flight position, packing frame)
+  9 bodies  bbox 43.0 x 43.0 x 88.0 mm  Z -11.0 .. 77.0
+  full       3798 facets -> Models/PhoenixABS40-43_avbay_cassette_ASSEMBLY_v1.stl
+  section    2148 facets -> Models/PhoenixABS40-43_avbay_cassette_ASSEMBLY_section_v1.stl  (cut at Y=0, battery side kept)
+  FCStd -> Avionics/PhoenixABS40-43_avbay_cassette_v1.FCStd
+
+SUMMARY
+  * recharge / SD / arm  : already external in the v2 pack -- no change, no disassembly
+  * battery SWAP         : JST pigtail + bonded pull-loop, pocket open inboard -> spare
+  * cassette removal     : split the bench joint, the fwd section lifts the whole
+                          stack out -- servo/knob coupler never breaks
+  * OPEN [R]             : the anchor bulkhead must be SCREWED not bonded (DESIGN.md
+                          7.5), and that joint's recovery-snatch capacity is
+                          UNVERIFIED until F_max (7.3) + a packed drop (7.9 t4)
+  * TIGHT [E]            : the retention band tightens the sled's radial fit to
+                          ~0.20 mm -- shorter FC board is the real fix

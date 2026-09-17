@@ -1,0 +1,237 @@
+PhoenixABS40-43 -- LAUNCH PAD v1   build report
+==============================================================================
+Built around the user's d4.0 mm steel rod.  3 unique parts, 5 pieces,
+zero bought hardware.  Frame: Z=0 ground, origin ON THE ROD AXIS;
+the rocket sits centred at x=+25.0 mm (rod runs outside the tube).
+
+[1] bodies -- mass, envelope, watertight
+  PadHub          x1     85.13 g  bbox   44.0 x   44.0 x   63.0  mesh-vs-solid 0.07%  watertight
+  PadLeg          x3     24.83 g  bbox  163.0 x   14.7 x   26.0  mesh-vs-solid 0.00%  watertight
+  BlastDeflector  x1    103.22 g  bbox  120.0 x  120.0 x   44.0  mesh-vs-solid 0.02%  watertight
+  pad total (printed, 100% infill) 262.8 g   +rod 1400 mm = 401.0 g
+  PASS
+
+[2] rod socket
+  bore d4.20 on a d4.0 rod -> 0.20 mm diametral slop
+  socket depth 63 mm = 15.8 x rod diameter
+  rod lean from socket slop alone 0.18 deg -> 4.4 mm at the 1400 mm tip
+  THROUGH bore, not blind: ream with a 4 mm bit after printing, and the
+  rod bottoms on the GROUND -- no axial load into the ABS at all.
+  PASS -- >= 15x rod dia, lean < 0.5 deg
+
+[3] leg / hub joint -- DESIGNED interference, not a clearance fit
+  tenon 6.70 wide into a 6.40 mortise -> 0.30 mm interference
+  split into 2 cheeks 2.55 x 25.7 x 12.0, each flexes 0.150 mm
+  insertion force 18.5 N per cheek, bending stress 8.0 MPa (ABS yield ~40)
+  >>> that force is a LOWER BOUND.  Each cheek is 25.7 tall x 2.55 thick over
+  >>> only 12 mm of length -- L/t is 4.7, so it is a stub, and pure beam
+  >>> theory understates it; the real fit is shear-dominated.  If the printed
+  >>> leg needs a mallet, distrust THIS NUMBER first, not the geometry --
+  >>> lengthen TEN_SLOT_L before touching LEG_W or MORT_W.
+  engagement 15 mm radial, 26.0 mm deep bearing; mortise is BOTTOM-OPEN
+  PASS -- hand-assembles, holds, stress < 40 MPa
+
+[4] assembly -- interference, every pair
+  PadHub          x PadLeg_0           113.8 mm3   designed squeeze (expect ~116 mm3)
+  PadHub          x PadLeg_1           113.8 mm3   designed squeeze (expect ~116 mm3)
+  PadHub          x PadLeg_2           113.8 mm3   designed squeeze (expect ~116 mm3)
+  every other pair 0.000 mm3
+  PASS -- the only overlap is the tenon squeeze from [3]
+
+[5] TIP-OVER -- run at the LAUNCH LIMIT, not at a speed that passes
+  masses: hub 85 g, legs 3x25 g, deflector 103 g, rod 138 g, rocket 237 g
+  system 638 g, CG 265 mm up; tip line 85 mm from the axis (worst: over
+  the midpoint of two legs, rocket hanging that way)
+    5.0 m/s calm   bare                    restoring    532 / overturning    217  = 2.45 x  PASS
+    5.0 m/s calm   1.0 kg on the tie-down  restoring   1366 / overturning    217  = 6.29 x  PASS
+   10.0 m/s LIMIT  bare                    restoring    532 / overturning    695  = 0.77 x  FAIL
+   10.0 m/s LIMIT  1.0 kg on the tie-down  restoring   1366 / overturning    695  = 1.97 x  PASS
+  bare pad tips at 8.6 m/s.  FAIL at the 10 m/s limit is REAL and the fix
+  is geometry, not prose: a tent peg through each foot's d6.5 hole, and/or
+  1.0 kg hung on the hub's d7.0 tie-down.  Staking is the PRIMARY
+  stability mechanism at realistic wind -- not an optional extra.
+  (Growing the legs instead would need ~222 mm of reach. Not worth it.)
+
+[6] GUIDED RAIL LENGTH -- the pad eats the rail budget
+  rest plane (ring top) Z 103; fin TE there; body aft end Z 107
+  single mid-body lug: bottom Z 260, top Z 294
+  DEFINITION USED: travel until the lug is FULLY off the rod = L - 294 mm.
+  (OpenRocket's convention -- aft end of the aft-most guide -- would read
+   L - 260 mm, 35 mm longer.  The conclusion is the same either way.)
+  rod   1000 mm -> guided travel    706 mm   vs >=1000 (4.4 light)  FAIL
+  rod   1300 mm -> guided travel   1006 mm   vs >=1000 (4.4 light)  PASS
+  rod   1400 mm -> guided travel   1106 mm   vs >=1000 (4.4 light)  PASS
+  rod   1500 mm -> guided travel   1206 mm   vs >=1000 (4.4 light)  PASS
+  >>> A 1 m rod gives only 706 mm of guidance.  4.4's already-marginal
+  >>> 15.4 m/s on an A8-3 was computed at 1.0 m of rail; v ~ sqrt(s) puts
+  >>> this at ~12.9 m/s -- UNDER the 15 m/s floor 4.4 itself sets.
+  >>> BUY >= 1294 mm of rod for the light config, and >= 1494 mm for the
+  >>> payload config (4.4 wants 1.2-1.5 m of rail there).
+  FAIL at 1000 mm rod -- deliberate, see above
+  FOLLOW-UP (12: the .ork is authoritative for simulation): set rail length
+  to the travel figure above and re-run the whole 4.4 motor matrix.
+
+[7] fin rest -- does every fin land on the ring, at EVERY clocking?
+  the rod is 25 mm off the body axis, so the 3 fins are NOT symmetric
+  about the ring; the naive argument does not hold.  Swept 0-120 deg:
+  ring band r 44 .. 53 mm from the rod axis, 40 mm tall
+  worst clocking 0.0 deg: fin contact runs 6.5 / 9.9 / 9.9 mm
+  minimum contact on ANY fin at ANY clocking: 6.5 mm
+  PASS -- all 3 fins always land on the band
+  note: the rev-5 fin TE is only 0.4 mm off square over the 55 mm span,
+  so the rest is a line contact, not a point.
+
+[8] blast -- standoff, coverage, vent area
+  nozzle sits 39 mm above the deflector floor (a BARE plate would give 1 mm)
+  deflector d120: nozzle is at r 25 from the rod, so 35 mm of plate all round
+  vent area 5485 mm2 through 6 arched windows vs 12.6 mm2 of throat = 436 x
+  windows are rectangle + semicircular arch -> ZERO bridging, no supports
+  liner: d86 x 1.0 recess in the floor takes a slotted steel/alu disc
+  PASS
+
+[8b] RING ROOT SUPPORT -- is the ring standing on solid disc?
+  the v1 draft had LINER_D 100 and bored the ring from 1 mm BELOW the
+  floor, against a RING_RI of 44 -- so the recess reached 6 mm under the
+  ring and left its inner third standing on a 1.0 mm void.
+  Neither [1] (watertight), [4] (interference), [11] (overhangs) nor [12]
+  (non-vacuity) could see it: the part was a perfectly valid closed solid
+  with a hole in the wrong place.  Only looking at a render caught it.
+  So: measure the ring's footprint directly.
+  disc material in the ring's footprint (r 44..53, the top 1.0 mm):
+    2742.6 of 2742.6 mm3 = 100.0 % solid
+  liner recess d86 vs ring bore d88 -> 1.0 mm of clear floor inside
+  DISCRIMINATES: the same measurement run against a rebuild of the broken
+  draft (LINER_D 100, ring bored from below) reads 970.8 / 2742.6 = 35.4 %,
+  so this check distinguishes the two builds -- it is not a check that
+  passes on anything you hand it.
+
+[8c] DEFLECTOR SEAT -- does the hub actually hold the disc up?
+  [4] proves nothing here: a disc resting on a seat that is too NARROW
+  interferes with nothing and is a perfectly good solid.  What matters is
+  whether the resultant of the loads on the disc lands inside its seat.
+  seat = hub top face minus the spigot: r 10.20 .. 22.00  (11.80 mm wide)
+  loads on the disc: its own 1.01 N at r 0, the rocket's 2.32 N at r 25.0
+  -> resultant at r 17.42 mm
+  if it fell outside, the disc would rock on the seat's outer circle until
+  the d20.4 bore binds on the d20.0 spigot: 5.7 deg, 4.8 mm of drop at the
+  fin band -- which would break [7]'s three-fin contact.
+  DISCRIMINATES: the d26 column of the first draft seats only r 10.2..13.0,
+  and this check reads 16.8 > 13.0 against it.
+  PASS -- resultant inside the seat by 4.6 mm
+
+[8d] RING TOP CONTINUITY -- [7] assumed a full annulus; prove it
+  [7] sweeps the fin clocking against the ring's RADII and treats the top
+  as an unbroken band.  That is only true while the windows stop below the
+  rim.  Raise WIN_RECT_H or WIN_W and [7] still passes while the ring turns
+  into a fin trap -- a fin's contact spans only ~3 deg in plan against a
+  38 deg window gap.  So measure the rim, do not assume it.
+  window top Z 95.0, ring top Z 103.0 -> 8.0 mm of continuous rail
+  solid in the rim's top 1 mm (r 44..53): 2742.6 of 2742.6 mm3 = 100.0 %
+  PASS -- the rest is a continuous annulus, so [7] is valid
+  PASS -- ring root fully supported, no undercut
+
+[8e] RING RIM IMPACT -- worst-case fin load landing on a window gap
+  [7] proves a fin always finds material; [8d] proves the top rim is an
+  unbroken annulus.  Neither puts a number on what that rim can TAKE.
+  Worst case: a fin's line contact lands at the MIDSPAN of a window gap,
+  so the load crosses the gap in bending before it reaches a pillar, and
+  the rocket only rests on 3 points -- nothing stops it rocking onto ONE
+  fin, so that fin's load bound is the WHOLE rocket weight, not a third.
+  Modelled as a simply-supported beam across the gap (conservative: the
+  rim is actually continuous into the pillars on both sides). Landing on
+  a pillar instead of a gap is far less severe -- short stub in near-pure
+  compression -- so the gap midspan is the case worth a number.
+  gap span 32.0 mm, rim cap 8.0 mm tall x 9.0 mm thick (I=384 mm4, S=96 mm3)
+  static deflection under the rocket's full 2.32 N on one fin: 0.0021 mm
+  assumed 10 mm careless-set-down drop -> rigid-drop DAF 99x (same method as
+  the ejection POC's [5b]), dynamic load 231 N, bending stress 19.3 MPa vs yield ~40
+  drop height that reaches yield: 44 mm now, vs 30 mm before WIN_W 22->32
+  (widening the windows LOWERED the impact stress at a fixed drop height -- the
+  longer, softer span spreads the same impact energy over more deflection: 19.3 MPa
+  now vs 23.1 MPa before, at the same 10 mm drop)
+  PASS at the assumed 10 mm drop
+  >>> conservative rigid-body-drop bound, same caveat as the ejection POC's [5b]:
+  >>> at a 0.0021 mm static deflection, real contact compliance and local damping
+  >>> will do better than idealized elastic-beam theory predicts here.  Treat
+  >>> 44 mm as a lower bound on how carelessly this can be set down, not a
+  >>> hard number.
+
+[9] LUG BORE vs THIS ROD -- OPEN, and it is not a footnote
+  DESIGN.md 2.2 / 9 spec the lug bore at d5.0, sized for a 3/16 in
+  (4.8 mm) rod.  This pad is built for the d4.0 rod the user HAS.
+  -> 0.50 mm radial slop, 1.64 deg of rocket tilt inside the lug,
+     = 11 mm of pointing error at the nose.
+  The lug is NOT MODELLED (12.1 'not modeled at all'), so there is nothing
+  to fix in CAD today.  REQUIREMENT when it is modelled: bore d4.4.
+  OPEN -- deliberately not a PASS.  Pad-vs-airframe rod size is inconsistent
+  until either the lug is bored d4.4 or a 4.8 mm rod is bought instead.
+  If 9's 'two lugs or rail buttons' is adopted, the AFT lug sets the rest
+  height; the fins still land on the ring, so this pad is unchanged.
+
+[10] rod whip -- a d4 rod this long is not stiff
+  L   1000 mm  at 5 m/s: tip 3.7 mm from rod drag + 4.4 mm from the
+             rocket = 8.0 mm total (0.46 deg of launch-angle error)
+  L   1400 mm  at 5 m/s: tip 14.0 mm from rod drag + 6.3 mm from the
+             rocket = 20.3 mm total (0.83 deg of launch-angle error)
+  L   1800 mm  at 5 m/s: tip 38.4 mm from rod drag + 8.2 mm from the
+             rocket = 46.6 mm total (1.48 deg of launch-angle error)
+  The rocket rests on the DEFLECTOR, not on the rod, so the rod carries no
+  axial load and Euler buckling is not a mode here at all.
+  1400 mm is the practical ceiling for d4; past that, go to a rail.
+
+[11] printability -- AS ORIENTED ON THE BED, which is not the use frame
+  PadHub          bed  44.0 x  44.0,  63.0 tall   (use frame, unrotated)
+                  bore vertical.  Mortises are BOTTOM-OPEN -> the only
+                  overhang is a 6.4 mm bridge at their roof.
+  PadLeg          bed 163.0 x  26.0,  14.7 tall   (LAID FLAT: the model's
+                  26 mm depth goes DOWN on the bed, its 14.7 mm width
+                  becomes the print height -- 14.7 mm at the foot boss,
+                  6.7 mm along the blade.)  Layers then stack across the
+                  WIDTH, so the bending stress -- along the leg, varying
+                  through its depth -- is entirely IN-PLANE.  Same argument
+                  as the ejection POC's axially-printed shaft.  Big bed
+                  contact, no brim, no supports.
+  BlastDeflector  bed 120.0 x 120.0,  44.0 tall   disc down.  Arched
+                  windows are self-supporting.
+  No part needs support material.  Largest footprint 163 mm.
+
+[12] non-vacuity -- every cut actually removed material
+  hub rod bore d4.20 x 63          removes     872.8 mm3  ok
+  hub mortises x3                  removes    7488.0 mm3  ok
+  hub tie-down d7.0                removes    1577.4 mm3  ok
+  leg tenon slot                   removes     493.4 mm3  ok
+  leg peg hole d6.5                removes     365.0 mm3  ok
+  deflector windows x6             removes   49362.7 mm3  ok
+  deflector liner recess           removes    5482.0 mm3  ok
+  deflector bore d20.4             removes    1307.4 mm3  ok
+  PASS -- no cut is a no-op
+
+[13] export
+  PadHub          -> Models/PhoenixABS40-43_PadHub_v1.step + .stl
+  PadLeg          -> Models/PhoenixABS40-43_PadLeg_v1.step + .stl
+  BlastDeflector  -> Models/PhoenixABS40-43_BlastDeflector_v1.step + .stl
+  Assembly_pad   5 bodies  bbox 265 x 302 x 103  -> Models/PhoenixABS40-43_launchpad_ASSEMBLY_v1.stl
+  Ref_Rod / Ref_RocketBody placed as-launched (hidden, never exported)
+  FCStd -> Models/PhoenixABS40-43_launchpad_v1.FCStd
+
+[14] print files -- PRE-ORIENTED, generated here, never hand-placed
+  PadHub          x1  bed  44.0 x  44.0,  63.0 tall (as modelled)
+  PadLeg          x3  bed 163.0 x  26.0,  14.7 tall (laid flat)
+  BlastDeflector  x1  bed 120.0 x 120.0,  44.0 tall (as modelled)
+  -> Print Files/Launch Pad/  and  .../Ready to Print/
+  PadLeg: PRINT x3.  Every part sits on Z=0, no supports, no brim.
+
+SUMMARY
+  * 3 unique parts, 5 printed pieces, NO bought hardware, no supports.
+  * Assembly: push 3 legs into the hub, drop the deflector over the
+    spigot, drop the rod down the bore to the ground.  That is the pad.
+  * The rocket rests FINS-DOWN on the standoff ring -- a clamp collar on
+    the rod is geometrically impossible (see the header, (a)).
+  * FAIL [6] IS THE HEADLINE: a 1 m rod gives only 706 mm of guidance.
+    Buy >= 1294 mm (light) / >= 1494 mm (payload) of d4 rod, then set the
+    rail length in the .ork and re-run 4.4's motor matrix.
+  * FAIL [5] IS REAL: the bare pad tips at 8.6 m/s.  Peg it down, and/or
+    hang 1 kg on the tie-down.  Staking is primary, not optional.
+  * OPEN [9]: the d5 lug bore is specced for a 4.8 mm rod, not this 4.0 mm
+    one.  Bore the lug d4.4 when it is modelled, or buy a 4.8 mm rod.
+  * UNPRINTED and UNFLOWN.  Nothing here has met a motor.
