@@ -1,0 +1,47 @@
+== T5 spring-piston ejector check report ==
+Stations (module z -> Phoenix station): bulkhead bottom z -3.5 -> 175.5, aft face z 0 -> 172.0, flange top z 14 -> 158.0, piston top cocked z 62.0 -> 110.0, RBF pin z 65.5 -> 106.5
+PASS all printed solids and hardware valid
+PASS rod/base overlap is only the M5 self-tap engagement (11.8 mm3, z 9.7-12.0)
+PASS interference, flight cocked (pin in): none
+PASS interference, flight fired: none
+PASS interference, bench cocking (stand, tool held by lock pin): none
+PASS interference, bench cocked (stand, RBF pin): none
+PASS install tool slides through piston notches at the fired position: yes
+PASS tool prongs reach the flange key notches when the face is on the cocked piston (31.4 mm3 in notches)
+PASS piston running radius 19.25 <= 19.50
+PASS static radii: bulkhead 19.85, flange 18.25 <= 19.85
+PASS piston skirt L/D = 0.52 (>= 0.5, anti-cocking)
+PASS spring length cocked 45.00 (= 45), end of stroke 85.00 (<= free 85)
+PASS spring guided over 40.5 of 45 mm cocked (rod + piston counterbore), unguided gap 4.5 mm
+PASS rod top clears piston underside when cocked by 4.5 mm
+Stroke stop: Kevlar tether, taut at 41.5 mm (stroke 40 + 1.5). Cut to length on the bench (README).
+PASS line loop path (legs + piston tunnel) is open through base and piston: clear
+PASS line leg to spring coils (spring OD 10): 2.75 mm (>= 2.0)
+PASS line leg to spring coils (spring OD 11): 2.25 mm (>= 2.0)
+PASS leg +1: line runs straight through its coil (bend 0.0 deg <= 5), so the nichrome carries no line load
+PASS leg -1: line runs straight through its coil (bend 0.0 deg <= 5), so the nichrome carries no line load
+PASS chamber run +1 clears the other M2 heads by 0.52 mm (>= 0.5, nearest term+1)
+PASS chamber run -1 clears the other M2 heads by 0.52 mm (>= 0.5, nearest term-1)
+PASS nichrome heated span (0.5 mm past each terminal head) to nearest plastic: 1.40 mm (>= 1.0)
+PASS terminal heads still bear on solid ceiling beside the trough (78%, 78%; >= 50%)
+PASS single-leg cut: free end pays out 15.9 mm more than a full stroke needs (>= 10)
+Line load per leg: 26.4 N at F_max 52.7 N, 105 N at 4x proof. 0.3 mm Dyneema wrapped+clamped ~175 N -> 1.7x at proof; use 0.4-0.5 mm if 7.3 measures > 40 N.
+PASS all M2 heads inside the chamber wall
+PASS M2 heads clear of each other (>= 0.3 mm): yes
+PASS M2 heads clear of the line holes: yes
+PASS clamp at x=+6 has solid material under its head (100%)
+PASS clamp at x=-6 has solid material under its head (100%)
+PASS air gap under the nichrome span exists (plastic in gap: 0.000 mm3)
+PASS tether hole open through base and piston
+PASS RBF pin clears the cocked piston by 1.50 mm and sits in its path (blocks within 1.5 mm of travel)
+PASS after the line takes load (piston +0.7 mm) the RBF pin still goes in with 0.80 mm clear (>= 0.5)
+PASS bench lock pin holds the tool face at 0.04 mm from the nominal cocked piston top (|d| <= 0.2)
+PASS harness passes the piston flat with 2.35 mm radial gap even 25 deg off the +/-y groove (>= harness 1.5 + 0.3)
+PASS RBF pin bending at proof (211 N, span 40): 419 MPa vs 1000 MPa yield (need 1.5x)
+PASS T1 coupon engagement at mid-flank: male 35%, female 49%, both 0.0%
+PASS T1 base/bulkhead engagement at mid-flank: male 35%, female 49%, both 0.0%
+PASS T1 base/stand engagement at mid-flank: male 35%, female 49%, both 0.0%
+PASS nothing crosses the e-bay plane: aft-most part at station 175.5 (e-bay / bench joint at 181)
+NOTE stack bulkhead-bottom -> piston top = 65.5 mm vs DESIGN 7.8 budget 61 mm (8 bulkhead + 45 spring + 8 piston): +4.5 mm
+Masses (PETG solid): base 10.9 g, piston 12.7 g, flight bulkhead 6.8 g; + M5x40 bolt ~7 g, spring ~9 g, 4x M2 ~1 g
+RESULT: ALL PASS (0 FAIL)

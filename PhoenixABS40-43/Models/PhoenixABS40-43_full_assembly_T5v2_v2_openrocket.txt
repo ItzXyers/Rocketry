@@ -1,0 +1,16 @@
+== OpenRocket 24.12 re-run for full assembly v2 (Nosecone/aero/VerifyV2.java; .ork copy with apogee deploy, 1 m rod, no wind) ==
+Nose: v5 Von Karman 65 mm, 39.6 g @ 66.8 mm from tip. Body = everything else, mass/CG override (non-nose dry, from the CAD rollups).
+C6 column shown. Margin in calibers of 43 mm. Target >= 1.5 (DESIGN 4.4); rail exit target >= 15 m/s.
+
+case                           body g  L mm  CG mm | liftoff  CP   CG   margin  apogee  rail
+repro NOSE_V5_AERO (check)      245.0   340  192.7 |  308 g  310  242   1.58   19.0 m  4.8   (matches verify_v5_openrocket.txt)
+assembly v1 (PETG parts)        255.8   340  197.4 |  319 g  310  246   1.48   17.0 m  4.6
+ABS only, full length           235.8   340  201.4 |  299 g  310  248   1.43   20.9 m  5.0   (mass/CG hand-derived from v1 table)
+ABS + e-bay -10 mm (interp)     233.7   330  198.4 |  296 g  302  245   1.32   21.4 m  5.0
+assembly v2: ABS + e-bay -25    230.6   315  193.8 |  293 g  289  240   1.15   22.1 m  5.1
+  v2 + tip ballast to recover:  22.5 g ballast -> 1.51 cal, 316 g liftoff, rail 4.6 m/s
+
+Conclusion: every 10 mm of body removed costs ~0.11 cal because the fins ride forward with the aft end (CP -0.84 mm/mm)
+while the CG moves only ~0.25 mm/mm. Recovering 25 mm of compression takes 22.5 g of nose ballast for ~5 g saved: net loss.
+The e-bay slack is doing stability work; keep the 340 mm body. ABS alone needs ~5 g tip ballast for 1.5 cal.
+Rail exit stays ~5 m/s in every case: the C6 cannot lift this vehicle (see NOSE_V5_AERO 4).

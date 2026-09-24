@@ -1,0 +1,72 @@
+== Phoenix ABS 40-43 + T5 v2 -- full vehicle assembly v2 (all ABS, e-bay -25.0 mm), mass & CG ==
+Frame: station = 172 - z (0 = nose base / top of airframe); 'tip' = mm from the nose tip (= station + 65).
+Printed parts are SOLID geometry x density -> an upper bound on print mass.
+
+STACK (station ranges, from geometry)
+  nose v5              st   -65.0 ..    42.0
+  fwd_section          st     0.0 ..   199.0
+  T5 v2 base           st   157.9 ..   176.1
+  T5 piston (cocked)   st   110.0 ..   130.0
+  ebay_section         st   181.0 ..   263.6
+  sled                 st   201.5 ..   250.2
+  AftFinCan            st   256.1 ..   328.5
+  MotorRetainerCap     st   315.0 ..   332.0
+  C6 motor             st   259.1 ..   329.1
+  overall length tip -> cap: 397.0 mm; max span (fins) 132.7 mm
+
+  e-bay slack sled aft end -> fin-can bulkhead: 5.9 mm (v1 30.9)
+  sled aft end -> motor forward end: 8.9 mm
+  body tube length (nose base -> fin-can aft end, OpenRocket 'body'): 315.0 mm (v1 340.0)
+
+QUICK FIT CHECKS (flight, cocked, RBF pin pulled)
+  ok   nose             x fwd_section    overlap 0.000 mm3
+  ok   nose             x T5 piston      overlap 0.000 mm3
+  ok   AftFinCan        x ebay_section   overlap 0.000 mm3
+  ok   MotorRetainerCap x AftFinCan      overlap 0.000 mm3
+  ok   C6 motor         x AftFinCan      overlap 0.000 mm3
+  ok   sled             x AftFinCan      overlap 0.000 mm3
+  ok   electronics      x AftFinCan      overlap 0.000 mm3
+
+ITEM                                           GROUP         MASS g  CG                           BASIS
+Nose cone v5 (Von Karman)                      nose            39.6  st    1.8  (tip   66.8)      CAD x ABS 1.05
+Nose anchor dowel d4 x 38.5 (hardened)         nose             3.8  st   35.0  (tip  100.0)      calc; nose report: anchor bosses from Z 95
+fwd_section (chute bay + T5 ring)              airframe        46.9  st  108.6  (tip  173.6)      CAD x ABS 1.05
+ebay_section                                   airframe        17.6  st  221.1  (tip  286.1)      CAD x ABS 1.05
+sled_mount                                     e-bay            6.6  st  199.5  (tip  264.5)      CAD x ABS 1.05
+HW M3x8_csk_0                                  airframe         0.6  st  190.0  (tip  255.0)      CAD x steel 7.85
+HW M3x8_csk_1                                  airframe         0.6  st  190.0  (tip  255.0)      CAD x steel 7.85
+HW M3x8_csk_2                                  airframe         0.6  st  190.0  (tip  255.0)      CAD x steel 7.85
+HW M2x10_pan_0                                 e-bay            0.4  st  202.2  (tip  267.2)      CAD x steel 7.85
+HW M2x10_pan_1                                 e-bay            0.4  st  202.2  (tip  267.2)      CAD x steel 7.85
+T5 v2 base                                     T5 ejector       9.0  st  163.3  (tip  228.3)      CAD x ABS 1.05 (prints 50 % infill: upper bound)
+T5 piston (cocked)                             T5 ejector      10.5  st  115.9  (tip  180.9)      CAD x ABS 1.05
+T5 M5x40 guide rod                             T5 ejector       7.7  st  146.8  (tip  211.8)      CAD x steel 7.85
+T5 spring 10 OD x 85 free (cocked)             T5 ejector       9.0  st  137.5  (tip  202.5)      T5 check report ~9 g
+T5 6 x M2 screws                               T5 ejector       1.5  st  168.3  (tip  233.3)      T5 check report ~1.5 g
+T5 line + nichrome + jumpers + Kevlar tether   T5 ejector       1.5  st  164.0  (tip  229.0)      estimate
+ElectronicsSled v1                             e-bay            7.7  st  228.7  (tip  293.7)      CAD x ABS 1.05
+Electronics, Opt B 620 mAh, no servo           e-bay           39.0  st  231.4  (tip  296.4)      avbay packing md 6 (48 g less SG90 9 g); CG = component envelopes
+Canopy d500 + harness + leader                 recovery        16.0  st   76.0  (tip  141.0)      DESIGN 3.2 / 7.7; packed in bay st 42-110
+AftFinCan v1 (cfg C, fins in)                  aft             46.1  st  290.8  (tip  355.8)      CAD x ABS 1.05
+MotorRetainerCap v1                            aft              9.0  st  325.8  (tip  390.8)      CAD x ABS 1.05
+C6 motor (loaded; ~12 g spent)                 motor           24.0  st  294.1  (tip  359.1)      DESIGN 3.2
+
+BY GROUP
+  nose           43.4 g   CG st    4.7  (tip   69.7)
+  airframe       66.2 g   CG st  140.6  (tip  205.6)
+  T5 ejector     39.2 g   CG st  141.6  (tip  206.6)
+  e-bay          54.0 g   CG st  226.8  (tip  291.8)
+  recovery       16.0 g   CG st   76.0  (tip  141.0)
+  aft            55.2 g   CG st  296.5  (tip  361.5)
+
+TOTALS
+  Dry, flight-ready (no motor)     274.0 g   CG st  163.8  (tip  228.8)
+    of which non-nose             230.6 g   CG st  193.8  (tip  258.8)   (NOSE_V5_AERO assumed 245 g @ st 192.7)
+  Liftoff on C6 (24 g)            298.0 g   CG st  174.3  (tip  239.3)   (NOSE_V5_AERO: 308 g)
+  Landing (spent casing ~12 g)    286.0 g   CG st  169.3  (tip  234.3)
+  (v1 CP 310 mm from tip no longer applies: the fins moved forward -> see the OpenRocket re-run.) liftoff 1.64 / dry 1.89 cal vs the OLD CP
+
+NOT IN FLIGHT MASS: RBF pin (pulled at pad), install tool, test stand, t5 flight_bulkhead (replaced by the integral ring), spacers.
+OPENROCKET: NS_BODY_G=230.6 NS_BODY_LEN=315.0 NS_BODY_CGX=193.8 (non-nose dry mass g, body length mm, body CG mm from body top)
+NOTE nose v5 shoulder is 42 mm (stations 0-42); t5_integration assumed 20 mm of shoulder, so the canopy space is 42-110.
+NOTE the e-bay lead / fin-can bond epoxy / paint are not included (a few grams).

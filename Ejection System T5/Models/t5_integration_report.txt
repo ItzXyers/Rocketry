@@ -1,0 +1,70 @@
+== T5 integration check report: chute bay + T5 ejector + e-bay ==
+T5 source: spring_ejector_t5.py
+Frame: T5 module z; station = 172 - z. Sled Zs -> z = Zs -77.3. Fin can Zf -> z = Zf - 168.
+
+STATION TABLE (mm from the top of the body tube)
+     0.0 -   20.0  nose shoulder engagement (plain 40 bore; nose + detent not in this build, DESIGN 7.4 open)
+    20.0 -  110.0  canopy + Nomex (full bore)
+   106.5 -  106.5  RBF pin, x axis, through fwd_section
+   110.0 -  172.0  T5 module: piston top cocked 110, flange 158-162, base aft face 172
+   162.0 -  175.5  T5 ring, integral to fwd_section (T1 female, harness grooves +/-y)
+   175.5 -  181.0  harness bight + lead exit; 45 deg cone to the spigot
+   181.0 -  181.0  FLUSH JOINT fwd_section / ebay_section (bench-service only, never a flight separation)
+   181.0 -  199.0  spigot (fwd) inside screw band (e-bay); 3 x M3 CSK at station 190 into sled_mount lugs
+   185.0 -  201.5  sled_mount: lugs 185-199, disc 199-203.9
+   203.9 -  250.2  e-bay sled (Zs 45.4 -> -0.9)
+   250.2 -  281.1  free: lead slack, battery pigtail
+   281.1 -  288.6  fin-can lip inside ebay_section (bonded)
+   288.6 -  340.0  AftFinCan (unchanged)
+
+PASS new printed parts valid, one solid each: fwd_section 1, ebay_section 1, sled_mount 1
+PASS fwd_section max radius 21.500 <= OD/2 21.50 (nothing proud)
+PASS ebay_section max radius 21.500 <= OD/2 21.50 (nothing proud)
+PASS joint screw heads max radius 21.500 <= 21.50 (flush countersunk)
+PASS OD step at fwd/e-bay joint: 43.000 vs 43.000 (|d| <= 0.05)
+PASS OD step at e-bay/fin-can joint: 43.000 vs 43.000 (|d| <= 0.05)
+PASS piston sweep z 42.0-102.0 (stations 70.0-130.0): nothing inside R 19.55 (0.0000 mm3)
+PASS chute bay stations 0-110 full 40 bore (0.0000 mm3 inside R 19.99)
+PASS interference, flight cocked, RBF pin in: none
+PASS interference, flight fired: none
+PASS interference, install from the front (tool on the cocked piston): none
+PASS joint screw 0: overlap with the lug is the M3 self-tap only (9.3 mm3), 4.3 mm engaged (>= 3.5)
+PASS joint screw 1: overlap with the lug is the M3 self-tap only (9.3 mm3), 4.3 mm engaged (>= 3.5)
+PASS joint screw 2: overlap with the lug is the M3 self-tap only (9.3 mm3), 4.3 mm engaged (>= 3.5)
+PASS sled screw 0: threads 5.1 mm into the ex-servo-ear boss (5.8 mm3)
+PASS sled screw 1: threads 5.1 mm into the ex-servo-ear boss (5.8 mm3)
+PASS install tool passes the chute bay from the nose end: clear
+PASS T1 base / integral ring engagement at mid-flank: male 35%, female 48%, both 0.0%
+PASS harness grooves open through the ring (0.0000 mm3), skin behind them 1.44 mm (wall not cut)
+PASS harness passes the piston flat with 2.35 mm even 25 deg off the grooves (unchanged from T5)
+PASS full-bore gap under the ring for the harness bight: 3.3 mm (>= 2 x 1.5 harness)
+PASS lead path (d5 on the axis) chamber mouth -> ring -> lugs -> disc -> sled: clear
+PASS nichrome to nearest e-bay part: 19.3 mm (>= 5)
+PASS sled (R 19.39) passes the e-bay screw band (R 19.70): 0.31 mm radial (tight, same as cassette v1: needs a round tube)
+PASS sled_mount disc R 19.30 passes the band: 0.40 mm
+PASS spigot R 19.50 in band R 19.70: 0.20 mm radial (register)
+PASS lug R 17.60 in spigot R 17.80: 0.20 mm radial
+PASS e-bay bore R 20.00 over fin-can lip R 19.85: 0.30 mm diametral epoxy gap (AFT_RETENTION 0.3)
+PASS fin-can lip reaches 7.5 mm into the e-bay section, its bulkhead 30.9 mm below the sled
+PASS static port d1.5 open at station 219.3, nothing in front of it inside the bay: clear
+PASS sound port d3.0 open at station 239.8, in line with the sled's piezo port
+OPEN joint retention at 250 N placeholder snatch (the harness anchors in fwd_section, so these 3 screws carry the whole aft section):
+     band bearing 16.2 mm2 -> 15.4 MPa vs ~40; spigot bearing -> 16.3 MPa; M3 shear 17.0 MPa vs 250. Edge distance to the joint 9.0 mm = 3.0 d.
+OPEN sled support: the sled now hangs from 2 x M2 in the ex-SG90 ear bosses (on 0.9 mm cradle uprights); its aft end is free, 31 mm above the fin-can bulkhead.
+     ~45 g x 20 g boost = 9 N on those bosses in tension. Bench pull-test the sled off the mount before flight; add an aft foam pad if it rattles.
+OPEN baro air: the e-bay connects to the chute bay through the harness grooves (~10 mm2) and chamber holes; the chute bay vents via 2 x d4.3 RBF holes (~29 mm2)
+     vs a 1.8 mm2 static port, so the baro reads mostly chute-bay (station 106.5) pressure. Accepted as a static location; to isolate, seal the disc periphery with foam tape.
+PASS fwd_section printed nose end down: 60.4 x 58.6 x 199.0 mm (bed 256 x 256 x 250)
+NOTE fwd_section: 133 T1 thread-flank facets (83 mm2), steepest 38.3 deg from horizontal (45 deg flank tilted by the 4.8 deg lead); the same thread prints on the T5 base/stand/coupon. Print the coupon first.
+PASS fwd_section overhangs steeper than ~49 deg: 17 patches, 743.4 mm2 total; all bridges (span <= 10) or ring ledges (mean width <= 2); largest 175.9 mm2 at print z 171.3 (span 34.6, ledge 1.68)
+PASS ebay_section printed aft end down: 43.0 x 43.0 x 107.6 mm (bed 256 x 256 x 250)
+PASS ebay_section overhangs steeper than ~49 deg: 6 patches, 11.1 mm2 total; all bridges (span <= 10) or ring ledges (mean width <= 2); largest 3.3 mm2 at print z 50.1 (span 1.5, ledge 0.03)
+PASS sled_mount printed disc down, lugs up: 38.6 x 38.6 x 18.9 mm (bed 256 x 256 x 250)
+PASS sled_mount overhangs steeper than ~49 deg: 9 patches, 106.7 mm2 total; all bridges (span <= 10) or ring ledges (mean width <= 2); largest 40.8 mm2 at print z 2.3 (span 2.9, ledge 0.36)
+NOTE sled v1 (unchanged) aft-end-down: 28 overhang patches, 495 mm2; spans > 10 mm: [(25.2, 13.9)] (the ex-servo cradle shelf) -> support there or accept a bridge
+Mass fwd_section (PETG solid) 56.7 g
+Mass ebay_section (PETG solid) 27.5 g
+Mass sled_mount (PETG solid) 7.9 g
+NOTE fwd_section + ebay_section replace 288.6 mm of body tube and the bonded t5_flight_bulkhead (6.8 g); tube alone at 43/40 solid: 71.7 g
+NOTE no stability claim: masses feed DESIGN 13 item 3 (OpenRocket re-run).
+RESULT: ALL PASS (0 FAIL)

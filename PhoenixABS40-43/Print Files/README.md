@@ -22,6 +22,10 @@ Print Files/
       ..._PadHub_v1.stl                bore vertical; ream the d4.2 bore with a 4 mm bit
       ..._PadLeg_v1.stl                PRINT x3 — laid FLAT, layers across the width (in-plane bending)
       ..._BlastDeflector_v1.stl        disc down; arched windows are self-supporting
+  Nosecone/                            v5 Von Kármán separating nose for the T5 airframe (Nosecone/NOSE_V5_AERO.md)
+    ..._nose_VonKarman_v5.stl          raw, as modeled (tip at Z=0)
+    Ready to Print/
+      ..._nose_VonKarman_v5.stl        TIP UP, shoulder on the bed; 0.12–0.16 mm layers, no support
   _archive/                            superseded 2026-09-02 exports, kept for reference
 ```
 
