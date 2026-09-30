@@ -7,6 +7,8 @@ recovery ejection module.
 
 ## Subsystems
 
+**Consolidated electronics BOM (all subsystems + ground station):** [`BOM.md`](BOM.md)
+
 ### 1. Flight computer avionics
 ESP32-based flight computer (Arduino Nano ESP32), barometer + high-g
 accelerometer for flight data, microSD logging, GPS recovery locator, and a
@@ -50,6 +52,7 @@ Files are grouped into subfolders by subsystem:
 
 | File | Folder | Subsystem | Notes |
 |---|---|---|---|
+| `BOM.md` | (root) | All | Consolidated electronics BOM — flight computer, CO2 burn-wire and servo deployment variants, LaunchControl ground station |
 | `avionics_bom.md` | `Avionics/` | Avionics | Electrical BOM, sourcing links, power budget |
 | `avionics_wiring.md` | `Avionics/` | Avionics | Wiring companion to the BOM |
 | `avionics_build_checklist.md` | `Avionics/` | Avionics | Bench build & wiring verification checklist, pre-airframe |
