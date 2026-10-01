@@ -1,0 +1,18 @@
+== OpenRocket 24.12 check for D9aft v2 (VerifyD9.java; in-memory patched copy of PhoenixABS40-43.ork; no wind) ==
+Inputs from Models/PhoenixABS40-43_D9aft_v2_report.txt: NOSE_G=14.6 NOSE_CG=43.8 NS_BODY_G=202.7 NS_BODY_LEN=340 NS_BODY_CGX=165.3; canopy d500 on EJECTION; motor overhang 14.1 (CAD).
+'rod' = OpenRocket launch-rod length = GUIDED travel. Physical rod on the pad = guided + ~0.29 m (launchpad report [6]).
+MOTOR Klima D9 dia=18.0 len=70.0 mLaunch=27.1 mBurnout=11.0
+STAB liftoff 244.4 g CG 236.2 | burnout 228.3 g CG 225.8 | CP(M0.1) 312.6 | margin liftoff 1.78 burnout 2.02 cal
+SIM D9-3 rod 1.0 m | apogee 195.7 m @ 5.86 s | vmax 58.4 m/s | rail exit 12.0 m/s | eject t=5.24 alt 192.4 m v 20.8 m/s | optimum delay 5.08 s | ground hit 4.82 m/s | flight 46.6 s
+SIM D9-3 rod 1.5 m | apogee 195.7 m @ 5.86 s | vmax 58.4 m/s | rail exit 14.1 m/s | eject t=5.24 alt 192.4 m v 20.8 m/s | optimum delay 5.08 s | ground hit 4.82 m/s | flight 46.6 s
+SIM D9-3 rod 2.0 m | apogee 195.7 m @ 5.86 s | vmax 58.4 m/s | rail exit 15.4 m/s | eject t=5.24 alt 192.4 m v 20.8 m/s | optimum delay 5.08 s | ground hit 4.82 m/s | flight 46.6 s
+SIM D9-3 rod 2.5 m | apogee 195.7 m @ 5.86 s | vmax 58.4 m/s | rail exit 16.5 m/s | eject t=5.24 alt 192.4 m v 20.8 m/s | optimum delay 5.08 s | ground hit 4.82 m/s | flight 46.6 s
+SIM D9-5 rod 1.0 m | apogee 213.8 m @ 7.32 s | vmax 58.4 m/s | rail exit 12.0 m/s | eject t=7.24 alt 213.8 m v 0.8 m/s | optimum delay 5.08 s | ground hit 4.82 m/s | flight 51.7 s
+SIM D9-5 rod 1.5 m | apogee 213.8 m @ 7.32 s | vmax 58.4 m/s | rail exit 14.1 m/s | eject t=7.24 alt 213.8 m v 0.8 m/s | optimum delay 5.08 s | ground hit 4.82 m/s | flight 51.7 s
+SIM D9-5 rod 2.0 m | apogee 213.8 m @ 7.32 s | vmax 58.4 m/s | rail exit 15.4 m/s | eject t=7.24 alt 213.8 m v 0.8 m/s | optimum delay 5.08 s | ground hit 4.82 m/s | flight 51.7 s
+SIM D9-5 rod 2.5 m | apogee 213.8 m @ 7.32 s | vmax 58.4 m/s | rail exit 16.5 m/s | eject t=7.24 alt 213.8 m v 0.8 m/s | optimum delay 5.08 s | ground hit 4.82 m/s | flight 51.7 s
+SIM D9-7 rod 1.0 m | apogee 213.8 m @ 7.32 s | vmax 58.4 m/s | rail exit 12.0 m/s | eject t=9.24 alt 197.7 m v 15.1 m/s | optimum delay 5.13 s | ground hit 4.82 m/s | flight 49.8 s
+SIM D9-7 rod 1.5 m | apogee 213.8 m @ 7.32 s | vmax 58.4 m/s | rail exit 14.1 m/s | eject t=9.24 alt 197.7 m v 15.1 m/s | optimum delay 5.13 s | ground hit 4.82 m/s | flight 49.8 s
+SIM D9-7 rod 2.0 m | apogee 213.8 m @ 7.32 s | vmax 58.4 m/s | rail exit 15.4 m/s | eject t=9.24 alt 197.7 m v 15.1 m/s | optimum delay 5.13 s | ground hit 4.82 m/s | flight 49.8 s
+SIM D9-7 rod 2.5 m | apogee 213.8 m @ 7.32 s | vmax 58.4 m/s | rail exit 16.5 m/s | eject t=9.24 alt 197.7 m v 15.1 m/s | optimum delay 5.13 s | ground hit 4.82 m/s | flight 49.8 s
+SAVED C:/Users/dick_/Documents/Rocketry/PhoenixABS40-43/PhoenixABS40-43_D9aft_v2.ork

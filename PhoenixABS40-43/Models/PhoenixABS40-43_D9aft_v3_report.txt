@@ -1,0 +1,27 @@
+== Phoenix ABS 40-43 -- D9aft_v3: v2 + printed spring beams and a rotation key on the e-bay (no foam ring) ==
+Frame z = 340 - station. FwdTube groove cut before the thread (plain boolean); thread pair re-checked seated.
+
+PASS FwdTube v3 valid, 1 solid(s)
+PASS FwdTube v3 proxy valid, 1 solid(s)
+PASS EbayCap v3 valid, 1 solid(s)
+PASS REAL FwdTube key groove: 6/6 probes as designed
+PASS groove depth r 20.45 = thread root: skin behind it 1.05 mm (unchanged); width 3.0 mm = 2.4% of the thread circumference
+PASS thread SEATED with the groove: clash 0 of 672; fill tube 31% (v2 32%) / nose 48%
+PASS NEGATIVE CONTROL half a pitch out of phase: clash 207 (must be > 0)
+NOTE unscrew sweep not re-run: the groove only removes tube material, so it cannot add a clash to v2's clean sweep (v2 report)
+PASS e-bay lifts out: EbayCap (with key) slides 19 mm out of the mouth with no contact 
+PASS key blocks rotation: turning the seated cap 1.9 deg either way hits the groove wall ([0.56, 0.56] mm3); free play +-0.9 deg
+PASS key radius 20.15 passes the thread only through the groove (crest 19.65); groove 20.45 -> 0.30 mm radial, 0.30 mm per side
+PASS nose touches the EbayCap only at the 3 bumps: overlap 2.18 mm3 = bumps 2.18 mm3 (the designed 0.25 mm preload)
+PASS spring beams (fixed-fixed, span 18.5 mm, 2.4 x 0.8): k 6.2 N/mm; preload 0.25 mm -> 1.54 N each, 4.6 N total, 14.0 MPa
+PASS e-bay forward travel before the beams bottom: 0.35 mm (was 1.0 of free rattle with no foam); at bottoming 33.5 MPa (short-time, < 35)
+  preload holds the 56 g e-bay down to ~8.4 g of forward deceleration; above that it lifts at most 0.35 mm onto the bottomed beams.
+PASS spring geometry probes (pocket, slot, beam, floor at all 3): as designed
+PASS beams bottomed (0.6 mm down) stay clear of the sled top: 0.0000 mm3
+PASS e-bay interference (cap, sled, electronics, screws, tube): none; cap vs tube 0.0000 mm3
+PASS rest of the e-bay (R 19.39) passes the thread crests 19.65 -> 0.26 mm radial
+PASS EbayCap printed disc down, loop + bumps up: 39.5 x 38.6 x 18.9 mm; 13 overhang patches (272.1 mm2), 0 need support
+PASS FwdTube printed bulkhead down (proxy): 43.0 x 43.0 x 82.7 mm; 4 overhang patches (299.2 mm2), 0 need support
+NOTE the spring beams print as 19 mm arc bridges, 4 layers: use the slicer's bridge settings. A sagging first layer only lowers the preload.
+NOTE mass: EbayCap -0.12 g vs v2, foam ring -0.3 g -> OpenRocket not re-run (v2 numbers stand: 1.78 cal, D9-5 at apogee).
+RESULT: ALL PASS (0 FAIL)

@@ -1,0 +1,28 @@
+== Phoenix ABS 40-43 -- D9aft_v5: v4 + electronics sled v4 (reed arming), EbayCap regenerated, ARM mark ==
+
+PASS FwdTube v5 valid, 1 solid(s)
+PASS FwdTube v5 proxy valid, 1 solid(s)
+PASS EbayCap v5 valid, 1 solid(s)
+PASS sled v4 valid, 1 solid(s)
+NOTE sled v4 loaded: components ['Nano_ESP32', 'BMP388', 'Battery', 'ADXL375', 'Piezo', 'ReedModule', 'JST_PH', 'ZipTie', 'SmallParts']
+PASS REAL FwdTube: ARM mark + groove + thread probes 8/8 as designed
+PASS ARM mark at -10.9 deg, stations 20.0..34.0 (tick at 27.0) = the reed capsule's angle and length; magnet on the mark is 2.50 mm from the glass
+PASS ARM mark clear of the ports and groove: 10.9 deg from the static port (4.1 mm of arc at the OD), stations clear of the thread band (20.0 > 12.5)
+NOTE thread not re-sampled: v5 only removes 0.3 mm of the OD at stations 20..34, 7.5 mm aft of the thread band; the v3 probes above confirm it is intact.
+PASS e-bay interference (EbayCap v5, sled v4, 9 envelopes, M2 screws, tube): none
+PASS sled v4 seat foot stands on the seat ring: contact 0.0000 mm3; NEGATIVE CONTROL dropped 0.5 mm -> 197.1 mm3 (must be > 0)
+PASS e-bay (cap + sled v4) lifts out of the mouth through the thread crests, key in the groove: no contact
+PASS largest e-bay radius 19.39 vs crest 19.65 -> 0.26 mm radial
+PASS key blocks rotation (+-2 deg hits the groove wall: [0.64, 0.64] mm3)
+PASS nose touches the EbayCap only at the 3 spring bumps (2.18 = 2.18 mm3)
+PASS spring beams bottomed stay clear of the sled v4 top (0.0000 mm3)
+PASS sled v4 spine key rises into the cap pocket (71.3 mm3 above the cap underside, pocket regenerated from it)
+PASS static port d1.5 at station 30.8: 3 mm behind it clear
+PASS sound port d3.0 at station 51.3: clear 2.0 mm air path to the piezo face (r 18.0); the first thing behind it is ['Piezo']
+PASS piezo sound hole in line with the port: piezo Zs centre 9.5 vs port 9.5
+PASS EbayCap v5 printed disc down: 39.5 x 38.6 x 18.9 mm; 8 overhang patches (230.4 mm2); 0 wide ones
+NOTE sled v4 printed aft end (seat foot) down: 38.6 x 38.6 x 48.3 mm; 39 overhang patches (583.9 mm2); 0 wide ones
+
+MASS: e-bay group 54.7 g @ st 37.0 (v3 53.7 g @ st 38.3): sled v4 7.2 g, electronics + reed 40.5 g, EbayCap 6.3 g
+OPENROCKET: NOSE_G=14.6 NOSE_CG=43.8 NS_BODY_G=204.7 NS_BODY_LEN=340.0 NS_BODY_CGX=165.0   (v4 body 203.7 @ 166.0, e-bay swapped)
+RESULT: ALL PASS (0 FAIL)

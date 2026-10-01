@@ -1,0 +1,24 @@
+== Phoenix ABS 40-43 -- D9aft_v4: slotted fin can + 3 separate fins (epoxied); everything else v3 ==
+
+PASS AftFinCanSlotted valid, 1 solid(s)
+PASS AftFinCanSlotted proxy valid, 1 solid(s)
+PASS Fin valid, 1 solid(s)
+PASS REAL slotted fin can: 23/23 probes as designed
+PASS proxy: 23/23 same probes
+PASS D9aft feature volume delta real +4793.1 vs proxy +4793.1 mm3 (same cuts landed on both; |d| < 2)
+PASS 3 fins drop into the slots: fin x can [0.0, 0.0, 0.0], fin x motor [0.0, 0.0, 0.0] mm3 (all 0)
+PASS epoxy gaps: 0.15 mm per side in the slot (fin 2.0 in a 2.3 slot); tab tip 0.4 mm off the motor tube, 0.1 off the slot bottom
+PASS negative control: Fin_v1's tab (to r 9.8) against the slotted can -> 62.49 mm3 clash (must be > 0: the check can fail)
+PASS each fin's tab fills the wall slot (147 mm3 of tab inside the wall each; slot is 175)
+PASS d14 gas column clear through the thrust ring
+PASS separation sweep 0..44 mm vs the aft tube: clear 
+PASS shear pins sit free in both slots: yes
+PASS launch rod line clear of the slotted can and the 3 fins: clear
+NOTE AftFinCanSlotted (proxy): 3 annular bridges motor tube -> wall, widest 9.6 mm radial, at print z [25.5, 53.5, 69.4] (as v1 cfg B: 4 perimeters, slow first bridge layer)
+PASS AftFinCanSlotted (proxy) printed boss down: 43.0 x 43.0 x 104.9 mm; 10 overhang patches (2525.3 mm2), 0 need support
+PASS Fin printed FLAT on a face: 65.7 x 50.8 x 2.0 mm; 0 overhang patches (0.0 mm2), 0 need support
+NOTE the fin's 1 mm edge round prints as a small overhang on its lower half -- cosmetic at Mach 0.17; sand if wanted.
+
+MASS: one-piece fin can 51.2 g @ st 310.6  ->  slotted 34.1 g + 3 fins 16.0 g + epoxy ~2.0 g = 52.1 g @ st 310.7  (+1.0 g)
+OPENROCKET: NOSE_G=14.6 NOSE_CG=43.8 NS_BODY_G=203.7 NS_BODY_LEN=340.0 NS_BODY_CGX=166.0   (v3 body 202.7 @ 165.3, fin can swapped)
+RESULT: ALL PASS (0 FAIL)

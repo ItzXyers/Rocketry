@@ -1,0 +1,6 @@
+== OpenRocket 24.12 check for D9aft v4 (slotted fin can + 3 fins + ~2 g epoxy; else v3) ==
+NOSE_G=14.6 NOSE_CG=43.8 NS_BODY_G=203.7 NS_BODY_LEN=340 NS_BODY_CGX=166.0; 'rod' = guided travel (physical = guided + ~0.29 m)
+STAB liftoff 245.4 g CG 236.8 | burnout 229.3 g CG 226.4 | CP(M0.1) 312.6 | margin liftoff 1.76 burnout 2.00 cal
+SIM D9-5 rod 1.0 m | apogee 212.4 m @ 7.31 s | vmax 58.1 m/s | rail exit 12.0 m/s | eject t=7.24 alt 212.4 m v 0.6 m/s | optimum delay 5.06 s | ground hit 4.83 m/s | flight 51.4 s
+SIM D9-5 rod 2.0 m | apogee 212.4 m @ 7.31 s | vmax 58.1 m/s | rail exit 15.4 m/s | eject t=7.24 alt 212.4 m v 0.6 m/s | optimum delay 5.06 s | ground hit 4.83 m/s | flight 51.4 s
+SAVED C:/Users/dick_/Documents/Rocketry/PhoenixABS40-43/PhoenixABS40-43_D9aft_v4.ork

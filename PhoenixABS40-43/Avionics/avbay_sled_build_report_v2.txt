@@ -1,0 +1,107 @@
+==============================================================================
+Phoenix ABS 40-43 -- avionics bay ELECTRONICS SLED  v2   (v3 repack, no servo, reed)
+==============================================================================
+
+frame: avbay_packing_build_report_v2.txt  (Z=0 aft, +Z to nose, +x E, +y N)
+constraint: component zone Z 0..48 held -- no length growth
+charger BQ25302 + its wall slot deleted; battery charges off-vehicle (JST-PH)
+
+[1] build + heal
+  connectivity: 1 solid(s)  8492.0
+  heal Sled           faces 247 -> 210, solids 1,     8492.0 mm3
+
+[2] pack -- component list  (dx.dy.dz  Zmin  Zmax  Rmax)
+  Nano_ESP32    18.0. 5.0.45.0    0.0  45.0   18.79
+  BMP388        22.0. 4.0.40.0    0.0  40.0   15.56
+  Battery       20.0. 8.5.40.5    0.0  40.5   18.45
+  ADXL375       18.0. 4.0.26.0    0.0  26.0   16.12
+  Piezo         15.0.11.0.19.0    0.0  19.0   18.82
+  ReedSwitch     2.0. 2.0.14.0    5.0  19.0   18.60
+  SmallParts    13.5. 3.1.22.0    0.0  22.0   16.38
+  Sled          37.9.34.7.48.3   -0.9  47.4   19.39   <- the sled
+
+[0] CONTAINMENT  (Rmax vs 19.5 moving / 20.0 ID)
+  Nano_ESP32   Rmax  18.79  toID  1.21   PASS  strap-retained (outboard of the sled skin)
+  BMP388       Rmax  15.56  toID  4.44   PASS  
+  Battery      Rmax  18.45  toID  1.55   PASS  
+  ADXL375      Rmax  16.12  toID  3.88   PASS  
+  Piezo        Rmax  18.82  toID  1.18   PASS  strap-retained (outboard of the sled skin)
+  ReedSwitch   Rmax  18.60  toID  1.40   PASS  strap-retained (outboard of the sled skin)
+  SmallParts   Rmax  16.38  toID  3.62   PASS  
+  Sled         Rmax  19.39  toID  0.61   PASS 
+  component zone  Z 0.0 .. 45.0   PASS
+  above EbayCap face Z 45.4: 71.3 mm3, of which outside the spine key 0.00   PASS
+  EbayCap M2 boss (-15.3, 0.0) seated at Z 45.4: 100 % of the boss face present   PASS
+  EbayCap M2 boss (10.1, 0.0) seated at Z 45.4: 100 % of the boss face present   PASS
+
+[R] REED SWITCH -- arming by external magnet
+  capsule 14 x d2, axis Z, at (x 0.0, y -17.6), Z 5.0..19.0
+  capsule outboard face R 18.60 -> 1.40 to ID + 1.5 wall = 2.90 mm magnet-to-glass
+  groove floor to battery pocket: 0.90 mm (saddle 0.30 + tray lip 0.60)
+  D9aft v2 airframe: disc top at station 10.5 = sled Z 50.3 -> reed at stations 41.8..55.8,
+  on the -y face = 90 deg from the witness notch (notch at +x).  Mark ARM there.
+
+[I] FIT  --  RAW = the as-drawn sled overlapping each component keep-out,
+           BEFORE trim.  RAW>0 is expected: it is pocket walls / rails /
+           bosses reaching into the board's space.  For the 6 RIGID parts
+           that volume is then cut away (post-cut common -> 0); the risk it
+           leaves a wall too thin is flagged in [N], not yet auto-checked.
+           SmallParts is a conformable allowance -- it is NOT cut; its RAW is
+           how much wiring volume yields to structure.
+  Nano_ESP32   RAW      0.0 mm3   (post-cut 0.0)
+  BMP388       RAW     83.7 mm3   (post-cut 0.0)
+  Battery      RAW      0.0 mm3   (post-cut 0.0)
+  ADXL375      RAW    421.2 mm3   (post-cut 0.0)
+  Piezo        RAW    117.5 mm3   (post-cut 0.0)
+  ReedSwitch   RAW      0.0 mm3   (post-cut 0.0)
+  SmallParts   RAW    109.8 mm3   (allowance yields)
+  component-vs-component clashes:
+    none
+
+[M] MASS
+  sled (ABS, solid-equiv)    8492.0 mm3      8.9 g
+  + fasteners: 2x M2.5 (BMP388 aft pair), 4x M2.5 (ADXL), 2x M2 (piezo breakout),
+               2x M2x10 (EbayCap, axial); Nano + reed = strap, no screws; 1x JST-PH pigtail
+  electronics: reed 1 g now its own line; SmallParts allowance 14 -> 13 g
+
+[N] NOTES / OPEN
+  * v2 vs v1: servo + cradle + knob ref removed (D9aft: e-bay fires nothing).  The
+    EbayCap M2 bosses stay at v1's SG90-ear (x, y), top Z 45.4 -> the D9aft v1/v2
+    EbayCap fits unchanged (its pocket has spare voids where the cradle uprights were).
+  * v1 EXPORT WAS MISSING THE NANO POCKET (disconnected, dropped by as_solid).  The
+    D9aft v1/v2 checks exec'd that same sled, so they never saw it either.
+  * RETENTION:
+      screw-down  BMP388  -- aft hole pair, boss on the inboard face, screw from
+                             OUTBOARD; fwd pair = rail capture
+                  ADXL375 -- 4 bosses on the +y face, screw head on the -y side
+                  Piezo breakout -- 2 bosses, screw from the radial-INBOARD side
+                             (nothing added by the sound port / skin)
+                  EbayCap -- 2 axial M2x10 from the cap top into the mount bosses
+      strap       Nano (1.21 to ID) -- rails + 0.6 lip + Kapton; its 4 holes get
+                             inboard dimples for optional shear pins, no retention load
+                  Piezo can (1.18) -- nested + strap over the 11 mm can
+                  Reed -- open groove on the tray skin + Kapton round capsule + tray
+      tray        Battery -- inboard-open U-channel + 0.6 lip + JST-PH pigtail (swap)
+  * OPEN (inherited from v1): the BMP388 aft screws are driven from OUTBOARD, but the
+    Nano sits 0.5 mm off the BMP388's outboard face -- no room for the heads.  Needs a
+    decision (screw before the Nano goes in with low heads, flip to inboard + nuts, or
+    move the BMP inboard into the space the servo freed).
+  * Nano backstop is now the aft floor + fwd end-wall segment only; along Z 0..40 its
+    inboard face rests 0.5 mm off the BMP388 -- put a Kapton/foam layer between.
+  * reed leads leave the groove at both ends (Z 3 / 21); route them round the tray's
+    E edge (clear of the JST slot) to the Nano.  Bend leads >= 2 mm from the glass.
+  * hole PATTERNS are still ASSUMED (NANO_HOLE_P* / BMP_HOLE_P* / ADXL_HOLE_P* /
+    PIEZO_HOLE_*).  Topology + screw direction are real; the boss (x,z) centres move
+    when the measured patterns land -- a constants-only edit.
+  * wall thickness after the pocket-clearance cut is not auto-checked -- eyeball the
+    thin walls in CAD before printing.
+  * freed by the servo: the centre Z 26..42 (x -12..8, y -6..6) is empty -- room to
+    move SmallParts or the BMP388 later, or to shorten the bay.
+  * small-parts = ~13 g allowance in an open shelf; measure S7V8F5 / microSD rdr /
+    C1 / SW1 / SW2 for real before this is frozen.
+  * NOT modelled yet: static-port vent path; print orientation / support / split.
+
+[E] EXPORT
+  PhoenixABS40-43_avbay_ElectronicsSled_v2 .step + .stl
+  FCStd -> Avionics/PhoenixABS40-43_avbay_sled_v2.FCStd  (Sled + env_* envelopes)
+  sled_ASSEMBLY_v2.stl  (sled + component envelopes, flight position)

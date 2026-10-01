@@ -4,6 +4,19 @@
 fully FDM‑printed in ABS, flying standard 18 mm (Estes/Klima "mini") motors.
 **Designer:** Tsaren · **Model:** `PhoenixABS40-43.ork` (OpenRocket 24.12) · **Doc date:** 2026‑09‑02 (vehicle rev 5 — unchanged; this revision records CAD only)
 
+> **2026‑09‑30 — recovery re‑architected: D9aft v1.** The vehicle now flies the **Klima D9‑5** and deploys **aft on the
+> motor's own ejection charge**: the charge shears two printed ABS pins and pushes the fin can + spent motor off the aft
+> end; the nose stays on and the e‑bay (logging only) sits behind it, sealed from the chute bay. The spring ejector, servo,
+> RBF pin and nose separation are gone. Design, checks, flight numbers and open items: `Models/AFT_DEPLOY_D9_DESIGN.md`.
+> Wherever this document still describes spring ejection (§7.1–7.9, the D9 rows of §5) it is **superseded history**.
+> **D9aft v2 (same day):** screw‑on nose v6 (simple Von Kármán, 14.6 g), tool‑free e‑bay (unscrew the nose, lift it out),
+> recessed shock‑cord eyelet in the bulkhead — `Models/AFT_DEPLOY_D9_v2.md`. OpenRocket 1.78 cal, D9‑5 ejects at apogee.
+> **D9aft v3 + v4 (2026‑10‑01):** printed spring beams + rotation key on the e‑bay (no foam ring); slotted fin can with
+> 3 separate flat‑printed fins, epoxied (the one‑piece fin can would not print) — `Models/AFT_DEPLOY_D9_v3_v4.md`.
+> Current print set: `Print Files/Ready to Print/D9/`. OpenRocket 1.76 cal.
+> **D9aft v5 (2026‑10‑01):** electronics sled v4 (reed‑switch arming) in the e‑bay, EbayCap regenerated, engraved ARM mark on
+> the FwdTube — `Models/AFT_DEPLOY_D9_v5.md`. OpenRocket 1.78 cal, D9‑5 ejects at apogee.
+
 ---
 
 ## 0. Status at a glance
@@ -11,13 +24,13 @@ fully FDM‑printed in ABS, flying standard 18 mm (Estes/Klima "mini") motors.
 | Item | State |
 |---|---|
 | Airframe geometry (⌀43 mm) | Defined in `.ork`, **rev 5** — fin semi‑span 30 → 55 mm; rev 4 thickened the wall to 1.5 mm and grew the nose shoulder to ⌀38 mm |
-| **Static stability** | ⚠️ **Fin fix applied to the `.ork` (§4.5) — computed ≈ +1.8 cal, was ≈ +0.5. Not yet confirmed in OpenRocket on a re‑run matrix. See §13 item 3.** |
+| **Static stability** | ✅ **D9aft v1 (2026‑09‑30): OpenRocket on the CAD mass rollup — 1.92 cal at liftoff, 2.14 at burnout on the Klima D9‑5** (`Models/AFT_DEPLOY_D9_DESIGN.md` §6). Other motors (A8/B4/C6) not re‑run on this vehicle — the D9‑5 is the flight motor. *(Was: rev‑5 fin fix, ≈ +1.8 cal computed, unconfirmed.)* |
 | **Mass model** | ❌ **Stale — the `.ork` under‑reports the body tube by ≈ 49 g and the nose cone by ≈ 31 g. See §3.** |
 | Simulations in file | All marked `outdated`; **none** use the current ⌀43 mm airframe. See §6. |
-| Recovery | ✅ **Architecture fixed — servo‑released spring ejection, sole deployment. See §7.** Spring rate still unmeasured (§7.3) — blocking. |
+| Recovery | ✅ **D9aft v1 (2026‑09‑30): Klima D9‑5 motor ejection, aft deployment, printed shear pins — `Models/AFT_DEPLOY_D9_DESIGN.md`.** CAD ALL PASS; OpenRocket 1.92 cal liftoff, D9‑5 ejects 0.46 s after apogee at 4.6 m/s. Gating: pin‑coupon batch test, spent‑D9 casing fit. *(Was: servo‑released spring ejection — superseded.)* |
 | Serviceable avionics bay | ⚠️ **Drafted — removable cassette past a bench joint, CAD verifies bar the deliberate `OPEN`. Needs the anchor bulkhead *screwed not bonded* (§7.5) and the recovery‑snatch joint proven (§7.3 + §7.9 t4). See §13 item 16.** |
-| 3D‑print package | ⚠️ **Partial — 11 bodies modeled, none flight‑qualified (§12.1).** Ejection POC v1: 8 bodies, every geometric check passes, STEP + STL exported. Aft motor retention v1: 4 bodies in two configurations, **all verify clean** (§9) — STEP + STL exported. cfg B is a **sealed aft airframe section with through-the-wall fin slots** and cfg C the same section with the **fins printed in** — bulkhead only, **no vents**: this build flies a plugged motor, which §7.6's last paragraph says removes the venting problem entirely. Airframe, nose and fin‑can are still unmodeled. |
-| **CAD ↔ `.ork` sync** | ❌ **Inverted — CAD now leads the `.ork`, against §12.** The retainer cap adds **17 mm of overall length** and ≈ **19 g net at 378.5 mm**; neither is in the model. Must be propagated before §13 item 3 runs — see §13 item 14. |
+| 3D‑print package | ⚠️ **D9aft v1 (2026‑09‑30): full flight set modeled — FwdTube, AftTube, AftFinCan (aft‑deploy), SledMount, shear pins + pin card + pin coupon; ALL PASS, STEP + STL in `Print Files/Aft Deploy D9/` (`Models/AFT_DEPLOY_D9_DESIGN.md` §3). None flight‑qualified (§9 of that note).** *History:* 11 bodies modeled, none flight‑qualified (§12.1). Ejection POC v1: 8 bodies, every geometric check passes, STEP + STL exported. Aft motor retention v1: 4 bodies in two configurations, **all verify clean** (§9) — STEP + STL exported. cfg B is a **sealed aft airframe section with through-the-wall fin slots** and cfg C the same section with the **fins printed in** — bulkhead only, **no vents**: this build flies a plugged motor, which §7.6's last paragraph says removes the venting problem entirely. Airframe, nose and fin‑can are still unmodeled. |
+| **CAD ↔ `.ork` sync** | ⚠️ **D9aft v1: `PhoenixABS40-43_D9aft_v1.ork` carries the CAD** — body 340 mm with the CAD mass/CG override, nose v5, fin TE and motor overhang at their CAD positions, D9‑5 default, ⌀500 on ejection. It is a patched copy; `PhoenixABS40-43.ork` itself is still the old model (cap length, masses not propagated). *(Was: inverted, §13 item 14.)* |
 | Livery | Defined (tan body, charcoal nose, white fins, orange stripes). See §10. |
 
 > This document is the written design reference. `PhoenixABS40-43.ork` remains the
@@ -369,6 +382,10 @@ the trailing‑edge coupling. Hence a one‑parameter change.
 
 ## 5. Propulsion & motor / delay selection
 
+> **Superseded in part (2026‑09‑30):** the flight motor is now the **Klima D9‑5** (5 s delay, ejection charge used for
+> deployment). On the D9aft v1 vehicle OpenRocket gives an optimum delay of 4.6 s: D9‑5 ejects 0.46 s after apogee,
+> D9‑3 0.6 s early at 15 m/s, D9‑7 2.5 s late at 19 m/s. D9‑0 stays staging‑only (§5.1). See `Models/AFT_DEPLOY_D9_DESIGN.md` §6.
+
 Motor mount: **18 mm ⌀ × 70 mm** — standard Estes "mini" / Klima 13–18 mm class. Seven motor
 configurations are stored in the model:
 
@@ -436,6 +453,9 @@ item in §13.
 ## 7. Recovery system
 
 ### 7.1 Architecture decision  *(new — supersedes motor‑ejection recovery)*
+
+> ⛔ **Superseded 2026‑09‑30 by D9aft v1** — recovery is back on **motor ejection**, deployed **aft** (fin can separates on
+> printed shear pins; nose fixed). §7.1–7.9 below are the spring design, kept as history. Current design: `Models/AFT_DEPLOY_D9_DESIGN.md`.
 
 **Decision: a compression spring driving a piston, held by a servo‑released latch, as the
 *sole* deployment event. The motor's own ejection charge is sealed off and vented overboard.**
@@ -669,6 +689,9 @@ independent of actuator torque — this is the geometry §7.5.1 item 1 demands. 
 
 ### 7.6 Motor ejection charge — seal and vent  ⚠️ mandatory under §7.1
 
+> ⛔ **Superseded 2026‑09‑30:** the charge is no longer vented overboard — it **is** the deployment. It fires through a ⌀14
+> port in the fin‑can thrust ring into the chute bay; the e‑bay is sealed behind a solid bulkhead. `Models/AFT_DEPLOY_D9_DESIGN.md` §1, §5.
+
 With the spring as sole deployment, the motor's charge must go **overboard**, never into the
 recovery bay.
 
@@ -712,6 +735,8 @@ This does **not** rehabilitate them for single‑stage flight (§5.1).
 
 ### 7.8 Internal layout  *(stations from the top of the body tube)*
 
+> ⛔ **Superseded 2026‑09‑30** — current layout (e‑bay 45–110, bulkhead 131, chute bay 131–281, pins 276.6): `Models/AFT_DEPLOY_D9_DESIGN.md` §2.
+
 | Station | Length | Contents |
 |---|---|---|
 | 0 – 20 mm | 20 | Nose shoulder engagement *(extend toward 43 mm per §9 — costs bay length)* |
@@ -729,6 +754,9 @@ vents (§8.6). Keep it a **plain drilled hole** (no inward sealing boss): the BM
 share air with it, and a plain hole keeps the bore clean for cassette extraction (§13 item 16).
 
 ### 7.9 Qualification tests  — all before first flight
+
+> ⛔ **Superseded 2026‑09‑30** — the D9aft test list is in `Models/AFT_DEPLOY_D9_DESIGN.md` §9 (pin coupon, slide friction, bulkhead leak,
+> casing fit, pack test, harness pull).
 
 | # | Test | Pass criterion |
 |---|---|---|
@@ -1137,6 +1165,10 @@ is done, the forward airframe is not".
 ---
 
 ## 13. Open items & required actions
+
+> **2026‑09‑30:** items that concern the spring/servo recovery (T5, latch, spring rate, nose breakaway) are closed by the
+> D9aft v1 re‑architecture. Its own open items (rail exit ~11–15 m/s, descent 5.2 m/s, pin τ assumed, charge unknown,
+> spent‑casing fit) are in `Models/AFT_DEPLOY_D9_DESIGN.md` §10. Item 3's OpenRocket re‑run has been done for the D9 on the D9aft masses.
 
 Ordered by priority.
 

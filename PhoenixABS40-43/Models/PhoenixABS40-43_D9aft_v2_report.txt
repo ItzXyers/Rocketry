@@ -1,0 +1,78 @@
+== Phoenix ABS 40-43 -- D9aft_v2: D9aft v1 + screw-on nose v6, tool-free e-bay, bulkhead eyelet ==
+Frame z = 340 - station (station 0 = nose base). Threaded parts: pair checked by sampling; fits on thread-free proxies.
+
+STATION TABLE
+    -65.0 -     0.0  nose v6 (Von Karman shell, 14.6 g), screws in -- never separates in flight
+      0.0 -     9.5  thread: male on the nose shoulder, female in the FwdTube mouth (pitch 3.0, 45 deg, 3.2 turns)
+      9.5 -    10.5  foam ring 2 -> 1 mm (holds the e-bay down, stops rattle/rotation)
+     10.5 -    15.4  EbayCap disc; pull loop rises 14 mm forward into the nose
+     13.0 -    61.7  e-bay sled v1 (unchanged), standing on the seat ring
+     61.7 -    66.7  seat ring (flat top) -> spigot
+     66.7 -    66.7  BONDED joint FwdTube / AftTube
+     80.2 -    82.7  gas-tight bulkhead with the recessed EYELET BAR in its aft face
+     82.7 -   281.1  CHUTE BAY 198 mm -- clean bore, no wall lug
+    152.5 -   187.5  launch lug (v1), rod line r 25.95
+    248.6 -   288.6  fin-can coupler, slip fit, 2 shear pins at station 276.6 (v1)
+    288.6 -   340.0  fin can + D9 + cap (v1, unchanged)
+
+PASS nose v6 valid, 1 solid(s)
+PASS FwdTube valid, 1 solid(s)
+PASS FwdTube proxy valid, 1 solid(s)
+PASS AftTube valid, 1 solid(s)
+PASS EbayCap valid, 1 solid(s)
+PASS REAL FwdTube female thread: 6/6 probes as designed (channel centre at station 2.4)
+PASS thread SEATED: clash 0 of 672 samples in the interlock band r 19.80/20.05; fill tube 32% / nose 48% (both > 20% = interlocked)
+PASS unscrew sweep (rotate + advance 3.0 mm/turn): clash [(180, 0, 289), (360, 0, 228)]  (phi, clash, nose fill samples)
+PASS NEGATIVE CONTROL: nose half a pitch out of phase -> clash 213 samples (must be > 0, or the check cannot fail)
+NOTE thread sampling took 260 s
+PASS nose base seats on the tube mouth face: contact annulus r 20.45..21.50 (1.05 mm wide) at station 0
+PASS e-bay lifts out of the mouth: largest radius 19.39 (sled) vs thread crest 19.65 -> 0.26 mm radial
+PASS stack: nose shoulder end st 9.5, EbayCap top st 10.5 -> 1.0 mm for the foam ring; e-bay stands on the seat at st 61.7
+PASS sled/electronics against the seat ring and bore: 0.0000 mm3 overlap (contact only)
+PASS interference, flight (thread pair checked above): none
+PASS EbayCap pull loop clear of the nose interior (0.000 mm3); loop opening 11.2 x 11.0 mm
+PASS bulkhead gas-tight: pocket is blind (roof 238.4 of 238.4 mm3 solid, 3.0 mm thick), plate around it solid (2453.7 of 2453.7 mm3)
+PASS eyelet: 4/4 probes; cord path = down a 5 x 5 window, through a 3.5 x 5 tunnel over the bar, out the other window
+PASS eyelet bar at the 250 N placeholder: 6 x 3 bar, 5 mm span, fixed-fixed bending 17.4 MPa (in-layer, printed flat on the bed; ABS ~35)
+  the eyelet is exposed until the FwdTube is bonded: tie a permanent Kevlar leader to it first; its loop reaches the aft opening.
+PASS d14 gas column clear from the motor face to the bulkhead: clear
+PASS chute-bay wall: missing 7.44 mm3 vs 7.44 of pin slots -> no other holes
+PASS canopy exit path: nothing inside the d40 bore from the bulkhead to the aft end (0.0000 mm3)
+PASS separation sweep 0..44 mm: fin can never touches the aft tube 
+PASS launch rod line clear of cap ribs, fins, FwdTube, nose: clear
+PASS tube split: FwdTube 82.7 mm, AftTube 221.9 mm tall (bed 250)
+NOTE pins unchanged (v1: 2 x 12.0 N = 24.0 N). Chute bay is 198 mm long (v1 150): the same charge gives ~0.80x the v1 pressure.
+     If separation is weak on the first flight, drop to the 0.5 mm neck (card nick 1) before anything else.
+PASS FwdTube (proxy; the thread is 45 deg) printed bulkhead (eyelet bar) down on the bed: 43.0 x 43.0 x 82.7 mm; 4 overhang patches (299.2 mm2), 0 need support
+PASS AftTube printed forward end down: 43.0 x 47.5 x 221.9 mm; 3 overhang patches (7.9 mm2), 0 need support
+PASS EbayCap printed disc down, loop up: 38.6 x 38.6 x 18.9 mm; 7 overhang patches (138.5 mm2), 0 need support
+NOTE FwdTube eyelet: the pocket roof bridges 5 mm and the tie bar is the first layers -- no support.
+
+MASS & CG (printed parts solid x rho: an upper bound)
+ITEM                                         GROUP           g  CG                       BASIS
+Nose cone v6 (screw-on Von Karman)           nose         14.6  st  -21.2 (tip   43.8)   CAD x ABS 1.05
+FwdTube v2 (thread, seat, bulkhead, eyelet)  airframe     21.9  st   49.7 (tip  114.7)   CAD x ABS 1.05
+AftTube v2 (chute bay, launch lug)           airframe     46.4  st  177.5 (tip  242.5)   CAD x ABS 1.05
+EbayCap                                      e-bay         6.3  st   11.9 (tip   76.9)   CAD x ABS 1.05
+HW M2x10_pan_0                               e-bay         0.4  st   13.7 (tip   78.7)   CAD x steel 7.85
+HW M2x10_pan_1                               e-bay         0.4  st   13.7 (tip   78.7)   CAD x steel 7.85
+ElectronicsSled v1                           e-bay         7.7  st   40.2 (tip  105.2)   CAD x ABS 1.05
+Electronics, Opt B 620 mAh, no servo         e-bay        39.0  st   42.9 (tip  107.9)   avbay packing md 6 (48 g less SG90); CG = envelopes
+Foam ring 2 mm                               e-bay         0.3  st   10.0 (tip   75.0)   estimate
+Canopy d500 + harness + Kevlar leader        recovery     16.0  st  127.7 (tip  192.7)   DESIGN 7.7; packed forward in the bay
+Nomex blanket / wadding                      recovery      4.0  st  245.0 (tip  310.0)   estimate
+Shear pin_0                                  aft           0.0  st  276.6 (tip  341.6)   CAD x ABS 1.05
+Shear pin_1                                  aft           0.0  st  276.6 (tip  341.6)   CAD x ABS 1.05
+AftFinCan D9aft v1                           aft          51.2  st  310.6 (tip  375.6)   CAD x ABS 1.05
+MotorRetainerCap v1                          aft           9.0  st  350.8 (tip  415.8)   CAD x ABS 1.05
+Klima D9-5 (loaded; 11.0 g spent)            motor        27.1  st  319.1 (tip  384.1)   OpenRocket motor DB
+  nose        14.6 g  CG st  -21.2 (tip   43.8)
+  airframe    68.4 g  CG st  136.5 (tip  201.5)
+  e-bay       54.1 g  CG st   38.3 (tip  103.3)
+  recovery    20.0 g  CG st  151.2 (tip  216.2)
+  aft         60.2 g  CG st  316.7 (tip  381.7)
+  Dry, flight-ready             217.3 g  CG st  152.7 (tip  217.7)   (v1 251.2 g, tip 213.3)
+  Liftoff on D9 (27.1 g)        244.4 g  CG st  171.2 (tip  236.2)   (v1 278.3 g, tip 230.0)
+  Landing (spent 11.0 g)        228.3 g  CG st  160.8 (tip  225.8)
+OPENROCKET: NOSE_G=14.6 NOSE_CG=43.8 NS_BODY_G=202.7 NS_BODY_LEN=340.0 NS_BODY_CGX=165.3
+RESULT: ALL PASS (0 FAIL)

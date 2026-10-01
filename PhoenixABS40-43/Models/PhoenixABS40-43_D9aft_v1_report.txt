@@ -1,0 +1,117 @@
+== Phoenix ABS 40-43 -- D9aft_v1: aft deployment on the Klima D9-5 motor ejection charge ==
+Frame z = 340 - station (station 0 = nose base). Fin-can frame Zf = z. Threaded fin can: booleans run on the thread-free proxy.
+
+STATION TABLE
+    -65.0 -     0.0  nose v5 (unchanged part), retained -- never separates
+      0.0 -    42.0  nose shoulder; 3 x M5 x 8 button heads at station 8 into its d4.2 pilots (clocked 30/150/270 deg)
+     45.0 -    63.9  sled mount: lugs + disc; 3 x M3 CSK at station 50
+     61.5 -   110.2  e-bay sled v1 (logging only; no servo, no pyro)
+    115.0 -   115.0  BONDED joint fwd_tube / aft_tube
+    128.5 -   131.0  gas-tight bulkhead (end of the fwd_tube spigot)
+    131.0 -   281.1  CHUTE BAY: harness lug 132-150, canopy, Nomex
+    152.5 -   187.5  launch lug on the OD, 300 deg, bore d4.4, rod line r 25.95 (stood off on a web to clear the cap ribs)
+    248.6 -   288.6  fin-can coupler in the aft tube: SLIP FIT, NOT BONDED (the separation)
+    276.6 -   276.6  2 x printed shear pins at 60/180 deg
+    281.1 -   284.1  fin-can thrust ring, d14 gas port, harness lug at 300 deg
+    288.6 -   340.0  fin can (v1 cfg C), Klima D9 18 x 70, cap v1 to station 357.0
+
+PASS AftFinCan valid, 1 solid(s)
+PASS FwdTube valid, 1 solid(s)
+PASS AftTube valid, 1 solid(s)
+PASS SledMount valid, 1 solid(s)
+PASS ShearPin valid, 1 solid(s)
+PASS PinCouponOuter valid, 1 solid(s)
+PASS PinCouponInner valid, 1 solid(s)
+PASS fin-can proxy valid, one solid
+PASS nose detent pilots found at station 8: 3, clocked [30.0, 150.0, 270.0]
+PASS REAL fin can: 14/14 feature probes as designed
+PASS proxy fin can: 14/14 same probes
+PASS feature volume delta real +4793.1 vs proxy +4793.1 mm3 (the same cuts/fuses landed on both; |d| < 2)
+PASS thread present on the real part only: 25 of 52 probes at r 18.6 / Zf -8 are groove on the real part, solid on the proxy
+PASS interference, flight (pins in): none
+PASS nose screw 0: M5 self-taps 6.3 mm into the nose pilot (>= 5)
+PASS nose screw 1: M5 self-taps 6.3 mm into the nose pilot (>= 5)
+PASS nose screw 2: M5 self-taps 6.4 mm into the nose pilot (>= 5)
+PASS e-bay screw 0: 6.5 mm engaged in the lug (>= 3.5)
+PASS e-bay screw 1: 6.5 mm engaged in the lug (>= 3.5)
+PASS e-bay screw 2: 6.5 mm engaged in the lug (>= 3.5)
+PASS separation sweep 0..44 mm aft (pins sheared): fin can never touches the aft tube 
+PASS coupler leaves the body after 40.0 mm of travel; nothing in the bay forward of the coupler face within 99 mm (aft-tube lug at station 150)
+PASS coupler OD 39.60 in the aft-tube bore 40.00: 0.40 mm diametral slip (not bonded; target 0.3-0.5)
+PASS spigot OD 39.70 in the aft-tube bore: 0.30 mm diametral epoxy gap (bonded)
+PASS sled (R 19.39) / disc (R 19.30) / lugs (R 19.75) pass the 40 bore from the nose end
+PASS e-bay contents end at station 110.2, forward of the spigot (bore narrows to 37.0 at station 110.5)
+PASS sled-mount lugs start 3.0 mm behind the nose shoulder
+PASS d14 gas column clear from the motor face to the bulkhead (the lug sits beside the port): clear
+PASS e-bay bulkhead solid: 2663.6 of 2663.6 mm3 (no lead or vent holes)
+PASS chute-bay wall: missing 7.44 mm3 vs 7.44 of pin slots -> no other holes
+NOTE e-bay wall holes: 219.2 mm3 removed (3 x M5, 3 x M3 CSK, static d1.5, sound d3.0) -- all forward of the bulkhead
+PASS launch rod d4.0, pushed 0.20 mm toward the axis in the lug: clear of cap ribs (any clocking), fins, nose, screw heads: clear
+PASS rod centred in the lug bore does not touch the AftTube (0.0000 mm3); rod line 25.95 mm from the body axis (pad [6-8] assumed 25), 1.00 mm clear of the ribs
+PASS launch lug present (outer wall, web) and its bore open: [True, True, True]
+PASS pin coupon assembled: rings do not touch (0.000 mm3), pins free in both slots [0.0, 0.0], string line across the holes clear, hook hole open True
+
+SHEAR PINS (2 x, neck 0.80 x 0.60 mm, tau 25 MPa ASSUMED)
+  per pin 12.0 N, total 24.0 N  = 19.1 kPa (2.77 psi) over the d40 bore
+PASS pin_0 sits in both slots with clearance (overlap 0.000 mm3), spans r 18.54..22.19 (tube OD -> coupler ID)
+PASS pin_1 sits in both slots with clearance (overlap 0.000 mm3), spans r 18.54..22.19 (tube OD -> coupler ID)
+PASS pin is the weak link: bearing tube 3.3 MPa / coupler 3.8 MPa (<< 40); slot tear-out tube 862 N (edge 11.5 mm), coupler 1788 N (edge 27.5 mm)  vs pin 12.0 N
+  hold budget (worst case, all additive): bay overpressure at apogee 2.6 N + hanging fin can/motor 0.8 N + drag separation <= 0.8 N = 4.2 N
+PASS pins hold 5.6x that; slide friction adds to the hold and to what the charge must beat (measure it: target < 3 N)
+  release: the charge needs > 24.0 N (+ friction) = 19.1 kPa gauge in the bay. The D9 charge is not published -- pull-test each pin batch
+  on PinCouponOuter/Inner; accept a batch at 8-15 N per pin (neck 0.60 nominal; the card carries 0.5/0.6/0.8/1.0, 1-4 head nicks).
+
+HARNESS ANCHORS at the 250 N snatch placeholder
+PASS fin-can lug (on the thrust ring): hole d3.5, bearing 11.9 MPa, shear-out ligament 2.65 mm -> 795 N (>= 2 x 250)
+PASS aft-tube lug (chute bay wall): hole d3.5, bearing 11.9 MPa, shear-out ligament 2.55 mm -> 765 N (>= 2 x 250)
+  both lugs fuse to the wall along their full length (in-layer bond); the fin-can lug also stands on the thrust ring.
+  Tether: fin-can lug -> 300 mm Kevlar leader -> shock cord -> canopy -> shock cord -> aft-tube lug. Kevlar through the hot zone.
+
+MOTOR: the ejection reaction pushes the casing AFT onto the cap lip (~8 N at 55 kPa over the d14 port) -- the cap is now a primary
+  load path: if the motor leaves, the fin can does not separate. Thrust 25 N peak on the 54.7 mm2 ledge = 0.46 MPa.
+OPEN measure a spent Klima D9: the cap's d15 lip must bear on the casing wall, and the ledge (r 8.2-9.2) on the forward rim.
+OPEN the d18.4 bore leaves 0.4 mm around an 18.0 casing: a blow-by path from the port to the nozzle. One wrap of tape on the casing.
+
+PASS FwdTube printed bulkhead down on the bed: 43.0 x 43.0 x 131.0 mm; 9 overhang patches (241.4 mm2), 0 need support
+PASS AftTube printed forward end down: 43.0 x 47.5 x 173.6 mm; 4 overhang patches (23.6 mm2), 0 need support
+PASS SledMount printed disc down, lugs up: 38.6 x 39.1 x 18.9 mm; 12 overhang patches (127.5 mm2), 0 need support
+PASS ShearPin printed flat, 0.8 mm tall: 3.6 x 4.0 x 0.8 mm; 0 overhang patches (0.0 mm2), 0 need support
+PASS PinCouponOuter printed either end: 43.0 x 43.0 x 30.0 mm; 4 overhang patches (14.2 mm2), 0 need support
+PASS PinCouponInner printed floor down: 39.6 x 39.6 x 26.0 mm; 2 overhang patches (6.8 mm2), 0 need support
+NOTE AftFinCan (proxy) printed boss down (as v1; support under the 3 fin trailing edges): 115.2 x 132.7 x 104.9 mm; support patches (print z, span, mm2) [(25.5, 19.0, 286.3), (25.5, 19.0, 286.3), (53.5, 19.0, 286.3), (69.4, 37.0, 735.1), (53.5, 19.0, 286.3)] -- bridged annuli, all present in v1 (centring rings Zf 12/40, thrust-ring annulus Zf 55.9 now incl. the 1.0 mm casing-rim ledge); the fin trailing edges still take v1's support
+NOTE FwdTube: the 1.65 mm outer step at station 115 (43 -> 39.7) prints as a short flat overhang, like the nose base ledge; it is the bond face.
+
+MASS & CG (printed parts solid x rho: an upper bound)
+ITEM                                         GROUP           g  CG                       BASIS
+Nose cone v5 (Von Karman)                    nose         39.6  st    1.8 (tip   66.8)   CAD x ABS 1.05
+M5x8 button (nose) 0                         nose          2.8  st    8.0 (tip   73.0)   CAD x steel 7.85
+M5x8 button (nose) 1                         nose          2.8  st    8.0 (tip   73.0)   CAD x steel 7.85
+M5x8 button (nose) 2                         nose          2.8  st    8.0 (tip   73.0)   CAD x steel 7.85
+FwdTube (nose shoulder + e-bay + bulkhead)   airframe     29.6  st   71.9 (tip  136.9)   CAD x ABS 1.05
+AftTube (chute bay + lugs)                   airframe     37.1  st  200.1 (tip  265.1)   CAD x ABS 1.05
+SledMount                                    e-bay         7.2  st   58.8 (tip  123.8)   CAD x ABS 1.05
+HW M3x8_csk_0                                e-bay         0.6  st   50.0 (tip  115.0)   CAD x steel 7.85
+HW M3x8_csk_1                                e-bay         0.6  st   50.0 (tip  115.0)   CAD x steel 7.85
+HW M3x8_csk_2                                e-bay         0.6  st   50.0 (tip  115.0)   CAD x steel 7.85
+HW M2x10_pan_0                               e-bay         0.4  st   62.2 (tip  127.2)   CAD x steel 7.85
+HW M2x10_pan_1                               e-bay         0.4  st   62.2 (tip  127.2)   CAD x steel 7.85
+ElectronicsSled v1                           e-bay         7.7  st   88.7 (tip  153.7)   CAD x ABS 1.05
+Electronics, Opt B 620 mAh, no servo         e-bay        39.0  st   91.4 (tip  156.4)   avbay packing md 6 (48 g less SG90); CG = envelopes
+Canopy d500 + harness + Kevlar leader        recovery     16.0  st  170.0 (tip  235.0)   DESIGN 7.7; packed forward in the bay
+Nomex blanket / wadding                      recovery      4.0  st  245.0 (tip  310.0)   estimate
+Shear pin_0                                  aft           0.0  st  276.6 (tip  341.6)   CAD x ABS 1.05
+Shear pin_1                                  aft           0.0  st  276.6 (tip  341.6)   CAD x ABS 1.05
+AftFinCan D9aft (v1 + port/coupler/lug)      aft          51.2  st  310.6 (tip  375.6)   CAD x ABS 1.05
+MotorRetainerCap v1                          aft           9.0  st  350.8 (tip  415.8)   CAD x ABS 1.05
+Klima D9-5 (loaded; 11.0 g spent)            motor        27.1  st  319.1 (tip  384.1)   OpenRocket motor DB
+  nose        47.9 g  CG st    2.9 (tip   67.9)
+  airframe    66.7 g  CG st  143.2 (tip  208.2)
+  e-bay       56.4 g  CG st   85.2 (tip  150.2)
+  recovery    20.0 g  CG st  185.0 (tip  250.0)
+  aft         60.2 g  CG st  316.7 (tip  381.7)
+  Dry, flight-ready            251.2 g  CG st  148.3 (tip  213.3)
+  Liftoff on D9 (27.1 g)       278.3 g  CG st  165.0 (tip  230.0)
+  Landing (spent 11.0 g)       262.2 g  CG st  155.5 (tip  220.5)   (of which the separated fin can + cap + spent motor: 71.2 g)
+OPENROCKET: NOSE_G=47.9 NOSE_CG=67.9 NS_BODY_G=203.4 NS_BODY_LEN=340.0 NS_BODY_CGX=182.6
+NOT IN FLIGHT MASS: pin card, pin coupons, RBF pin (there is none now). Epoxy / paint / tape: a few grams.
+RESULT: ALL PASS (0 FAIL)

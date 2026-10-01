@@ -23,9 +23,22 @@ Print Files/
       ..._PadLeg_v1.stl                PRINT x3 — laid FLAT, layers across the width (in-plane bending)
       ..._BlastDeflector_v1.stl        disc down; arched windows are self-supporting
   Nosecone/                            v5 Von Kármán separating nose for the T5 airframe (Nosecone/NOSE_V5_AERO.md)
+    ..._nose_VonKarmanScrew_v6.stl     v6 screw-on nose for D9aft v2 -- TIP UP, thread on the bed, no support
     ..._nose_VonKarman_v5.stl          raw, as modeled (tip at Z=0)
     Ready to Print/
       ..._nose_VonKarman_v5.stl        TIP UP, shoulder on the bed; 0.12–0.16 mm layers, no support
+  Aft Deploy D9/                       D9aft v1 (2026-09-30): Klima D9-5 motor ejection, aft deploy (Models/AFT_DEPLOY_D9_DESIGN.md)
+    *.stl                              raw, as modeled
+    Ready to Print/                    pre-oriented, dropped to Z=0 -- slice these
+      ..._FwdTube.stl                  BULKHEAD DOWN (the gas seal is the first layers)
+      ..._AftTube.stl                  forward end down; no supports
+      ..._AftFinCan.stl                boss down; support the 3 fin trailing edges (as v1)
+      ..._SledMount.stl                disc down
+      ..._ShearPinCard.stl             16 pins, necks 0.5/0.6/0.8/1.0 (1-4 head nicks); brim; SAME job/filament as the coupons
+      ..._PinCouponOuter/Inner.stl     batch pull-test rig (not flight parts)
+      D9aft_v2: ..._D9aft_v2_FwdTube / _AftTube / _EbayCap replace the v1 FwdTube / AftTube / SledMount;
+               fin can, pins, pin card, coupons stay the v1 files. Nose: Nosecone/Ready to Print/..._nose_VonKarmanScrew_v6.stl
+  Ready to Print/D9/                   COMPLETE D9aft v2 print set (copies, oriented) + README with order, qty, supports
   _archive/                            superseded 2026-09-02 exports, kept for reference
 ```
 
