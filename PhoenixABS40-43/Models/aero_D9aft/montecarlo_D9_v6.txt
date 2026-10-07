@@ -1,0 +1,35 @@
+
+== v6_cad_bay150  (body 313.5 mm, 204.7 g @ 155.7; N=500, wind 0-8 m/s, 2.0 m guided rod) ==
+metric                                   p1       p5      p50      p95      p99    worst
+static margin liftoff, cal             1.39     1.43     1.52     1.62     1.64     1.39
+static margin burnout, cal             1.60     1.65     1.74     1.83     1.87     1.59
+min in-flight margin (v>15), cal       0.84     0.92     1.17     1.53     1.60     0.78
+max AoA powered, deg                   0.46     1.65    12.87    26.26    29.28    31.14
+max AoA coast (v>15), deg              0.13     0.31     1.42     3.25     4.17     6.30
+rail exit, m/s                        14.47    14.69    15.30    15.95    16.20    14.13
+apogee, m                            146.86   163.54   196.68   219.55   228.75   143.29
+apogee drift from pad, m               4.31    12.82    73.57   118.86   126.62   140.10
+speed at ejection, m/s                 1.95     3.24    11.83    19.84    22.37    26.58
+landing distance, m                    2.94    12.93    70.52   151.51   185.48   238.60
+P(static liftoff < 1.5) = 33.2 %   P(< 1.0) = 0.0 %
+P(min in-flight margin < 1.0) = 18.6 %   P(< 0.5) = 0.0 %   P(max AoA > 10 deg) = 62.4 %
+P(ejection faster than 10 m/s) = 60.6 %   P(> 20 m/s) = 4.8 %
+CP error that eats the p1 static margin down to 1.0 cal: 17 mm forward (Barrowman is typically good to ~5-10% of length)
+
+== v5_bay198  (body 340.0 mm, 204.7 g @ 165.0; N=500, wind 0-8 m/s, 2.0 m guided rod) ==
+metric                                   p1       p5      p50      p95      p99    worst
+static margin liftoff, cal             1.64     1.68     1.78     1.88     1.91     1.63
+static margin burnout, cal             1.88     1.92     2.02     2.12     2.16     1.86
+min in-flight margin (v>15), cal       1.02     1.07     1.38     1.78     1.85     0.97
+max AoA powered, deg                   0.43     1.58    12.96    26.63    29.91    33.07
+max AoA coast (v>15), deg              0.11     0.29     1.42     3.34     4.63     5.19
+rail exit, m/s                        14.49    14.65    15.31    15.98    16.20    14.08
+apogee, m                            147.53   162.05   195.82   218.05   227.58   135.49
+apogee drift from pad, m               4.58    12.70    71.63   117.46   127.31   132.83
+speed at ejection, m/s                 1.83     3.15    11.72    20.32    22.56    26.81
+landing distance, m                    3.13    12.31    67.66   154.23   186.18   246.03
+P(static liftoff < 1.5) = 0.0 %   P(< 1.0) = 0.0 %
+P(min in-flight margin < 1.0) = 0.6 %   P(< 0.5) = 0.0 %   P(max AoA > 10 deg) = 62.6 %
+P(ejection faster than 10 m/s) = 61.2 %   P(> 20 m/s) = 5.6 %
+CP error that eats the p1 static margin down to 1.0 cal: 28 mm forward (Barrowman is typically good to ~5-10% of length)
+

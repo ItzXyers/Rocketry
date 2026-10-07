@@ -1,0 +1,36 @@
+NOTE: abandoned variant (2026-10-06) -- 150 mm bay by cutting 48.4 mm out of the v5 AftTube, OLD sled v4 e-bay, body 291.6, hand-delta mass. NOT D9aft v6 (see montecarlo_D9_v6.txt).
+
+== shortbody291_bay150  (body 291.6 mm, 194.8 g @ 143.7; N=500, wind 0-8 m/s, 2.0 m guided rod) ==
+metric                                   p1       p5      p50      p95      p99    worst
+static margin liftoff, cal             1.27     1.31     1.39     1.48     1.51     1.26
+static margin burnout, cal             1.47     1.51     1.60     1.69     1.73     1.46
+min in-flight margin (v>15), cal       0.81     0.86     1.10     1.40     1.45     0.75
+max AoA powered, deg                   0.45     1.53    12.68    25.69    28.56    29.88
+max AoA coast (v>15), deg              0.11     0.29     1.40     3.32     4.32     6.97
+rail exit, m/s                        14.95    15.19    15.83    16.51    16.70    14.58
+apogee, m                            165.00   174.77   211.79   234.64   243.76   152.19
+apogee drift from pad, m               4.79    13.09    74.82   122.34   134.14   149.86
+speed at ejection, m/s                 2.03     3.35    11.99    19.51    21.51    25.66
+landing distance, m                    5.42    14.70    86.71   182.30   214.88   304.26
+P(static liftoff < 1.5) = 98.0 %   P(< 1.0) = 0.0 %
+P(min in-flight margin < 1.0) = 32.0 %   P(< 0.5) = 0.0 %   P(max AoA > 10 deg) = 61.4 %
+P(ejection faster than 10 m/s) = 61.2 %   P(> 20 m/s) = 4.2 %
+CP error that eats the p1 static margin down to 1.0 cal: 11 mm forward (Barrowman is typically good to ~5-10% of length)
+
+== v5_bay198  (body 340.0 mm, 204.7 g @ 165.0; N=500, wind 0-8 m/s, 2.0 m guided rod) ==
+metric                                   p1       p5      p50      p95      p99    worst
+static margin liftoff, cal             1.64     1.68     1.78     1.88     1.91     1.63
+static margin burnout, cal             1.88     1.92     2.02     2.12     2.16     1.86
+min in-flight margin (v>15), cal       1.01     1.08     1.38     1.78     1.85     0.93
+max AoA powered, deg                   0.43     1.62    13.11    26.22    28.85    32.45
+max AoA coast (v>15), deg              0.14     0.27     1.47     3.47     4.44     5.54
+rail exit, m/s                        14.49    14.65    15.31    15.98    16.20    14.08
+apogee, m                            148.15   161.01   195.49   218.93   226.88   134.85
+apogee drift from pad, m               4.70    13.41    72.19   120.60   127.31   133.78
+speed at ejection, m/s                 1.71     3.15    11.68    20.47    22.64    27.71
+landing distance, m                    3.48    13.35    66.35   156.31   188.87   246.14
+P(static liftoff < 1.5) = 0.0 %   P(< 1.0) = 0.0 %
+P(min in-flight margin < 1.0) = 1.0 %   P(< 0.5) = 0.0 %   P(max AoA > 10 deg) = 61.8 %
+P(ejection faster than 10 m/s) = 60.0 %   P(> 20 m/s) = 6.2 %
+CP error that eats the p1 static margin down to 1.0 cal: 28 mm forward (Barrowman is typically good to ~5-10% of length)
+

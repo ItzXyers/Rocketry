@@ -1,0 +1,34 @@
+== Phoenix ABS 40-43 -- D9aft_v9: v8 + printed SNAP LATCH (coupon v2, L24 at 60/180 deg) in place of the shear pins ==
+Inputs (read-only): PhoenixABS40-43_D9aft_v8_AftTube.step, PhoenixABS40-43_D9aft_v8_AftFinCanSlotted.step; latch = coupon v2 shifted to Zf 51.4.
+
+PASS v1/v8 constants confirmed on the v8 parts: 9/9 probes
+PASS AftTube v9 valid, 1 solid(s)
+PASS AftFinCanSlotted v9 valid, 1 solid(s)
+PASS fin can v9 coupler zone valid, 1 solid(s)
+PASS AftTube v9 probes 18/18
+PASS latch footprint Zf 58.4..89.3 inside the coupler (51.4..91.4): every slot is backed by the coupler wall
+PASS AftTube v9 vs v8: +34.8 / -405.7 mm3, all within Zf 58.40..89.30 (latch zone + pin slots) and nothing added beyond r 21.20 (OD 21.5): launch lug, bore, joint UNTOUCHED
+PASS fin can v9 (REAL part) probes 9/9
+PASS windows clear of the staple lug (overlap 0.0000 mm3) and the thrust ring (window aft face Zf 60.05 > ring top 58.9 + 0.5)
+PASS fin can v9 vs v8 (coupler zone): +3.45 / -45.01 mm3, all within Zf 60.05..64.03 (pin slots + windows)
+PASS seated: tube x fin can 0.0000 mm3; pulled aft 0.6 -> bump/window 4.343 mm3 (tube w/o bumps 0.0000) = CATCHES
+PASS RELEASE = separation sweep 0..44 mm with the tongues deflected 1.05 mm: clear 
+PASS negative control: undeflected bumps block the slide (21.02 mm3)
+PASS one clocking only: fin can turned 120/180/240 deg -> bumps hit solid coupler wall [10.51, 21.02, 10.51] mm3 = no click
+PASS chute bay forward of the coupler is a clean d40 bore (AftTube inside it 0.0000 mm3)
+PASS d14 gas column clear through the fin can (0.0000 mm3)
+
+LATCH FORCE (per pair): model 12.1 N; coupon v1 L24 MEASURED 873 g = 8.6 N (one pull, x0.71 of the model)
+PASS hold 8.6 N vs the 4.2 N budget (all loads additive) = 2.0x; the latch slots vent the bay, so the 2.6 N sealed-bay term mostly goes -> ~5.4x
+PASS release 8.6 N + ~3 N slide friction <= 24 N budget; ideal black powder for that on the 188 cm3 bay ~ 8 mg (Klima D9 charge unpublished)
+PASS tongue peak strain 0.36 % <= 1 % (reusable, printed ABS, along the perimeters)
+NOTE latches 120 deg apart (coupon 180): the coupler shifts ~0.2 mm in its slip fit -> ~0.1 mm less engagement (of 1.0) -> release a little lower than the coupon.
+NOTE gas assist: bay pressure reaches the tongues through the windows / slip gap and pushes them OUT of the catch.
+PASS AftTube v9 printed forward end down: 43.0 x 47.5 x 173.5 mm; down-facing area 75.0 mm2 vs v8 7.9 (+67.1; the 2 aft-gap bridges are ~74)
+PASS fin can v9 printed boss down: coupler-zone down-facing area 799.1 vs v8 805.8 mm2 (windows have 45 deg ceilings: no new overhang)
+
+MASS vs v8: AftTube -0.39 g, fin can -0.04 g, 2 pins -0.02 g -> -0.45 g, all at the aft end: CG / stability as v8
+
+ASSEMBLY: pack, push the fin can in, turn it until it CLICKS (one clocking only). No click = do not fly.
+  Do NOT tape over the tongues (they spring outward to release). Print the AftTube with dried ABS, wall line width 0.40.
+RESULT v9: ALL PASS (0 FAIL)  [20 s]

@@ -1,0 +1,211 @@
+==============================================================================
+Phoenix ABS 40-43 -- avionics bay ELECTRONICS SLED  v7   (v7: piezo sideways, flat on the plate, pins into a free bay)
+==============================================================================
+
+frame: avbay_packing_build_report_v2.txt  (Z=0 aft, +Z to nose, +x E, +y N)
+v7 (= v6): zone Z -22.8..48 -- the e-bay grows AFT by 21.9 mm (aft deck); Z >= 0 unchanged from v5
+charger BQ25302 + its wall slot deleted; battery charges off-vehicle (JST-PH)
+
+[1] build + heal
+  removeSplitter after fuse: kept
+  connectivity: 1 solid(s)  14330.5
+  heal Sled           faces 398 -> 345, solids 1,    14330.5 mm3
+  valid solid after heal: True
+
+[2] pack -- component list  (dx.dy.dz  Zmin  Zmax  Rmax)
+  Nano_ESP32    18.0. 5.0.45.0    0.0  45.0   18.79
+  BMP388         4.0.22.0.40.0    0.0  40.0   19.01
+  Battery       20.0. 8.5.40.5    0.4  40.9   18.45
+  ADXL375       18.0. 4.5.33.0    0.0  33.0   13.72
+  Piezo         11.0.25.0.15.0  -19.6  -4.6   19.36
+  ReedModule    28.1. 5.6.17.0   25.3  42.3   19.00
+  JST_PH         6.0. 4.5. 4.3   40.9  45.2   16.80
+  ZipTie         3.0.12.2.43.0   -0.9  42.2   16.84
+  SmallParts    18.9.18.0.19.3  -21.6  -2.3   18.01
+  Sled          38.7.38.7.70.2  -22.8  47.4   19.39   <- the sled
+
+[0] CONTAINMENT  (Rmax vs 19.5 moving / 20.0 ID)
+  Nano_ESP32   Rmax  18.79  toID  1.21   PASS  strap-retained (outboard of the sled skin)
+  BMP388       Rmax  19.01  toID  0.99   PASS  
+  Battery      Rmax  18.45  toID  1.55   PASS  
+  ADXL375      Rmax  13.72  toID  6.28   PASS  
+  Piezo        Rmax  19.36  toID  0.64   PASS  
+  ReedModule   Rmax  19.00  toID  1.00   PASS  strap-retained (outboard of the sled skin)
+  JST_PH       Rmax  16.80  toID  3.20   PASS  
+  ZipTie       Rmax  16.84  toID  3.16   PASS  
+  SmallParts   Rmax  18.01  toID  1.99   PASS  
+  Sled         Rmax  19.39  toID  0.61   PASS 
+  component tops  Z .. 45.2 (deck from Z -22.8)   PASS
+  above EbayCap face Z 45.4: 71.3 mm3, of which outside the spine key 0.00   PASS
+  EbayCap M2 boss (-15.3, 0.0) seated at Z 45.4: 100 % of the boss face present   PASS
+  EbayCap M2 boss (10.1, 0.0) seated at Z 45.4: 100 % of the boss face present   PASS
+
+[T] BMP388 vs NANO (heat)
+  closest envelope points 2.5 mm (v3: 0.5, stacked face to face); centre-to-centre 19.4 mm (v3 4.5)
+  BMP sensor side faces +x (the bay air); nothing covers it.
+
+[S] SCREW ACCESS  (d3.0 driver from the head outward; assembly order piezo -> BMP ->
+    ADXL -> Nano -> reed -> small parts -> battery; each sweep sees the sled + parts already in)
+  piezo d2.5 y-7.5 driver clear   PASS
+  piezo d3.0 y-7.2 driver clear   PASS
+  BMP y+9 Z2     driver clear   PASS
+  BMP y+9 Z38    driver clear   PASS
+  NEGATIVE CONTROL: a BMP y-9 driver hits the sled 15.6 mm3 (must be > 0)   PASS
+  BMP y-9 pair: rest pads only (a straight driver would cross the battery tray floor)
+
+[H] MEASURED HOLES  (2026-10-06, approximate; centre = edge distance + d/2)
+  BMP388  4 x d3.0, centres 2.0 in -> pitch 18.0 (y) x 36.0 (z); M2.5 screws, boss r 2.8
+    boss (y  -9.0, Z  2.0):  83 % of the standoff left after the bore clip   (rest pad)
+    boss (y  -9.0, Z 38.0):  83 % of the standoff left after the bore clip   (rest pad)
+    boss (y  +9.0, Z  2.0):  68 % of the standoff left after the bore clip   (driven)
+    boss (y  +9.0, Z 38.0):  68 % of the standoff left after the bore clip   (driven)
+  ADXL375 4 x d3.0, centres 3.0 in -> 12.0 (x) x 20.0 (z); rail-held, holes unused
+    groove engagement 0.8 vs hole edge 1.5 from the PCB edge: 0.7 clear   PASS
+  Piezo   d2.5 at (y -7.50, Z -17.85), M2
+  Piezo   d3.0 at (y -7.25, Z -6.85), M2
+    piezo M2 (y -7.50): thread 4.8 mm PASS; plate under the hole 100 % PASS; M2 head to can 1.30 PASS
+    piezo M2 (y -7.25): thread 4.8 mm PASS; plate under the hole 100 % PASS; M2 head to can 0.80 PASS
+  EbayCap M2: driven from the cap top -- always clear
+
+[W] BATTERY TRAY WALLS  (material along a ray from the cavity face outward, after clip + trim;
+    floor + caps swept every 0.5 mm in x -- the v6 first pass probed sparsely and missed a slit)
+  west wall  min 1.00 mm at (x -10.5, y  -7.5, Z   5.0)   PASS
+  east wall  min 1.20 mm at (x  10.5, y -14.5, Z   5.0)   PASS
+  floor      min 1.20 mm at (x -10.0, y  -7.0, Z   5.0)   PASS
+  aft cap    min 1.05 mm at (x  -1.0, y -13.0, Z  -0.1)   PASS
+  fwd cap    min 1.05 mm at (x  -1.0, y -13.0, Z  41.4)   PASS
+  caps: the zip-tie wraps sit in the 0.5 end clearance + a 0.75 notch at x ~0 (min above);
+  west wall: trimmed by the BMP keep-out at x -11.5.  (v5: 0.8 walls, windowed, floor slit by the tie)
+
+[C] CLEARANCE  (gap from each sliding face out to the first sled material)
+  Nano x         min gap 0.40 (want 0.40) at ( -9.0,  14.0,   5.0)   PASS
+  ADXL groove x  min gap 0.40 (want 0.40) at ( -9.0,   7.8,   5.0)   PASS
+  ADXL groove y  min gap 0.40 (want 0.40) at ( -8.6,   7.0,  12.0)   PASS
+  piezo -y end   min gap 0.40 (want 0.40) at (  9.2,  -9.5, -17.6)   PASS
+  piezo Z edges  min gap 2.00 (want 1.50) at (  9.2,  -7.0, -19.6)   PASS
+  battery x      min gap 0.50 (want 0.50) at (-10.0, -14.0,   5.0)   PASS
+  battery z      min gap 0.50 (want 0.50) at ( -6.0, -13.0,   0.4)   PASS
+
+[P] PIEZO v7 -- sideways, flat on the plate, pins into a free bay
+  board y -9.5..9.5, Z -19.6..-4.6; can centre (0, Z -12.1) facing +x; pins exit +y at y 9.5
+  sled in front of the plate face over the board footprint: 0.00 mm3 (no standoffs / bumps)   PASS
+  pin bay x 8.4..16.9, y 9.5..16.5, Z -21.6..-4.6 (680 mm3): sled inside it 0.00 mm3   PASS
+  other parts in the pin bay: none   PASS
+  straight pin tips at R 19.36 (moving limit 19.5) -- bend them toward -Z / -x inside the bay   PASS
+  under the board 2.0 mm, over it 2.6 mm (v6: 0 under -- the pins hit the floor)
+
+[B] BATTERY ACCESS
+  pack slides OUTBOARD (-y) free of the sled: [2.0, 5.0, 9.0, 12.0] mm tested clear   PASS
+  zip-tie channel (2.5 x 1.0 band + 0.25): Rmax 16.84, clear of sled + other parts: see [I] ZipTie post-cut / clashes
+  outboard face -> ID: 4.5 mm at x 0 (tie head goes here), 1.55 at the corners
+
+[R] REED MODULE -- arming by external magnet   (dims ASSUMED: measure RM_*)
+  PCB 18.5 x 15.0 x 1.6 in the x-z plane at y -4.3..-2.7, x -3.3..15.2, Z 26.3..41.3
+  header pins point to the axis (tips x -9.3): SOLDER wires, no DuPont housing (+14 mm)
+  capsule d2.2 x 14, axis at R 17.90, -8.7 deg (from +x toward -y), Z 26.8..40.8
+  glass outer R 19.00 -> 1.00 to ID + 1.5 wall = 2.50 mm magnet-to-glass
+  airframe: ARM mark at 9 deg from the witness notch (notch = +x, static port), stations 20.0..34.0
+
+[D9] FIT TO A *PROPOSED* D9aft E-BAY = v2 tube extended AFT by 21.9 mm (seat at Z -22.8)
+     (sled frame = D9 z - 279.2 above Z 0; station = 60.8 - Z if the length goes in aft)
+  EbayCap STEP: Z 45.40..64.30 (expect disc underside at 45.4)   PASS
+  FwdTube (proxy)  vs sled + every component: contact only   PASS
+  EbayCap          vs sled + every component: contact only   PASS
+  NEGATIVE CONTROL: sled dropped 0.5 mm -> 209.3 mm3 into the seat (must be > 0)   PASS
+  lift-out through the thread crests: largest R 19.39 vs crest 19.65 -> 0.26 radial   PASS
+  seat: sled Zmin -22.80 vs seat top -22.80; bearing on the seat annulus 381 mm2, overhanging the seat hole 686 mm2   PASS
+  static port d1.5 at Z 30.0, 0 deg: 3 mm behind it clear of everything   PASS
+  sound  port d3.0 at Z -12.1, 0 deg: 3 mm behind it clear of everything   PASS
+  REAL D9aft v6 STEPs placed with dz -252.70 (EbayCap underside -> Z 45.4)
+  FwdTube v6       vs sled v7 + every component: contact only   PASS
+  EbayCap v6       vs sled v7 + every component: contact only   PASS
+  NEGATIVE CONTROL (real FwdTube v6): sled dropped 0.5 mm -> 209.3 mm3 (must be > 0)   PASS
+  real FwdTube v6 sound port on the v7 can axis (y 0, Z -12.1): 0.00 mm3 of wall in a d2.8 probe (must be ~0); 3 mm aft 9.2 (must be > 0)   PASS
+  piezo can centre Z -12.1 (env -12.1) vs sound port Z -12.1   PASS
+
+[I] FIT  --  RAW = the as-drawn sled overlapping each component keep-out,
+           BEFORE trim.  RAW>0 is expected: it is pocket walls / rails /
+           bosses reaching into the board's space.  For the 8 RIGID parts
+           that volume is then cut away (post-cut common -> 0); the risk it
+           leaves a wall too thin is flagged in [N], not yet auto-checked.
+           SmallParts is a conformable allowance -- it is NOT cut; its RAW is
+           how much wiring volume yields to structure.
+  Nano_ESP32   RAW      0.0 mm3   (post-cut 0.0)
+  BMP388       RAW     41.6 mm3   (post-cut 0.0)
+  Battery      RAW      0.4 mm3   (post-cut 0.0)
+  ADXL375      RAW      0.0 mm3   (post-cut 0.0)
+  Piezo        RAW      0.0 mm3   (post-cut 0.0)
+  ReedModule   RAW      0.0 mm3   (post-cut 0.0)
+  JST_PH       RAW      0.0 mm3   (post-cut 0.0)
+  ZipTie       RAW     65.5 mm3   (post-cut 0.0)
+  SmallParts   RAW    291.8 mm3   (allowance yields)
+  component-vs-component clashes:
+    none
+
+[M] MASS
+  sled (ABS, solid-equiv)   14330.5 mm3     15.0 g
+  + fasteners: 2x M2.5x4 (BMP388 y+9, d3 board holes, into the spine), 2x M2x6 (piezo, from +x, d2.5 + d3 board holes),
+               2x M2x10 (EbayCap, axial); 1 mini zip tie (battery); Nano, ADXL, reed = Kapton
+  (v5 sled 6802.6 mm3 / 7.1 g -> v7 +7.9 g; v4 6813.8 / 7.2)
+
+[L] FOR D9aft -- v7 changes NOTHING it reads: seat Z -22.8, sound port Z -12.1 / 0 deg, cap, spine key, static port = v6
+  (D9aft v6 itself still exec's sled v6; its parts are checked against v7 in [D9])
+  e-bay length +21.9 mm, all of it AFT of the old seat: seat plane Z -0.9 -> -22.8
+  sound port: d3 at 0 deg, Z -12.1 (v5 Z 9.5) = station 72.9 if the length goes in aft
+  unchanged: EbayCap face Z 45.4, M2 bosses, spine key, static port Z 30
+  CHANGED:   reed module RM_Y0 -5.0 -> -4.3 (tie leg over the floor) -> ARM mark -8.7 deg (v5 -10.9)
+  sled mass +7.9 g vs v5; seat now bears on a full floor disc R 19.3
+  electronics: reed module ~1.5 g (est.); SmallParts allowance 13 g
+
+[N] NOTES / OPEN
+  * v2/v3 vs v1: servo + cradle + knob ref removed (D9aft: e-bay fires nothing).  The
+    EbayCap M2 bosses stay at v1's SG90-ear (x, y), top Z 45.4 -> the D9aft v1/v2
+    EbayCap fits unchanged (its pocket has spare voids where the cradle uprights were).
+  * v1 EXPORT WAS MISSING THE NANO POCKET (disconnected, dropped by as_solid).  The
+    D9aft v1/v2 checks exec'd that same sled, so they never saw it either.
+  * RETENTION:
+      screw-down  BMP388  -- 2 x M2.5 (y +9) from +x into spine standoffs; y -9 pads + Kapton
+                             (pilots break out past R 19.4 beyond 4 mm: use M2.5 x 4 max)
+      rails       ADXL375 -- PCB edges in 2 grooves, slide down from the top, Kapton on top
+      screw-down  Piezo (v7) -- 2 x M2x6 from +x through the PCB into the flat plate; board drops in from outboard
+                  EbayCap -- 2 axial M2x10 from the cap top into the mount bosses
+      strap       Nano (1.21 to ID) -- rails + 0.6 lip + Kapton; rests on the ADXL rail tops
+      rails       Reed module -- PCB edges in aft + fwd slots, radial stop at the
+                             header end, Kapton over the reed edge
+      tie         Battery -- outboard-open tray, 1 axial mini zip tie (<= 2.5 wide) + Kapton;
+                             pad the outboard face with ~1 mm foam so the bore backs it
+  * QWIIC: wire the bus as a STAR at the Nano (Nano has no Qwiic port anyway): one
+    cable to the ADXL's FWD plug, one to the BMP's FWD plug.  Neither AFT plug has room.
+  * ASSEMBLY ORDER (screw access): piezo (2 x M2 from +x, e-bay out) -> BMP ->
+    ADXL (slide in) -> Nano -> reed module -> small parts -> battery -> EbayCap.
+  * ADXL thickness with the plug in is ASSUMED 4.5 mm (slot is 4.7) -- measure it.
+  * STIFFNESS NOT ANALYSED: frame loop is ring - spine - W boss - beam - E boss - reed
+    rails - tray - ring; the Nano/ADXL column ties in at the ring, the piezo pocket
+    and the top bar.  Overhangs / print orientation not checked yet.
+  * v6 battery tray: no windows; pack drops in from outboard with 0.5 mm all round --
+    take up the slack with ~1 mm foam on the outboard face (the bore backs it in flight).
+  * v7 piezo ASSUMED (from the photo, MEASURE): can centred on the board (PIEZO_CAN_OFF 0),
+    joints only > 4.5 from the hole end and 1.0 in from the long edges, header 2.5 x 2.5 x 7.6,
+    pins 6.0 past the edge, centred; d2.5 hole on the aft long edge.  Bend the pins toward
+    -Z/-x inside the pin bay and heat-shrink each.  Small parts: Kapton/hot glue in the deck.
+  * REED MODULE dims are from a photo: measure PCB L x W x T, capsule d + offset from
+    the edge, header height and pin length, then edit RM_* and re-run.  Press the lead
+    loops flat before fitting (they ship standing ~5 mm proud).  Bend >= 2 mm from the glass.
+  * D9aft v2 still exec's sled v1 (its SLED_SRC).  Sled v4 keeps every interface it reads
+    (SERVO_TAB_X*, ADXL_CLEAR_Z, COMPONENTS, build_sled); a D9aft v3 pointing here regenerates
+    the EbayCap pocket from this sled's top.  Its tie/JST keep-outs are not parts.
+  * v5 hole patterns are MEASURED but approximate (BMP / ADXL / piezo, see [H]);
+    still ASSUMED: the BMP PCB length (= 40 envelope), which piezo long side has the
+    d2.5 hole, and the whole Nano pattern (NANO_HOLE_P*).  Check a test print before
+    trusting the BMP boss positions; the y +/-9 bosses are clipped by the bore ([H]).
+  * wall thickness: only the battery tray is measured ([W]); eyeball the other thin walls
+    in CAD before printing.
+  * free volume: upper centre (old shelf + old piezo slot, east Z 0..19) -- wiring runs there.
+  * small-parts = ~13 g allowance in the aft deck bay; measure S7V8F5 / microSD rdr /
+    C1 / SW1 / SW2 for real before this is frozen.
+  * NOT modelled yet: static-port vent path; print orientation / support / split.
+
+[E] EXPORT
+  PhoenixABS40-43_avbay_ElectronicsSled_v7 .step + .stl
+  FCStd -> Avionics/PhoenixABS40-43_avbay_sled_v7.FCStd  (Sled + env_* envelopes)
+  sled_ASSEMBLY_v7.stl  (sled + component envelopes, flight position)

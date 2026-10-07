@@ -1,0 +1,93 @@
+== Phoenix ABS 40-43 -- D9aft_v7: v6 rebuilt on sled v7 (piezo sideways, flat on the plate, pin bay; e-bay +21.9 mm as v6), 150 mm chute bay ==
+Frame z = 313.5 - station (station 0 = nose base). Threaded parts: v5 probes; fits on thread-free proxies.
+
+STATION TABLE
+    -65.0 -     0.0  nose v6 (unchanged), screws in
+      0.0 -     9.5  thread (v2)
+     10.5 -    15.4  EbayCap v5 recipe: springs + key
+     13.4 -    83.6  E-BAY: sled v7 + electronics (aft deck: piezo, small parts), on the seat ring
+     83.6 -    88.6  seat ring -> spigot.  BONDED joint at 88.6
+    102.1 -   104.6  gas-tight bulkhead + recessed eyelet (v2)
+    104.6 -   254.6  CHUTE BAY 150.0 mm -- parachute, harness, Nomex ONLY; clean d40 bore
+    126.0 -   161.0  launch lug (outside the tube), rod line r 25.95
+    222.1 -   262.1  fin-can coupler, slip fit, 2 shear pins at station 250.1
+    262.1 -   313.5  fin can v4 + D9 + cap v1 (unchanged)
+
+PASS FwdTube v7 valid, 1 solid(s)
+PASS FwdTube v7 proxy valid, 1 solid(s)
+PASS AftTube v7 valid, 1 solid(s)
+PASS EbayCap v7 valid, 1 solid(s)
+PASS sled v7 valid, 1 solid(s)
+NOTE sled v7 loaded: seat Z -22.8 (e-bay +21.9 mm), components ['Nano_ESP32', 'BMP388', 'Battery', 'ADXL375', 'Piezo', 'ReedModule', 'JST_PH', 'ZipTie', 'SmallParts']
+PASS CHUTE BAY 150.00 mm (target 150.0): bulkhead aft face st 104.60 -> fin-can thrust ring st 254.60
+PASS e-bay entirely in the FWD section: its aft-most point st 83.60 is forward of the joint (88.6) and the bulkhead (102.1..104.6)
+PASS chute bay holds nothing but recovery gear: no FwdTube / bulkhead / e-bay part inside it 
+PASS AftTube wall, whole length: missing 7.44 mm3 vs 7.44 of pin slots -> no port, vent or other hole
+PASS canopy exit path: nothing of the AftTube inside the d40 bore (0.0000 mm3)
+PASS static port d1.5 at station 30.8, 0 deg: in the FwdTube full wall (st 0..88.6), forward of the joint by 57.1 mm
+PASS sound port d3.0 at station 72.9, 0 deg: in the FwdTube full wall (st 0..88.6), forward of the joint by 14.2 mm
+PASS static port = the sled v7 report's value (d1.5 Z 30.0 0 deg): d1.5 Z 30.0 0 deg
+PASS sound port = the sled v7 report's value (d3.0 Z -12.1 0 deg): d3.0 Z -12.1 0 deg
+PASS REAL FwdTube port probes 4/4 as designed
+PASS sound port -> piezo can: clear 2.0 mm air path to the can face (x 18.0); first thing behind it ['Piezo']; port axis 3.00 mm off the can centre (can r 6.25, port r 1.5)
+PASS static port d1.5 at station 30.8: 3 mm behind it clear
+PASS REAL FwdTube: ARM mark + groove + thread probes 7/7 as designed
+PASS ARM mark at -8.7 deg, stations 20.0..34.0 (tick 27.0) = the reed capsule's angle and length; magnet on the mark is 2.50 mm from the glass; 1.95 mm (3D) from the static port
+PASS e-bay interference (EbayCap, sled v7, 9 envelopes, M2 screws, tube): none
+PASS sled v7 floor stands on the seat ring at st 83.6: contact 0.0000 mm3; NEGATIVE CONTROL dropped 0.5 mm -> 209.3 mm3 (must be > 0)
+PASS e-bay lifts out through the thread crests: largest radius 19.39 vs crest 19.65 -> 0.26 mm radial
+PASS full lift-out sweep 0..86 mm (key in the groove): no contact
+PASS key blocks rotation (+-2 deg: [0.64, 0.64] mm3)
+PASS nose touches the EbayCap only at the 3 spring bumps (2.18 = 2.18 mm3)
+PASS spring beams bottomed stay clear of the sled top (0.0000 mm3)
+PASS interference, flight (fin can = v1 proxy: same coupler/pin features as v4; nose/EbayCap = the spring preload, checked above): none
+PASS d14 gas column clear from the motor face to the bulkhead: clear
+PASS bulkhead gas-tight: plate 2453.7 of 2453.7 mm3, eyelet pocket roof 238.4 of 238.4 mm3
+PASS separation sweep 0..44 mm: fin can never touches the AftTube 
+PASS launch rod d4.0 pushed 0.20 toward the axis: clear of cap ribs, fins, FwdTube, nose: clear
+PASS launch lug 126.0..161.0 (z as v1..v5, 152.5 mm from the aft end): present, bore open, rod centred clear of the tube (0.0000 mm3)
+PASS pin slots at st 250.1 = Zf 63.4 (fin can v4 slots Zf 63.4), 12.0 mm from the AftTube aft edge; probes 4/4; ligaments tube 11.5 / coupler 27.5 mm (v1 11.5 / 27.5)
+PASS pin_0 sits in both slots with clearance (overlap 0.000 mm3)
+PASS pin_1 sits in both slots with clearance (overlap 0.000 mm3)
+NOTE pins unchanged (v1: 2 x 12.0 N). Bay 150.0 mm = v1's 150: the same charge gives ~1.00x the v1 pressure (v2..v5: 0.80x).
+NOTE Kevlar leader: the bulkhead eyelet -> aft opening is 158 mm (v5 206); tie it long enough to reach out of the tube.
+PASS tube split: FwdTube 104.6 mm, AftTube 173.5 mm tall (bed 250)
+PASS FwdTube (proxy) printed bulkhead (eyelet bar) down: 43.0 x 43.0 x 104.6 mm; 7 overhang patches (300.5 mm2), 0 wide
+PASS AftTube printed forward end down: 43.0 x 47.5 x 173.5 mm; 3 overhang patches (7.9 mm2), 0 wide
+PASS EbayCap printed disc down: 39.5 x 38.6 x 18.9 mm; 8 overhang patches (230.4 mm2), 0 wide
+NOTE sled v7 printed floor down: 70.2 mm tall; 58 overhang patches (1096.3 mm2), 0 wide (the sled report has not checked print orientation)
+
+MASS & CG (printed parts solid x rho: an upper bound)
+ITEM                                                 GROUP           g  CG                       BASIS
+Nose cone v6 (screw-on Von Karman)                   nose         14.6  st  -21.2 (tip   43.8)   CAD x ABS 1.05
+FwdTube v7 (thread, seat, bulkhead, eyelet, ports, ARM) airframe     26.4  st   61.6 (tip  126.6)   CAD x ABS 1.05
+AftTube v7 (chute bay, launch lug, pin slots)        airframe     36.5  st  174.6 (tip  239.6)   CAD x ABS 1.05
+EbayCap v7                                           e-bay         6.3  st   12.0 (tip   77.0)   CAD x ABS 1.05
+HW M2x10_pan_0                                       e-bay         0.4  st   13.7 (tip   78.7)   CAD x steel 7.85
+HW M2x10_pan_1                                       e-bay         0.4  st   13.7 (tip   78.7)   CAD x steel 7.85
+ElectronicsSled v7                                   e-bay        15.0  st   55.0 (tip  120.0)   CAD x ABS 1.05
+Electronics Opt B 620 mAh, no servo, no charger, + reed e-bay        38.5  st   50.6 (tip  115.6)   packing md 6 - SG90 - BQ25302 + RM_MASS; CG = envelopes
+Canopy d500 + harness + Kevlar leader                recovery     16.0  st  149.6 (tip  214.6)   DESIGN 7.7; packed forward in the bay
+Nomex blanket / wadding                              recovery      4.0  st  218.5 (tip  283.5)   estimate, by the port
+Shear pin_0                                          aft           0.0  st  250.1 (tip  315.1)   CAD x ABS 1.05
+Shear pin_1                                          aft           0.0  st  250.1 (tip  315.1)   CAD x ABS 1.05
+AftFinCanSlotted v4 + 3 fins + epoxy                 aft          52.1  st  284.2 (tip  349.2)   D9aft v4 report (part unchanged)
+MotorRetainerCap v1                                  aft           9.0  st  324.3 (tip  389.3)   CAD x ABS 1.05
+Klima D9-5 (loaded; 11.0 g spent)                    motor        27.1  st  292.6 (tip  357.6)   OpenRocket motor DB
+  nose        14.6 g  CG st  -21.2 (tip   43.8)
+  airframe    62.9 g  CG st  127.2 (tip  192.2)
+  e-bay       60.6 g  CG st   47.2 (tip  112.2)
+  recovery    20.0 g  CG st  163.4 (tip  228.4)
+  aft         61.2 g  CG st  290.1 (tip  355.1)
+  Dry, flight-ready             219.2 g  CG st  143.9 (tip  208.9)
+  Liftoff on D9 (27.1 g)        246.3 g  CG st  160.3 (tip  225.3)   (v5 OpenRocket 246.4 g, tip 235.9)
+OPENROCKET: NOSE_G=14.6 NOSE_CG=43.8 NS_BODY_G=204.6 NS_BODY_LEN=313.5 NS_BODY_CGX=155.7
+RESULT: ALL PASS (0 FAIL)
+
+V7 CHECKS
+PASS sled v7 interfaces = v6: seat Z -22.80 (v6 -22.80), sound port Z -12.10 (v6 -12.10), EbayCap face 45.4 (v6 45.4)
+PASS piezo pin bay (bend + heat shrink room) empty in the assembled e-bay: empty
+NOTE FwdTube v7 vs v6 STEP: volume 25145.99 vs 25145.99 mm3, symmetric difference 0.000 mm3 -> IDENTICAL, the printed v6 part is the v7 part
+NOTE AftTube v7 vs v6 STEP: volume 34764.86 vs 34764.86 mm3, symmetric difference 0.000 mm3 -> IDENTICAL, the printed v6 part is the v7 part
+NOTE EbayCap v7 vs v6 STEP: volume 6001.38 vs 6001.38 mm3, symmetric difference 0.000 mm3 -> IDENTICAL, the printed v6 part is the v7 part
+RESULT v7: ALL PASS (0 FAIL)

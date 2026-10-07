@@ -1,0 +1,82 @@
+SNAP-LATCH TEST COUPON v1 -- optional alternative to the D9aft v1 shear pins (demo print, no flight part changed)
+tongue in the TUBE wall, bump inward into a COUPLER window; t 1.2 mm (R 20.0-21.2), tip width 5.0, 45 deg slanted forward edge
+bump 1.2 radial x 5.0 tangential x 4.08 axial; release 45 deg, entry 30 deg; release deflection 1.05 mm
+
+GEOMETRY
+PASS TubeRing_L20: 1 solid(s), 9466.5 mm3
+PASS   latch @  0 deg: tip -9.7 / root 45.9 deg (arc 55.6 deg), root width 25.0; probes 10/10
+PASS   latch @180 deg: tip 170.3 / root 225.9 deg (arc 55.6 deg), root width 25.0; probes 10/10
+PASS   aft gap + end slot open along their whole length (70 probes, 0 hit material)
+PASS TubeRing_L24: 1 solid(s), 9374.5 mm3
+PASS   latch @  0 deg: tip -9.7 / root 57.0 deg (arc 66.8 deg), root width 29.0; probes 10/10
+PASS   latch @180 deg: tip 170.3 / root 237.0 deg (arc 66.8 deg), root width 29.0; probes 10/10
+PASS   aft gap + end slot open along their whole length (70 probes, 0 hit material)
+PASS TubeRing_L28: 1 solid(s), 9272.6 mm3
+PASS   latch @  0 deg: tip -9.7 / root 68.1 deg (arc 77.9 deg), root width 33.0; probes 10/10
+PASS   latch @180 deg: tip 170.3 / root 248.1 deg (arc 77.9 deg), root width 33.0; probes 10/10
+PASS   aft gap + end slot open along their whole length (70 probes, 0 hit material)
+PASS TubeRing_L32: 1 solid(s), 9160.7 mm3
+PASS   latch @  0 deg: tip -9.7 / root 79.3 deg (arc 89.0 deg), root width 37.0; probes 10/10
+PASS   latch @180 deg: tip 170.3 / root 259.3 deg (arc 89.0 deg), root width 37.0; probes 10/10
+PASS   aft gap + end slot open along their whole length (70 probes, 0 hit material)
+PASS CouplerRing: 1 solid(s), 9418.4 mm3; windows at 0/180 deg, aft face 5.65, fwd face 9.63..8.33 (tube frame)
+PASS   window probes 4/4
+PASS   coupler front at 40.0 vs string holes from 45.0 (tube frame): string line clear
+
+FIT / FUNCTION (each tube variant with the coupler ring)
+PASS L20: assembled overlap 0.0000 mm3; pulled aft 0.6 mm -> bump/window overlap 4.342 mm3 (tube w/o bumps 0.0000) = CATCHES; tongue deflected 1.05 mm -> slide 0..12 mm max overlap 0.0000 mm3 = RELEASES; undeflected at 5.1 mm aft 21.02 mm3
+PASS L24: assembled overlap 0.0000 mm3; pulled aft 0.6 mm -> bump/window overlap 4.342 mm3 (tube w/o bumps 0.0000) = CATCHES; tongue deflected 1.05 mm -> slide 0..12 mm max overlap 0.0000 mm3 = RELEASES; undeflected at 5.1 mm aft 21.02 mm3
+PASS L28: assembled overlap 0.0000 mm3; pulled aft 0.6 mm -> bump/window overlap 4.342 mm3 (tube w/o bumps 0.0000) = CATCHES; tongue deflected 1.05 mm -> slide 0..12 mm max overlap 0.0000 mm3 = RELEASES; undeflected at 5.1 mm aft 21.02 mm3
+PASS L32: assembled overlap 0.0000 mm3; pulled aft 0.6 mm -> bump/window overlap 4.342 mm3 (tube w/o bumps 0.0000) = CATCHES; tongue deflected 1.05 mm -> slide 0..12 mm max overlap 0.0000 mm3 = RELEASES; undeflected at 5.1 mm aft 21.02 mm3
+NOTE the deflected-bump check moves the bump radially by 1.05 mm (top at r 19.85 vs coupler OD 19.80); the real tongue tip also rotates slightly -- the pull test is the real check.
+
+FORCE / STRAIN (beam model; ABS E 1700/2000/2400 MPa, mu 0.20/0.35/0.50/0.60) -- a PREDICTION; the pull test sets the real number
+PASS self-locking margin: mu*tan(45) = 0.60 at mu 0.60 (keep < 0.7; 1 - mu tan a = 0.40)
+NOTE ejection gas assist (not counted): 40-55 kPa on the 20 mm2 bump footprint = 0.8-1.1 N OUTWARD per latch, plus slip-gap leakage under the tongue
+var     P_nom N  strain%   k N/mm | pair release N: low / nom / high   | insert pair N (nom)
+L20        4.61     0.57     4.39 |   11.8 /   19.2 /   44.3  STRONG END   | 10.7   (1 nick)
+PASS   L20 peak strain 0.57 % <= 1.0 % (reusable, printed ABS, along the perimeters)
+L24        2.91     0.36     2.77 |    7.4 /   12.1 /   27.9  STRONG END   | 6.8   (2 nicks)
+PASS   L24 peak strain 0.36 % <= 1.0 % (reusable, printed ABS, along the perimeters)
+L28        2.06     0.26     1.96 |    5.2 /    8.5 /   19.8  IN BAND      | 4.8   (3 nicks)
+PASS   L28 peak strain 0.26 % <= 1.0 % (reusable, printed ABS, along the perimeters)
+L32        1.58     0.20     1.50 |    4.0 /    6.6 /   15.2  WEAK END     | 3.7   (4 nicks)
+PASS   L32 peak strain 0.20 % <= 1.0 % (reusable, printed ABS, along the perimeters)
+  band: hold >= 4.2 N (D9aft v1 budget) at low E + low mu; release <= 21 N (24 N budget - 3 N slide friction) at high E + high mu
+  PULL-TEST ACCEPTANCE: every pull 8-20 N per pair (>= ~2x the hold need). Only the pull test proves the force.
+  model limits: the root is wide vs its length (plate, not beam), the load sits off the tongue's centreline (torsion),
+  printed E and mu vary by printer and filament -> expect +-40 %. That is why there are 3 variants and a pull test.
+NOTE hold budget: the U-slots vent the bay, so the 2.6 N sealed-bay apogee term in the 4.2 N budget mostly goes away.
+
+PRINTABILITY (ABS, 0.4 nozzle, 0.20 layers)
+PASS   tongue thickness (set wall line width 0.40 -> 3 lines) 1.20 mm >= 1.04 (2.9 lines / 6 layers)
+PASS   end slot                             0.80 mm >= 0.60 (1.9 lines / 4 layers)
+PASS   aft gap                              1.00 mm >= 0.60 (2.4 lines / 5 layers)
+PASS   fwd slant gap (normal)               0.64 mm >= 0.60 (1.5 lines / 3 layers)
+PASS   bump radial                          1.20 mm >= 0.80 (2.9 lines / 6 layers)
+PASS   release ramp height                  1.20 mm >= 0.80 (2.9 lines / 6 layers)
+PASS   entry ramp height                    2.08 mm >= 0.80 (4.9 lines / 10 layers)
+PASS   aft band                             4.00 mm >= 2.00 (9.5 lines / 20 layers)
+PASS   coupler wall beside window ligament  1.30 mm >= 1.00 (3.1 lines / 7 layers)
+PASS TubeRing_L20 printed forward end down (as the flight AftTube), nicks on top: 46.9 x 43.0 x 50.0 mm; downward faces steeper than 41 deg from vertical: 4 patch(es) >2 mm2 z 46.0, 31.4 mm2, 1.5 wide x 20.9 arc; z 46.0, 31.4 mm2, 1.5 wide x 20.9 arc; z 4.9, 3.2 mm2, 1.5 wide x 2.1 arc; z 4.9, 3.2 mm2, 1.5 wide x 2.1 arc
+PASS TubeRing_L24 printed forward end down (as the flight AftTube), nicks on top: 47.0 x 43.0 x 50.0 mm; downward faces steeper than 41 deg from vertical: 4 patch(es) >2 mm2 z 46.0, 37.5 mm2, 1.5 wide x 25.0 arc; z 46.0, 37.4 mm2, 1.5 wide x 25.0 arc; z 4.9, 3.2 mm2, 1.5 wide x 2.1 arc; z 4.9, 3.2 mm2, 1.5 wide x 2.1 arc
+PASS TubeRing_L28 printed forward end down (as the flight AftTube), nicks on top: 47.2 x 44.4 x 50.0 mm; downward faces steeper than 41 deg from vertical: 4 patch(es) >2 mm2 z 46.0, 43.5 mm2, 1.5 wide x 29.0 arc; z 46.0, 43.5 mm2, 1.5 wide x 29.0 arc; z 4.9, 3.2 mm2, 1.5 wide x 2.1 arc; z 4.9, 3.2 mm2, 1.5 wide x 2.1 arc
+PASS TubeRing_L32 printed forward end down (as the flight AftTube), nicks on top: 47.4 x 45.3 x 50.0 mm; downward faces steeper than 41 deg from vertical: 4 patch(es) >2 mm2 z 46.0, 49.5 mm2, 1.5 wide x 33.0 arc; z 46.0, 49.5 mm2, 1.5 wide x 33.0 arc; z 4.9, 3.2 mm2, 1.5 wide x 2.1 arc; z 4.9, 3.2 mm2, 1.5 wide x 2.1 arc
+PASS CouplerRing printed floor down (as the fin can, aft down): 43.0 x 43.0 x 43.0 mm; downward faces steeper than 41 deg from vertical: 0 patch(es) >2 mm2 
+NOTE tube rings: the 2 patches are the aft band bridging the 1.0 mm aft gap (wall-thick, ~L long, along the arc). If one sags
+     and fuses to the tongue, run a knife along the gap -- and tell me: it decides the flight version.
+NOTE the bump release faces (45 deg) and the window forward faces (45 deg) print as 45 deg overhangs -> not flagged; no supports anywhere.
+
+MASS TubeRing_L20             9.9 g (solid x ABS 1.05)
+MASS TubeRing_L24             9.8 g (solid x ABS 1.05)
+MASS TubeRing_L28             9.7 g (solid x ABS 1.05)
+MASS TubeRing_L32             9.6 g (solid x ABS 1.05)
+MASS CouplerRing              9.9 g (solid x ABS 1.05)
+
+FLIGHT INTEGRATION NOTES (only if the coupon passes; would be D9aft v7):
+  * The tongue footprint runs 4-43 mm forward of the tube's aft face; the flight coupler is 40 mm long -> only L<=29 stays fully backed by it.
+  * The slots are a small vent bay->outside (today the pin slots are the only holes). Do NOT tape over the tongues.
+  * The flight AftTube already prints forward-end-down, which is the orientation used here.
+  * Tongues must sit clear of the launch lug and the harness lug; the fin can keys to the bumps (one clocking needs uneven angles).
+
+RESULT: ALL PASS (0 FAIL)  [25 s]
