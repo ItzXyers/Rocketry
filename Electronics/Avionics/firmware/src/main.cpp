@@ -68,8 +68,11 @@ void handleSerialCommand(String cmd) {
   } else if (cmd == "STATE") {
     Serial.print(F("[bench] flight_state = "));
     Serial.println(static_cast<uint8_t>(flight_state_current()));
-    Serial.print(F("[bench] arm_interlock (SW2) = "));
-    Serial.println(wireless_armInterlockClosed() ? F("CLOSED") : F("OPEN"));
+    Serial.print(F("[bench] wifi interlock = "));
+    Serial.print(wireless_interlockEnabled() ? F("ON") : F("OFF"));
+    Serial.print(F(" (SW2 button "));
+    Serial.print(wireless_interlockButtonPressed() ? F("pressed") : F("released"));
+    Serial.println(')');
     Serial.print(F("[bench] battery = "));
     if (battery_valid()) {
       Serial.print(battery_voltage(), 3);
@@ -149,7 +152,7 @@ void setup() {
                       "Do not fly without a fresh power-cycle + reload."));
   }
 
-  wireless_init(); // brings up the ground-support AP once SW2 is closed
+  wireless_init(); // brings up the ground-support AP once an SW2 press latches the interlock on
 }
 
 void loop() {
@@ -176,7 +179,7 @@ void loop() {
   battery_update();
 
   pollSerialCommands();
-  wireless_update(); // services HTTP + SW2-follow AP power + any deferred
+  wireless_update(); // services HTTP + SW2 button / AP power + any deferred
                       // radio shutdown; ordered after deployment_update()/
                       // buzzer_update() so it can never starve them
 }

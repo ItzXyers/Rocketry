@@ -191,12 +191,12 @@ void cmdBuzzer(const String &arg) {
 }
 
 void cmdInterlock() {
-  // External 10k pulldown on the board (R3), switch closes to 3V3 — so
-  // CLOSED reads HIGH, and a broken/chafed wire reads OPEN. See config.h /
-  // avionics_wiring.md for why the fail-safe direction is this way round.
+  // External 10k pulldown on the board (R3), button closes to 3V3 — so
+  // PRESSED reads HIGH, and a broken/chafed wire reads RELEASED. Raw level
+  // only: the press-and-hold latch lives in wireless.cpp (flight firmware).
   int v = digitalRead(PIN_ARM_INTERLOCK);
-  Serial.print(F("[bench] SW2 arm-interlock (D7) = "));
-  Serial.println(v == HIGH ? F("CLOSED (armed path enabled)") : F("OPEN (armed path disabled)"));
+  Serial.print(F("[bench] SW2 button (D7) = "));
+  Serial.println(v == HIGH ? F("PRESSED") : F("RELEASED"));
 }
 
 void cmdBatt() {

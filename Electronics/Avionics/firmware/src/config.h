@@ -51,12 +51,17 @@
 // schematic: D4, D5, D7.
 #define PIN_DEPLOY D6
 
-// Wireless-arm physical interlock switch (SW2) — separate from SW1 (whole-
-// board power cutoff, not firmware-readable). D7 = GPIO10: free of I2C/
-// SPI/buzzer/deploy, not D2/D3 (GPS-reserved), not a strapping pin, not
-// native-USB/UART0. External pulldown (R3, 10k), not INPUT_PULLUP — see
+// Wireless-arm interlock (SW2) — separate from SW1 (whole-board power
+// cutoff, not firmware-readable). D7 = GPIO10: free of I2C/SPI/buzzer/
+// deploy, not D2/D3 (GPS-reserved), not a strapping pin, not native-USB/
+// UART0. External pulldown (R3, 10k), not INPUT_PULLUP — see
 // avionics_wiring.md for the fault-mode rationale (a chafed signal wire
 // shorting to the common GND bus must read as NOT armed, not armed).
+// SW2 is a MOMENTARY push button (3V3 -> button -> D7): wireless.cpp latches
+// it -- a press held WIFI_BUTTON_HOLD_MIN_MS..MAX_MS, then released, toggles
+// the interlock for this power cycle. A line stuck HIGH never releases, so it
+// can never enable the radio. A second reed module wired the same way works
+// as a magnet-operated button from outside the sealed bay.
 #define PIN_ARM_INTERLOCK D7
 
 // Battery voltage sense: BATT+ -> R11 100k -> A0 -> R12 100k -> GND, C4 100nF
@@ -144,8 +149,8 @@ static_assert(DEPLOY_MAX_ON_TIME_MS > DEPLOY_ON_TIME_MS + 1000UL,
 #define DEPLOY_BENCH_ARM_TIMEOUT_MS 10000UL // window after ARM in which FIRE is accepted
 
 // -- Wireless ground interface (WiFi AP + HTTP, see wireless.*) --
-// AP powers up only while SW2 (PIN_ARM_INTERLOCK) is closed, and only
-// before real flight (confirmed BOOST latches it off for the rest of the
+// AP powers up only while the SW2 button has latched the interlock on, and
+// only before real flight (confirmed BOOST latches it off for the rest of the
 // power cycle regardless of SW2 — see flight_state.cpp). Never touches
 // PIN_DEPLOY; wireless FIRE does not exist.
 #define WIFI_AP_SSID "FLIGHTCOMPUTER-XXXX"   // STARTING DEFAULT — set unique per board before flying near other boards
@@ -153,6 +158,8 @@ static_assert(DEPLOY_MAX_ON_TIME_MS > DEPLOY_ON_TIME_MS + 1000UL,
 #define WIFI_AP_CHANNEL 6                    // STARTING DEFAULT — fixed channel, no scan needed for a single-purpose AP
 #define WIFI_AP_MAX_CONNECTIONS 1            // deliberately capped so a stray device can't also join
 #define WIFI_AP_HTTP_PORT 80
-#define WIFI_INTERLOCK_DEBOUNCE_MS 50UL      // avoids WiFi start/stop thrashing on switch bounce
+#define WIFI_INTERLOCK_DEBOUNCE_MS 50UL      // contact-bounce filter on the SW2 button
+#define WIFI_BUTTON_HOLD_MIN_MS 1000UL       // shorter presses are ignored (bumps, handling, glitches)
+#define WIFI_BUTTON_HOLD_MAX_MS 5000UL       // longer = treated as a stuck/shorted line, ignored until released
 #define WIFI_ARM_SHUTDOWN_GRACE_MS 500UL     // STARTING DEFAULT — verify on bench this is enough for the Pi to see the full /arm response before the AP drops
 #define FIRMWARE_VERSION "0.2.0"             // bump manually per notable firmware change; surfaced read-only via GET /config

@@ -85,7 +85,7 @@ some point before today — this doc doesn't re-derive that.
       `co2_assembly_checklist.md` §2, **including the burn-wire continuity
       check (step 13)** — done here, at the range, not assumed from a prior
       session.
-- [ ] Sled powered up (SW1 closed), SW2 still **open**. Confirm self-test
+- [ ] Sled powered up (SW1 closed), SW2 **not pressed**. Confirm self-test
       pass tone. Confirm no WiFi AP visible yet (SW2 gates it).
 - [ ] **Do not connect the CO2 module's burn-wire leads to the sled's
       deploy channel yet.** That connection is deliberately one of the
@@ -131,8 +131,9 @@ about 20 seconds later, with nothing left to stop it.**
        power-cycle the sled (clears nothing dangerous by itself, but
        re-establishes a known `IDLE_ARMED` state from a clean self-test),
        and restart this section from step 1.
-5. [ ] Close SW2 (wireless-arm interlock). Confirm the ground-support AP
-       appears in the LaunchControl status view within a few seconds.
+5. [ ] Press and hold SW2 (wireless-arm interlock button) for ~2 s, then
+       release (must be 1–5 s). Confirm the ground-support AP appears in the
+       LaunchControl status view within a few seconds.
 
 ## 5. Wireless arm (flight computer re-zero, via LaunchControl)
 

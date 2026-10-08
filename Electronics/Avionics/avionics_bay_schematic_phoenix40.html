@@ -114,7 +114,7 @@ code { font-family: var(--mono); font-size: .92em; }
     <dl>
       <dt>Date</dt><dd>2026-10-08</dd>
       <dt>Matches</dt><dd>D9aft v10 · sled v8</dd>
-      <dt>Firmware</dt><dd>0.2.0 (battery monitor)</dd>
+      <dt>Firmware</dt><dd>0.2.0 (battery, SW2 button)</dd>
       <dt>Replaces</dt><dd>avionics_wiring.md (2026-08-08)</dd>
     </dl>
   </header>
@@ -365,12 +365,12 @@ code { font-family: var(--mono); font-size: .92em; }
         <path class="w" d="M720 750 H931"/>
         <circle class="dot" cx="840" cy="750" r="3"/>
         <circle class="w" cx="934" cy="750" r="3.2"/>
-        <path class="w" d="M937 748 L974 736"/>
+        <path class="w" d="M930 738 H984 M957 738 V727 M950 727 H964"/>
         <circle class="w" cx="980" cy="750" r="3.2"/>
         <path class="w" d="M983 750 H1020"/>
         <text class="sm" x="1026" y="754">3V3</text>
-        <text class="ref" x="957" y="776" text-anchor="middle">SW2</text>
-        <text class="sm" x="957" y="790" text-anchor="middle">Wi-Fi arm interlock</text>
+        <text class="ref" x="957" y="776" text-anchor="middle">SW2 · Wi-Fi interlock</text>
+        <text class="sm" x="957" y="790" text-anchor="middle">push button, hold 1–5 s</text>
         <path class="w" d="M840 750 V770 M840 800 V810"/>
         <rect class="box" x="834" y="770" width="12" height="30"/>
         <use href="#gnd" x="840" y="810"/>
@@ -438,9 +438,9 @@ code { font-family: var(--mono); font-size: .92em; }
       <li>
         <span class="mk">5</span>
         <div>
-          <h3>SW2 has no place on sled v8</h3>
-          <p>The sealed bay has no wall hole for a switch, and sled v8 places no SW2. Without it, R3 holds D7 low, so the Wi-Fi AP never starts. That is the safe default, but it means no pad checkout over Wi-Fi.</p>
-          <p class="fix"><b>Options:</b> a 2-pin header with a jumper set before the bay closes (the AP is then up whenever the board is powered, until confirmed BOOST), or a second reed on its own ARM mark wired the same way, 3V3 → reed → D7 with R3 to GND.</p>
+          <h3>SW2 is a push button, but the bay is sealed</h3>
+          <p>SW2 is now a momentary button. The firmware latches it: hold 1–5 s, then release, to turn the Wi-Fi interlock on, and do it again to turn it off. Every boot starts with it off. A tap is ignored, and a line stuck high (shorted to 3V3) never releases, so it can't turn Wi-Fi on. Once on, the AP stays up until <code>/arm</code>, confirmed BOOST, a second press or power-off. That draws roughly 100 mA, hours of margin on 620 mAh. Sled v8 has no place for SW2, and the bay has no wall hole.</p>
+          <p class="fix"><b>Button inside:</b> press it with the e-bay out, just before closing the bay. <b>Better, if you have a second KY-021:</b> put it on its own mark and operate it with the magnet from outside. Wire it reversed like SW1 (− → 3V3, S → D7, + → GND); its on-board 10 kΩ then replaces R3. The firmware treats it exactly like the button.</p>
         </div>
       </li>
       <li>
@@ -484,7 +484,7 @@ code { font-family: var(--mono); font-size: .92em; }
           <tr><td class="m">D13 / D12 / D11</td><td class="m">SCK / MISO / MOSI</td><td>U6 microSD</td><td>Only device on the SPI bus</td></tr>
           <tr><td class="m">D10</td><td class="m">SD_CS</td><td>U6 CS</td><td></td></tr>
           <tr><td class="m">D9</td><td class="m">PIN_BUZZER</td><td>R1 220 Ω → Q1 gate</td><td>R2 10 kΩ gate pulldown keeps the buzzer quiet during boot</td></tr>
-          <tr><td class="m">D7</td><td class="m">PIN_ARM_INTERLOCK</td><td>SW2 → 3V3, R3 10 kΩ → GND</td><td>External pulldown on purpose: a chafed wire shorting to GND reads not-armed</td></tr>
+          <tr><td class="m">D7</td><td class="m">PIN_ARM_INTERLOCK</td><td>SW2 button → 3V3, R3 10 kΩ → GND</td><td>Hold 1–5 s and release to toggle Wi-Fi. External pulldown on purpose: a chafed wire shorting to GND reads not-pressed</td></tr>
           <tr><td class="m">D6</td><td class="m">PIN_DEPLOY</td><td class="dim">not connected</td><td>D9aft fires nothing</td></tr>
           <tr><td class="m">D2 / D3</td><td class="m">Serial1 RX / TX</td><td class="dim">not connected</td><td>Reserved for a future GPS</td></tr>
           <tr><td class="m">D4 / D5</td><td class="m">—</td><td class="dim">free</td><td>Candidates for a soft-latch pin (item 1)</td></tr>
@@ -512,7 +512,7 @@ code { font-family: var(--mono); font-size: .92em; }
           <tr><td class="m">U6</td><td>Adafruit 4682 microSD</td><td>Aft deck, west lane</td></tr>
           <tr><td class="m">BZ1</td><td>Piezo module</td><td>Aft deck pocket, can facing the sound port</td></tr>
           <tr><td class="m">Q1, R1, R2</td><td>2N7000, 220 Ω, 10 kΩ</td><td>Aft deck, central bay south</td></tr>
-          <tr><td class="m">SW2, R3</td><td>Interlock switch or jumper, 10 kΩ</td><td class="dim">No location yet (item 5)</td></tr>
+          <tr><td class="m">SW2, R3</td><td>Momentary push button (or a second KY-021), 10 kΩ</td><td class="dim">No location yet (item 5)</td></tr>
         </tbody>
       </table>
     </div>
@@ -529,9 +529,10 @@ code { font-family: var(--mono); font-size: .92em; }
         </ul>
       </div>
       <div>
-        <h3>Battery monitor</h3>
+        <h3>Battery monitor and SW2</h3>
         <ul>
           <li>R11/R12/C4 divider into A0 (new firmware module <code>battery.cpp</code>).</li>
+          <li>SW2 is a momentary push button, latched in firmware (hold 1–5 s and release to toggle). No latching switches are needed anywhere in the bay.</li>
           <li>Logged as <code>batt_v</code> in every FLIGHTnnn.CSV row. On <code>/status</code> as <code>batt_voltage_v</code>, <code>batt_percent</code> and <code>batt_low</code>. Shown in the serial <code>STATE</code> output, the bench <code>BATT</code> command, and a Battery row on the LaunchControl pad page.</li>
         </ul>
       </div>
@@ -553,7 +554,7 @@ code { font-family: var(--mono); font-size: .92em; }
         <h3>Added or now drawn</h3>
         <ul>
           <li>SW1 reed arming through the wall, switching Q3 + R6 as a load switch (BOM item O2).</li>
-          <li>SW2 + R3 interlock on D7, which <code>config.h</code> marked "not yet in the schematic".</li>
+          <li>SW2 + R3 interlock on D7, which <code>config.h</code> marked "not yet in the schematic" (a button since rev C).</li>
           <li>Qwiic wired as a star at the Nano, not a daisy chain.</li>
           <li>Airframe interfaces: static port to U4, sound port to BZ1, ARM mark over SW1.</li>
         </ul>

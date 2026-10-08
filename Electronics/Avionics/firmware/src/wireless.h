@@ -7,11 +7,12 @@
 // for the only path that can energize the burn-wire, which remains
 // USB-serial-bench-only.
 //
-// The AP is only powered while the SW2 arm-interlock switch
-// (PIN_ARM_INTERLOCK) is physically closed, and only before real flight —
-// once flight_state.cpp confirms BOOST, the radio is latched off for the
-// rest of this power cycle regardless of SW2. SW2-open at boot behaves
-// exactly like today's firmware (radio off).
+// The AP is only powered while the SW2 interlock is latched on, and only
+// before real flight — once flight_state.cpp confirms BOOST, the radio is
+// latched off for the rest of this power cycle regardless of SW2. SW2 is a
+// momentary button (PIN_ARM_INTERLOCK): press and hold
+// WIFI_BUTTON_HOLD_MIN_MS..MAX_MS, then release, to toggle the interlock.
+// Every boot starts with it off.
 
 // pinMode()s the interlock input, registers HTTP routes, and builds the
 // static /config JSON payload. Does NOT bring up the radio -- that only
@@ -20,15 +21,18 @@
 // self-test/baseline data from the AP's first reachable moment.
 void wireless_init();
 
-// Services the HTTP server, the SW2-follow AP power lifecycle, and any
+// Services the HTTP server, the SW2 button + AP power lifecycle, and any
 // pending deferred shutdown. Call every loop() iteration, after
 // deployment_update()/buzzer_update() so this module can never starve
 // them.
 void wireless_update();
 
-// Debounced reading of the SW2 arm-interlock switch. Exposed for the
-// bench-serial STATE command and the /status JSON.
-bool wireless_armInterlockClosed();
+// Latched interlock state (toggled by a valid SW2 press). /arm requires it.
+// Exposed for the bench-serial STATE command and the /status JSON.
+bool wireless_interlockEnabled();
+
+// Debounced live level of the SW2 button, for diagnostics only.
+bool wireless_interlockButtonPressed();
 
 // Schedules the AP/radio to be disabled and permanently latches it off for
 // the rest of this power cycle (regardless of what SW2 does afterward) --

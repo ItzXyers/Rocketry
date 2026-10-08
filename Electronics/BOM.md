@@ -53,7 +53,7 @@ Quantities are **per vehicle** (or per ground station). Buy spares of anything m
 | R6 | 1 | Resistor 100 kΩ | Q3 gate pulldown to source (BATT−) | axial | — | Candidate | Pairs with Q3. Omit if the KY-021 module's on-board 10 kΩ is used for this (schematic item 3). |
 | R11, R12 | 2 | Resistor 100 kΩ, 1 % | battery-sense divider, BATT+ → A0 → GND | axial | — | Candidate | **New 2026-10-08.** Halves the cell voltage for the ADC (4.2 V → 2.1 V). Draws nothing with Q3 off (low side). |
 | C4 | 1 | Ceramic 100 nF | across R12 | 0805 / radial | — | Candidate | ADC sample reservoir for the 50 kΩ divider source. |
-| SW2 | 1 | Wireless-arm interlock, sub-mini SPST slide/toggle | 3.3 V logic level | ~10 × 4 × 6 mm | ~0.5 g | Candidate | Wiring doc 8. 3V3 → SW2 → D7. Needs a small wall hole, or set-before-close jumper (Phoenix packing §7). |
+| SW2 | 1 | Wireless-arm interlock, **momentary push button** (tactile, SPST-NO) — or a second KY-021 reed module for magnet operation from outside | 3.3 V logic level | ~6 × 6 mm tactile | ~0.5 g | Candidate | **2026-10-08:** momentary, latched in firmware 0.2.0 (hold 1–5 s and release to toggle). Was a slide/toggle. Wiring doc 8. 3V3 → SW2 → D7. Needs a small wall hole, or set-before-close jumper (Phoenix packing §7). |
 | R3 | 1 | Resistor 10 kΩ | D7 pulldown | axial | — | Specified | Wiring doc 8. External pulldown, **not** `INPUT_PULLUP` (fault-mode reasoning in the wiring doc). |
 | — | 2 | Qwiic / STEMMA QT cable, JST-SH 4-pin, 50–100 mm | — | — | ~1 g | Specified | AV-12. Nano → BMP388 → ADXL375 daisy chain. |
 | — | 1 lot | JST-PH 2-pin leads, 26–28 AWG silicone wire, heat-shrink, pin headers | — | — | 3–5 g | Specified | AV-12 |
