@@ -109,21 +109,21 @@ code { font-family: var(--mono); font-size: .92em; }
   <header class="tb">
     <div>
       <div class="eyebrow">Phoenix ABS 40-43 · Avionics bay</div>
-      <h1>E-bay schematic, rev B</h1>
+      <h1>E-bay schematic, rev C</h1>
     </div>
     <dl>
       <dt>Date</dt><dd>2026-10-08</dd>
       <dt>Matches</dt><dd>D9aft v10 · sled v8</dd>
-      <dt>Firmware</dt><dd>config.h @ 0.1.0</dd>
+      <dt>Firmware</dt><dd>0.2.0 (battery monitor)</dd>
       <dt>Replaces</dt><dd>avionics_wiring.md (2026-08-08)</dd>
     </dl>
   </header>
 
-  <p class="lead">This is every electrical part on the sled v8 e-bay and how it connects. The bay is a logging altimeter and fires nothing, because D9aft deploys on the motor charge. The reed switch only drives the gate of a P-FET, and the FET carries the load. The battery charges off the vehicle through its JST-PH lead. Numbered markers point to six open items, listed below the drawing, to resolve before the first power-up in the airframe.</p>
+  <p class="lead">This is every electrical part on the sled v8 e-bay and how it connects. The bay is a logging altimeter and fires nothing, because D9aft deploys on the motor charge. Power is switched on the ground side: the reed switch drives the gate of an AO3400A N-FET, which connects the battery's negative lead to board GND. A divider on A0 reads the battery voltage, and the firmware logs it, prints it, and shows it on the pad's Wi-Fi page. The battery charges off the vehicle through its JST-PH lead. Numbered markers point to eight open items, listed below the drawing, to resolve before the first power-up in the airframe.</p>
 
   <figure>
     <div class="sch">
-      <svg viewBox="0 0 1240 930" role="img" aria-label="Schematic of the Phoenix 40-43 e-bay. A 1S LiPo feeds an AO3401 P-FET high-side switch whose gate is pulled low by a magnet-actuated reed switch. The switched battery feeds an S7V8F5 buck-boost making 5 volts, buffered by a 220 microfarad capacitor, into the Arduino Nano ESP32 VIN pin and the buzzer. The Nano's 3.3 volt rail powers a BMP388 barometer and ADXL375 accelerometer over a Qwiic star on A4 and A5, a microSD reader on SPI D10 to D13, and the SW2 interlock on D7. D9 drives the buzzer through a 2N7000. D6, D2 and D3 are unconnected.">
+      <svg viewBox="0 0 1240 930" role="img" aria-label="Schematic of the Phoenix 40-43 e-bay. A 1S LiPo's negative lead returns to board ground through an AO3400A N-FET low-side switch; a magnet-actuated reed switch pulls its gate up to the battery positive and a 100 kilohm resistor pulls it back down. A 100k/100k divider from battery positive to board ground feeds A0 for battery voltage. Battery positive feeds an S7V8F5 buck-boost making 5 volts, buffered by a 220 microfarad capacitor, into the Arduino Nano ESP32 VIN pin and the buzzer. The Nano's 3.3 volt rail powers a BMP388 barometer and ADXL375 accelerometer over a Qwiic star on A4 and A5, a microSD reader on SPI D10 to D13, and the SW2 interlock on D7. D9 drives the buzzer through a 2N7000. D6, D2 and D3 are unconnected.">
         <defs>
           <g id="gnd">
             <line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1.5"/>
@@ -141,91 +141,119 @@ code { font-family: var(--mono); font-size: .92em; }
         <text class="sm" x="106" y="52">E-BAY, sealed (FwdTube + EbayCap), stations 13–84</text>
 
         <!-- ============ POWER CHAIN ============ -->
-        <!-- BT1 -->
-        <rect class="box" x="120" y="80" width="80" height="70" rx="3"/>
-        <text class="ref" x="160" y="104" text-anchor="middle">BT1</text>
-        <text x="160" y="121" text-anchor="middle">1S LiPo</text>
-        <text class="sm" x="160" y="137" text-anchor="middle">620 mAh</text>
-        <text class="pin" x="194" y="96" text-anchor="end">+</text>
-        <text class="pin" x="194" y="134" text-anchor="end">−</text>
-        <!-- J1 -->
-        <rect class="box" x="230" y="85" width="28" height="60" rx="2"/>
-        <text class="ref" x="244" y="78" text-anchor="middle">J1</text>
-        <text class="sm" x="244" y="162" text-anchor="middle">JST-PH</text>
-        <text class="sm" x="244" y="175" text-anchor="middle">(charge here)</text>
-        <path class="pw" d="M200 100 H230"/>
-        <path class="w" d="M200 130 H230"/>
-        <path class="w" d="M258 130 H275 V140"/>
-        <use href="#gnd" x="275" y="140"/>
-        <!-- BATT+ -> Q3 S -->
-        <path class="pw" d="M258 100 H350"/>
-        <text class="ptxt" x="268" y="92">BATT+</text>
-        <circle class="pdot" cx="310" cy="100" r="3.2"/>
-        <!-- R6 -->
-        <path class="w" d="M310 100 V140 M310 180 V230"/>
-        <rect class="box" x="304" y="140" width="12" height="40"/>
-        <text class="ref" x="322" y="158">R6</text>
-        <text class="sm" x="322" y="172">100 k</text>
-        <!-- Q3 -->
-        <rect class="box" x="350" y="76" width="80" height="52" rx="3"/>
-        <text class="ref" x="390" y="93" text-anchor="middle">Q3 · P-FET</text>
-        <text class="sm" x="390" y="107" text-anchor="middle">AO3401A</text>
-        <text class="pin" x="355" y="122">S</text>
-        <text class="pin" x="425" y="122" text-anchor="end">D</text>
-        <text class="pin" x="390" y="124" text-anchor="middle">G</text>
-        <path class="w" d="M390 128 V230 H310"/>
-        <circle class="dot" cx="310" cy="230" r="3"/>
-        <!-- SW1 reed -->
-        <path class="w" d="M310 230 H262"/>
-        <circle class="w" cx="258" cy="230" r="3.2"/>
-        <path class="w" d="M255 228 L218 216"/>
-        <circle class="w" cx="214" cy="230" r="3.2"/>
-        <path class="w" d="M211 230 H180 V245"/>
-        <use href="#gnd" x="180" y="245"/>
-        <ellipse class="fld" cx="236" cy="226" rx="36" ry="16"/>
-        <text class="ref" x="236" y="262" text-anchor="middle">SW1</text>
-        <text class="sm" x="236" y="276" text-anchor="middle">reed, N.O. (KY-021)</text>
+        <!-- BATT+ rail (always live; Q3 switches the return) -->
+        <path class="pw" d="M210 80 H480"/>
+        <circle class="pdot" cx="320" cy="80" r="3.2"/>
+        <circle class="pdot" cx="450" cy="80" r="3.2"/>
+        <text class="ptxt" x="336" y="72">BATT+ · always live</text>
+
+        <!-- SW1 reed: BATT+ -> gate -->
+        <path class="w" d="M210 80 V96.8"/>
+        <circle class="w" cx="210" cy="100" r="3.2"/>
+        <path class="w" d="M209 103 L197 136"/>
+        <circle class="w" cx="210" cy="140" r="3.2"/>
+        <path class="w" d="M210 143.2 V170"/>
+        <ellipse class="fld" cx="206" cy="120" rx="17" ry="34"/>
+        <text class="ref" x="232" y="112">SW1</text>
+        <text class="sm" x="232" y="126">reed, N.O.</text>
+        <text class="sm" x="232" y="140">KY-021</text>
         <!-- magnet outside the bay -->
-        <rect x="30" y="200" width="20" height="28" class="mag-n"/>
-        <rect x="50" y="200" width="20" height="28" class="mag-s"/>
-        <text class="sm" x="50" y="246" text-anchor="middle">ARM</text>
-        <text class="sm" x="50" y="259" text-anchor="middle">magnet</text>
-        <path class="fld" d="M74 210 H196" marker-end="url(#arr)"/>
-        <text class="sm" x="135" y="202" text-anchor="middle">2.5 mm to glass</text>
-        <!-- Q3 D -> U2 -->
-        <path class="pw" d="M430 100 H480"/>
-        <text class="ptxt" x="455" y="92" text-anchor="middle">SW_BATT</text>
+        <rect x="30" y="106" width="20" height="28" class="mag-n"/>
+        <rect x="50" y="106" width="20" height="28" class="mag-s"/>
+        <text class="sm" x="50" y="152" text-anchor="middle">ARM</text>
+        <text class="sm" x="50" y="165" text-anchor="middle">magnet</text>
+        <path class="fld" d="M74 120 H186" marker-end="url(#arr)"/>
+        <text class="sm" x="132" y="112" text-anchor="middle">2.5 mm to glass</text>
+
+        <!-- gate node, R6 gate -> source -->
+        <circle class="dot" cx="210" cy="170" r="3"/>
+        <path class="w" d="M210 170 V185 M210 215 V252"/>
+        <rect class="box" x="204" y="185" width="12" height="30"/>
+        <text class="ref" x="222" y="202">R6</text>
+        <text class="sm" x="222" y="216">100 k</text>
+        <path class="w" d="M210 170 H145 V220"/>
+
+        <!-- Q3 low-side N-FET -->
+        <rect class="box" x="105" y="220" width="80" height="65" rx="3"/>
+        <text class="pin" x="145" y="234" text-anchor="middle">G</text>
+        <text class="ref" x="145" y="252" text-anchor="middle">Q3</text>
+        <text class="sm" x="145" y="267" text-anchor="middle">AO3400A</text>
+        <text class="pin" x="180" y="256" text-anchor="end">S</text>
+        <text class="pin" x="145" y="281" text-anchor="middle">D</text>
+        <path class="w" d="M145 285 V292"/>
+        <use href="#gnd" x="145" y="292"/>
+        <text class="sm" x="145" y="322" text-anchor="middle">board GND</text>
+
+        <!-- BATT- rail: only Q3 source, R6 and the cell -->
+        <path class="pw" d="M185 252 H320 V200"/>
+        <circle class="pdot" cx="210" cy="252" r="3.2"/>
+        <text class="ptxt" x="265" y="268" text-anchor="middle">BATT−</text>
+
+        <!-- BT1 + J1 -->
+        <path class="pw" d="M320 80 V110"/>
+        <rect class="box" x="314" y="88" width="12" height="12"/>
+        <text class="sm" x="332" y="98">J1</text>
+        <rect class="box" x="314" y="218" width="12" height="12"/>
+        <text class="sm" x="332" y="228">J1</text>
+        <text class="sm" x="332" y="241">charge here</text>
+        <rect class="box" x="290" y="110" width="60" height="90" rx="3"/>
+        <text class="ref" x="320" y="140" text-anchor="middle">BT1</text>
+        <text x="320" y="158" text-anchor="middle">1S LiPo</text>
+        <text class="sm" x="320" y="174" text-anchor="middle">620 mAh</text>
+        <text class="pin" x="344" y="124" text-anchor="end">+</text>
+        <text class="pin" x="344" y="194" text-anchor="end">−</text>
+
+        <!-- battery sense divider R11/R12 + C4 -> A0 -->
+        <path class="w" d="M450 80 V110 M450 150 V178 M450 214 V224"/>
+        <rect class="box" x="444" y="110" width="12" height="40"/>
+        <rect class="box" x="444" y="178" width="12" height="36"/>
+        <text class="ref" x="438" y="128" text-anchor="end">R11</text>
+        <text class="sm" x="438" y="142" text-anchor="end">100 k</text>
+        <text class="ref" x="462" y="195">R12</text>
+        <text class="sm" x="462" y="209">100 k</text>
+        <use href="#gnd" x="450" y="224"/>
+        <path class="w" d="M410 165 H510 V330 H520"/>
+        <circle class="dot" cx="450" cy="165" r="3"/>
+        <path class="w" d="M410 165 V188 M410 195 V212"/>
+        <line x1="398" y1="188" x2="422" y2="188" stroke="currentColor" stroke-width="2"/>
+        <line x1="398" y1="195" x2="422" y2="195" stroke="currentColor" stroke-width="2"/>
+        <use href="#gnd" x="410" y="212"/>
+        <text class="ref" x="392" y="200" text-anchor="end">C4</text>
+        <text class="sm" x="392" y="214" text-anchor="end">100 nF</text>
+        <text class="sm" x="516" y="200">½ VBATT</text>
+
         <!-- U2 -->
-        <rect class="box" x="480" y="70" width="100" height="75" rx="3"/>
-        <text class="ref" x="530" y="90" text-anchor="middle">U2 · S7V8F5</text>
-        <text class="pin" x="486" y="104">IN</text>
-        <text class="pin" x="574" y="104" text-anchor="end">OUT</text>
-        <text class="sm" x="530" y="130" text-anchor="middle">buck-boost 5 V</text>
-        <path class="w" d="M530 145 V158"/>
-        <use href="#gnd" x="530" y="158"/>
+        <rect class="box" x="480" y="50" width="100" height="75" rx="3"/>
+        <text class="ref" x="530" y="68" text-anchor="middle">U2 · S7V8F5</text>
+        <text class="pin" x="486" y="84">IN</text>
+        <text class="pin" x="574" y="84" text-anchor="end">OUT</text>
+        <text class="sm" x="530" y="112" text-anchor="middle">buck-boost 5 V</text>
+        <path class="w" d="M530 125 V132"/>
+        <use href="#gnd" x="530" y="132"/>
         <!-- SYS_5V -->
-        <path class="pw" d="M580 100 H780"/>
-        <circle class="pdot" cx="630" cy="100" r="3.2"/>
-        <circle class="pdot" cx="680" cy="100" r="3.2"/>
-        <text class="ptxt" x="720" y="92" text-anchor="middle">SYS_5V</text>
-        <text class="ptxt" x="786" y="104">→ BZ1 +</text>
+        <path class="pw" d="M580 80 H780"/>
+        <circle class="pdot" cx="630" cy="80" r="3.2"/>
+        <circle class="pdot" cx="680" cy="80" r="3.2"/>
+        <text class="ptxt" x="720" y="72" text-anchor="middle">SYS_5V</text>
+        <text class="ptxt" x="786" y="84">→ BZ1 +</text>
         <!-- C1 -->
-        <path class="w" d="M630 100 V140 M630 148 V165"/>
-        <line x1="617" y1="140" x2="643" y2="140" stroke="currentColor" stroke-width="2"/>
-        <path d="M617 150 Q630 144 643 150" fill="none" stroke="currentColor" stroke-width="2"/>
-        <text class="pin" x="611" y="137" text-anchor="end">+</text>
-        <use href="#gnd" x="630" y="165"/>
-        <text class="ref" x="611" y="162" text-anchor="end">C1</text>
-        <text class="sm" x="611" y="176" text-anchor="end">220 µF</text>
+        <path class="w" d="M630 80 V120 M630 128 V145"/>
+        <line x1="617" y1="120" x2="643" y2="120" stroke="currentColor" stroke-width="2"/>
+        <path d="M617 130 Q630 124 643 130" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text class="pin" x="611" y="117" text-anchor="end">+</text>
+        <use href="#gnd" x="630" y="145"/>
+        <text class="ref" x="611" y="142" text-anchor="end">C1</text>
+        <text class="sm" x="611" y="156" text-anchor="end">220 µF</text>
         <!-- SYS_5V -> VIN -->
-        <path class="pw" d="M680 100 V290"/>
+        <path class="pw" d="M680 80 V290"/>
 
         <!-- ============ U1 NANO ============ -->
         <rect class="box" x="520" y="290" width="200" height="580" rx="4"/>
         <text class="pin" x="680" y="306" text-anchor="middle">VIN</text>
         <text class="pin" x="580" y="306" text-anchor="middle">3V3</text>
         <path class="w" d="M580 290 V262"/>
-        <text class="sm" x="572" y="266" text-anchor="end">3V3 rail → U4 U5 U6 SW2</text>
+        <text class="sm" x="588" y="262">3V3 rail →</text>
+        <text class="sm" x="588" y="276">U4·U5·U6·SW2</text>
         <text class="ref" x="620" y="590" text-anchor="middle" style="font-size:22px">U1</text>
         <text x="620" y="612" text-anchor="middle">Arduino Nano ESP32</text>
         <text class="sm" x="620" y="628" text-anchor="middle">ABX00083</text>
@@ -239,6 +267,7 @@ code { font-family: var(--mono); font-size: .92em; }
         <text class="pin" x="712" y="664" text-anchor="end">D9 BUZZER</text>
         <text class="pin" x="712" y="754" text-anchor="end">D7 ARM_IL</text>
         <!-- left-side pins -->
+        <text class="pin" x="528" y="334">A0 BATT</text>
         <text class="pin" x="528" y="724">D6</text>
         <text class="pin" x="528" y="764">D3</text>
         <text class="pin" x="528" y="784">D2</text>
@@ -350,9 +379,11 @@ code { font-family: var(--mono); font-size: .92em; }
 
         <!-- ============ open-item markers ============ -->
         <g>
-          <circle class="mkc" cx="282" cy="212" r="9"/><text class="mkt" x="282" y="216" text-anchor="middle">1</text>
+          <circle class="mkc" cx="178" cy="146" r="9"/><text class="mkt" x="178" y="150" text-anchor="middle">1</text>
           <circle class="mkc" cx="928" cy="578" r="9"/><text class="mkt" x="928" y="582" text-anchor="middle">2</text>
-          <circle class="mkc" cx="292" cy="160" r="9"/><text class="mkt" x="292" y="164" text-anchor="middle">3</text>
+          <circle class="mkc" cx="192" cy="200" r="9"/><text class="mkt" x="192" y="204" text-anchor="middle">3</text>
+          <circle class="mkc" cx="194" cy="234" r="9"/><text class="mkt" x="194" y="238" text-anchor="middle">7</text>
+          <circle class="mkc" cx="468" cy="130" r="9"/><text class="mkt" x="468" y="134" text-anchor="middle">8</text>
           <circle class="mkc" cx="698" cy="272" r="9"/><text class="mkt" x="698" y="276" text-anchor="middle">4</text>
           <circle class="mkc" cx="1000" cy="730" r="9"/><text class="mkt" x="1000" y="734" text-anchor="middle">5</text>
           <circle class="mkc" cx="505" cy="706" r="9"/><text class="mkt" x="505" y="710" text-anchor="middle">6</text>
@@ -360,13 +391,13 @@ code { font-family: var(--mono); font-size: .92em; }
       </svg>
     </div>
     <div class="legend">
-      <span><i class="sw pwr"></i>switched battery and 5 V path</span>
+      <span><i class="sw pwr"></i>battery and 5 V power path</span>
       <span><i class="sw"></i>signal / local supply</span>
       <span><i class="sw bus"></i>Qwiic cable (4 wires)</span>
       <span><i class="sw dash"></i>through the airframe wall</span>
       <span><i class="mk">1</i>open item, see below</span>
     </div>
-    <figcaption>All grounds return to one common GND bus. They are drawn as local ground symbols to keep the drawing readable. The 3V3 rail comes from the Nano's on-board regulator and feeds U4, U5, U6 and SW2. The reed switch only carries Q3's gate current (microamps). Q3 carries the whole load, so the glass contacts never see the 500–700 mA SD-write and Wi-Fi transients.</figcaption>
+    <figcaption>Every ground symbol is board GND. Board GND reaches the battery's negative lead only through Q3, so when Q3 is off, nothing on the board, including the R11/R12 divider, draws current. The reed switch only carries Q3's gate current (microamps), so the glass contacts never see the 500–700 mA SD-write and Wi-Fi transients. The 3V3 rail comes from the Nano's on-board regulator and feeds U4, U5, U6 and SW2.</figcaption>
   </figure>
 
   <section>
@@ -376,8 +407,8 @@ code { font-family: var(--mono); font-size: .92em; }
         <span class="mk">1</span>
         <div>
           <h3>Power does not stay on once the magnet comes off</h3>
-          <p>SW1 is normally open and BOM.md lists the magnet as a ground tool that does not fly. Wired as drawn, Q3 conducts only while the magnet sits on the ARM mark. Remove it and R6 pulls the gate back to BATT+, so the board shuts off. No document in the repo describes a latch.</p>
-          <p class="fix"><b>Simplest fix:</b> use a normally-closed reed. The magnet then becomes the remove-before-flight safe (on = off, removed = powered), and nothing else in the drawing changes. <b>Alternative:</b> a soft latch, where firmware holds Q3's gate low through a small N-FET on a free pin (D4 or D5) and the magnet only starts the board. That costs one FET, one resistor and a firmware change.</p>
+          <p>SW1 is normally open and BOM.md lists the magnet as a ground tool that does not fly. Wired as drawn, Q3 conducts only while the magnet sits on the ARM mark. Remove it and R6 pulls the gate back down to BATT−, so the board shuts off. No document in the repo describes a latch.</p>
+          <p class="fix"><b>Simplest fix:</b> use a normally-closed reed. The magnet then becomes the remove-before-flight safe (on = off, removed = powered), and nothing else in the drawing changes. A firmware-held soft latch is not a drop-in with a low-side switch: while Q3 is off, board GND floats up to BATT+, so a GPIO can't hold the gate reliably without a level-shifting stage.</p>
         </div>
       </li>
       <li>
@@ -391,9 +422,9 @@ code { font-family: var(--mono); font-size: .92em; }
       <li>
         <span class="mk">3</span>
         <div>
-          <h3>R6 may already be on the reed module</h3>
-          <p>KY-021 boards normally carry a 10 kΩ resistor between + and S. With the module wired + → BATT+, S → Q3 gate, − → GND, that resistor already does R6's job.</p>
-          <p class="fix"><b>Check with a meter</b> before wiring. If the 10 kΩ is between + and S, leave R6 off. Armed drain is then about 0.4 mA through the 10 kΩ, which is negligible against 620 mAh.</p>
+          <h3>The reed module's pins are labelled backwards for this circuit</h3>
+          <p>KY-021 boards normally carry a 10 kΩ resistor between + and S, with the reed between S and −. Q3's gate needs the reed to BATT+ and the resistor to BATT−. So wire the module's <b>−</b> pin to BATT+, <b>S</b> to Q3's gate, and <b>+</b> to BATT− (Q3's source). The on-board 10 kΩ then does R6's job, and R6 can stay off.</p>
+          <p class="fix"><b>Check with a meter</b> before wiring that the board is just the resistor and the reed (no LED). Then mark the reversed pins on the sled. Armed drain through the 10 kΩ is about 0.4 mA, which is negligible against 620 mAh.</p>
         </div>
       </li>
       <li>
@@ -420,6 +451,22 @@ code { font-family: var(--mono); font-size: .92em; }
           <p class="fix">Leave D6 unconnected. Don't reuse it for the SW1 soft latch or anything else until the deployment code is compiled out for this vehicle.</p>
         </div>
       </li>
+      <li>
+        <span class="mk">7</span>
+        <div>
+          <h3>Nothing else may connect to BATT−</h3>
+          <p>With a low-side switch, the battery's negative lead must go to Q3's source and R6 and nowhere else. Any other wire from BATT− to board GND (a ground shared with the battery lead, a bench supply clip, a sensor ground soldered to the battery side) bypasses Q3, and the bay can no longer be switched off.</p>
+          <p class="fix">Run BT1's − lead from J1 straight to Q3. Keep every other ground on the board side (Q3's drain). Q3 sits in the AO3401's old SOT-23 slot on top of U2. At the battery's 3.0–4.2 V its gate is fully on, at about 30–48 mΩ.</p>
+        </div>
+      </li>
+      <li>
+        <span class="mk">8</span>
+        <div>
+          <h3>Calibrate the battery reading once</h3>
+          <p>The ESP32-S3 ADC is factory-calibrated, but 1 % resistors and the ADC's gain error can still leave the reading 1–3 % off. That is about 0.1 V, or 10–20 % on the charge estimate near the flat middle of a LiPo curve.</p>
+          <p class="fix">Flash <code>chips_bench</code>, run <code>BATT</code>, and measure the cell with a multimeter at about 3.9 V. Set <code>BATT_CAL_GAIN</code> in <code>config.h</code> to meter volts ÷ reported volts. The percentage comes from a generic LiPo curve, so trust the voltage more. <code>BATT_LOW_V</code> (3.70 V, about 12 %) flags LOW in the log, on serial and on the pad page. It never touches flight logic.</p>
+        </div>
+      </li>
     </ol>
   </section>
 
@@ -429,9 +476,10 @@ code { font-family: var(--mono); font-size: .92em; }
       <table>
         <thead><tr><th>Nano pin</th><th>Net</th><th>Goes to</th><th>Notes</th></tr></thead>
         <tbody>
-          <tr><td class="m">VIN</td><td class="m">SYS_5V</td><td>U2 OUT, C1 +, BZ1 +</td><td>Through Q3, switched by SW1</td></tr>
+          <tr><td class="m">VIN</td><td class="m">SYS_5V</td><td>U2 OUT, C1 +, BZ1 +</td><td>Live while Q3 closes the ground return</td></tr>
           <tr><td class="m">3V3</td><td class="m">3V3</td><td>U4, U5 (via Qwiic), U6, SW2</td><td>Nano on-board regulator output</td></tr>
-          <tr><td class="m">GND</td><td class="m">GND</td><td>Common bus</td><td>BT1 −, U2, C1, U4–U6, Q1 S, R2, R3, SW1</td></tr>
+          <tr><td class="m">GND</td><td class="m">GND</td><td>Common bus</td><td>Q3 drain, U2, C1, R12, C4, U4–U6, Q1 S, R2, R3. <b>Not</b> BT1 −, which only reaches GND through Q3</td></tr>
+          <tr><td class="m">A0</td><td class="m">PIN_BATT_SENSE</td><td>R11/R12 midpoint, C4</td><td>½ × cell voltage. ADC1, so it reads with the Wi-Fi AP up</td></tr>
           <tr><td class="m">A4 / A5</td><td class="m">SDA / SCL</td><td>U4 BMP388 0x76, U5 ADXL375 0x53</td><td>Star at the Nano, one Qwiic cable to each board's forward plug (the aft plugs have no room)</td></tr>
           <tr><td class="m">D13 / D12 / D11</td><td class="m">SCK / MISO / MOSI</td><td>U6 microSD</td><td>Only device on the SPI bus</td></tr>
           <tr><td class="m">D10</td><td class="m">SD_CS</td><td>U6 CS</td><td></td></tr>
@@ -453,8 +501,9 @@ code { font-family: var(--mono); font-size: .92em; }
         <tbody>
           <tr><td class="m">BT1</td><td>EEMB LP852040 1S LiPo, 620 mAh</td><td>Battery tray, opens outboard, one zip tie</td></tr>
           <tr><td class="m">J1</td><td>JST-PH 2-pin (battery lead)</td><td>Forward end of the tray</td></tr>
-          <tr><td class="m">SW1</td><td>KY-021 reed module</td><td>Edge rails, capsule under the ARM mark</td></tr>
-          <tr><td class="m">Q3, R6</td><td>AO3401A on SOT-23 adapter, 100 kΩ</td><td>Aft deck, central bay, on top of U2</td></tr>
+          <tr><td class="m">SW1</td><td>KY-021 reed module (pins reversed, item 3)</td><td>Edge rails, capsule under the ARM mark</td></tr>
+          <tr><td class="m">Q3, R6</td><td>AO3400A N-FET on SOT-23 adapter, 100 kΩ (or the KY-021's 10 kΩ)</td><td>Aft deck, central bay, on top of U2 (the AO3401's slot)</td></tr>
+          <tr><td class="m">R11, R12, C4</td><td>2 × 100 kΩ 1 %, 100 nF ceramic</td><td class="dim">Not in sled v8. Fit inline on the A0 lead in heat-shrink, C4 at the Nano end</td></tr>
           <tr><td class="m">U2</td><td>Pololu S7V8F5</td><td>Aft deck, central bay floor</td></tr>
           <tr><td class="m">C1</td><td>220 µF ≥10 V low-ESR electrolytic</td><td>Aft deck, central bay south</td></tr>
           <tr><td class="m">U1</td><td>Arduino Nano ESP32 (no headers)</td><td>Rails + snap catch, USB-C forward</td></tr>
@@ -466,6 +515,26 @@ code { font-family: var(--mono); font-size: .92em; }
           <tr><td class="m">SW2, R3</td><td>Interlock switch or jumper, 10 kΩ</td><td class="dim">No location yet (item 5)</td></tr>
         </tbody>
       </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>What changed in rev C</h2>
+    <div class="cols">
+      <div>
+        <h3>Power switch</h3>
+        <ul>
+          <li>Q3 is now an AO3400A N-FET switching the ground return, replacing the AO3401 P-FET on BATT+. Rev B's AO3401 is no longer needed.</li>
+          <li>The reed now pulls the gate up to BATT+, and R6 pulls it down to BATT−. The KY-021 pins are reversed to match (item 3).</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Battery monitor</h3>
+        <ul>
+          <li>R11/R12/C4 divider into A0 (new firmware module <code>battery.cpp</code>).</li>
+          <li>Logged as <code>batt_v</code> in every FLIGHTnnn.CSV row. On <code>/status</code> as <code>batt_voltage_v</code>, <code>batt_percent</code> and <code>batt_low</code>. Shown in the serial <code>STATE</code> output, the bench <code>BATT</code> command, and a Battery row on the LaunchControl pad page.</li>
+        </ul>
+      </div>
     </div>
   </section>
 
@@ -483,7 +552,7 @@ code { font-family: var(--mono); font-size: .92em; }
       <div>
         <h3>Added or now drawn</h3>
         <ul>
-          <li>SW1 reed arming through the wall, switching Q3 + R6 as a high-side load switch (BOM item O2).</li>
+          <li>SW1 reed arming through the wall, switching Q3 + R6 as a load switch (BOM item O2).</li>
           <li>SW2 + R3 interlock on D7, which <code>config.h</code> marked "not yet in the schematic".</li>
           <li>Qwiic wired as a star at the Nano, not a daisy chain.</li>
           <li>Airframe interfaces: static port to U4, sound port to BZ1, ARM mark over SW1.</li>
@@ -492,6 +561,6 @@ code { font-family: var(--mono); font-size: .92em; }
     </div>
   </section>
 
-  <p class="src">Sources: <code>PhoenixABS40-43/Avionics/avbay_sled_build_report_v8.txt</code>, <code>…_sled_v8.py</code>, <code>Models/AFT_DEPLOY_D9_DESIGN.md</code>, <code>Electronics/BOM.md</code>, <code>Electronics/Avionics/avionics_wiring.md</code>, <code>firmware/src/config.h</code>, <code>buzzer.cpp</code>. Two docs still describe the older bay: BOM.md §4 lists the servo as Config B for Phoenix, and avionics_bom.md lists the charger.</p>
+  <p class="src">Sources: <code>PhoenixABS40-43/Avionics/avbay_sled_build_report_v8.txt</code>, <code>…_sled_v8.py</code>, <code>Models/AFT_DEPLOY_D9_DESIGN.md</code>, <code>Electronics/BOM.md</code>, <code>Electronics/Avionics/avionics_wiring.md</code>, <code>firmware/src/config.h</code>, <code>buzzer.cpp</code>, <code>battery.cpp</code>. Two docs still describe the older bay: BOM.md §4 lists the servo as Config B for Phoenix, and avionics_bom.md lists the charger.</p>
 
 </div>

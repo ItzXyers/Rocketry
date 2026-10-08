@@ -32,6 +32,15 @@ async function pollFc() {
       d.deploy_has_fired === undefined ? "--" : (d.deploy_has_fired ? "YES" : "no");
     document.getElementById("fc-sample-age").textContent =
       d.sample_age_ms === undefined ? "--" : `${d.sample_age_ms} ms`;
+    const batt = document.getElementById("fc-batt");
+    if (!d.batt_valid) {
+      // older firmware (no batt_* fields) or no reading on the board
+      batt.textContent = d.batt_valid === undefined ? "--" : "no reading";
+      batt.className = "pill pill-unknown";
+    } else {
+      batt.textContent = `${d.batt_voltage_v.toFixed(2)} V · ~${d.batt_percent}%` + (d.batt_low ? " LOW" : "");
+      batt.className = d.batt_low ? "pill pill-bad" : "pill pill-ok";
+    }
   } catch (e) {
     setPill("fc-reachable", false, "ONLINE", "OFFLINE", "--");
   }

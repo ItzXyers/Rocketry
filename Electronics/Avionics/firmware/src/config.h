@@ -59,6 +59,15 @@
 // shorting to the common GND bus must read as NOT armed, not armed).
 #define PIN_ARM_INTERLOCK D7
 
+// Battery voltage sense: BATT+ -> R11 100k -> A0 -> R12 100k -> GND, C4 100nF
+// across R12 (ADC sample-cap reservoir for the 50k source impedance). A0 =
+// GPIO1 = ADC1_CH0: ADC1 keeps working while the Wi-Fi AP is up (ADC2 is
+// shared with the radio on the ESP32-S3). Not a strapping pin. On the Phoenix
+// bay the divider's bottom is board GND, which Q3 (low-side switch) connects
+// to BATT- only while armed -- so the divider draws nothing when off.
+// See ../../avionics_bay_schematic_phoenix40.html.
+#define PIN_BATT_SENSE A0
+
 // ---------------------------------------------------------------------------
 // Tunables — STARTING DEFAULTS for bench tuning, not asserted specs.
 // Every one of these must be verified against real hardware, a real motor's
@@ -122,6 +131,15 @@ static_assert(DEPLOY_MAX_ON_TIME_MS > DEPLOY_ON_TIME_MS + 1000UL,
 #define PAD_CAL_MAG_MIN_G 0.8f                // STARTING DEFAULT (g) — pad accel calibration sanity band; ADXL375 at rest should read ~1.0g
 #define PAD_CAL_MAG_MAX_G 1.2f                // STARTING DEFAULT (g)
 
+// -- Battery monitor (see battery.*) --
+#define BATT_DIVIDER_RATIO 2.0f            // (R11 + R12) / R12 = (100k + 100k) / 100k
+#define BATT_CAL_GAIN 1.000f               // STARTING DEFAULT -- set to (multimeter volts / reported volts) at ~3.9 V on the real board; absorbs resistor tolerance + ADC gain error
+#define BATT_ADC_SAMPLES 8                 // averaged per reading (~0.1 ms total, non-blocking enough for loop())
+#define BATT_SAMPLE_INTERVAL_MS 500UL      // 2 Hz -- the cell voltage moves slowly
+#define BATT_FILTER_ALPHA 0.2f             // EMA on top of the averaging -- smooths SD-write / Wi-Fi TX sag
+#define BATT_PRESENT_MIN_V 2.5f            // below this the reading is "no battery" (divider missing, or USB-only bench power)
+#define BATT_LOW_V 3.70f                   // STARTING DEFAULT -- ~15 % on the generic curve; don't fly below this. Pad go/no-go only, never a flight-logic input
+
 // -- Bench-test deployment gate --
 #define DEPLOY_BENCH_ARM_TIMEOUT_MS 10000UL // window after ARM in which FIRE is accepted
 
@@ -137,4 +155,4 @@ static_assert(DEPLOY_MAX_ON_TIME_MS > DEPLOY_ON_TIME_MS + 1000UL,
 #define WIFI_AP_HTTP_PORT 80
 #define WIFI_INTERLOCK_DEBOUNCE_MS 50UL      // avoids WiFi start/stop thrashing on switch bounce
 #define WIFI_ARM_SHUTDOWN_GRACE_MS 500UL     // STARTING DEFAULT — verify on bench this is enough for the Pi to see the full /arm response before the AP drops
-#define FIRMWARE_VERSION "0.1.0"             // bump manually per notable firmware change; surfaced read-only via GET /config
+#define FIRMWARE_VERSION "0.2.0"             // bump manually per notable firmware change; surfaced read-only via GET /config

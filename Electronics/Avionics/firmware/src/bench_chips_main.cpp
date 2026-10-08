@@ -28,9 +28,11 @@
 //   SD                          mount card, open a FLIGHTnnn.CSV, write a test record
 //   BUZZER PASS|FAIL|BEACON|OFF play a buzzer pattern
 //   INTERLOCK                   read the SW2 arm-interlock input (D7)
+//   BATT                        battery voltage + raw sense-pin reading (A0)
 //   PINS                        print the pin map
 //   HELP                        this list
 
+#include "battery.h"
 #include "buzzer.h"
 #include "config.h"
 #include "deployment.h"
@@ -197,6 +199,22 @@ void cmdInterlock() {
   Serial.println(v == HIGH ? F("CLOSED (armed path enabled)") : F("OPEN (armed path disabled)"));
 }
 
+void cmdBatt() {
+  // Raw pin millivolts as well as the scaled value, so BATT_CAL_GAIN can be
+  // set from a multimeter reading at the cell: gain = meter V / reported V.
+  uint32_t pinMv = analogReadMilliVolts(PIN_BATT_SENSE);
+  Serial.print(F("[bench] BATT sense (A0) pin = "));
+  Serial.print(pinMv);
+  Serial.print(F(" mV  -> cell = "));
+  Serial.print(battery_voltage(), 3);
+  Serial.print(F(" V filtered, ~"));
+  Serial.print(battery_percent());
+  Serial.print(F(" %"));
+  if (!battery_valid()) Serial.print(F("  (NO READING: divider fitted? on battery, not USB-only?)"));
+  else if (battery_low()) Serial.print(F("  LOW"));
+  Serial.println();
+}
+
 void cmdPins() {
   Serial.println(F("[bench] pin map (Arduino label = ESP32-S3 GPIO):"));
   Serial.print(F("[bench]   I2C   SDA=A4("));   Serial.print(PIN_I2C_SDA);
@@ -207,6 +225,7 @@ void cmdPins() {
   Serial.print(F(")  SD_CS=D10("));            Serial.print(PIN_SD_CS);      Serial.println(')');
   Serial.print(F("[bench]   BUZZER=D9("));      Serial.print(PIN_BUZZER);     Serial.println(')');
   Serial.print(F("[bench]   ARM_INTERLOCK=D7(")); Serial.print(PIN_ARM_INTERLOCK); Serial.println(')');
+  Serial.print(F("[bench]   BATT_SENSE=A0("));  Serial.print(PIN_BATT_SENSE); Serial.println(')');
   Serial.print(F("[bench]   DEPLOY=D6("));      Serial.print(PIN_DEPLOY);
   Serial.println(F(")  — held LOW, not driven by this tool"));
   Serial.print(F("[bench]   BMP388 addr (flight, pinned) = "));
@@ -227,6 +246,7 @@ void cmdHelp() {
   Serial.println(F("[bench]   SD                          mount card + write a test record"));
   Serial.println(F("[bench]   BUZZER PASS|FAIL|BEACON|OFF  play a buzzer pattern"));
   Serial.println(F("[bench]   INTERLOCK                   read SW2 arm-interlock (D7)"));
+  Serial.println(F("[bench]   BATT                        battery voltage (A0 divider)"));
   Serial.println(F("[bench]   PINS                        print the pin map"));
   Serial.println(F("[bench] deploy channel is not exposed here — use env:nano_esp32 ARM/FIRE"));
 }
@@ -318,6 +338,8 @@ void handleCommand(String line) {
     cmdBuzzer(ntok >= 2 ? tok[1] : String());
   } else if (cmd == "INTERLOCK") {
     cmdInterlock();
+  } else if (cmd == "BATT") {
+    cmdBatt();
   } else if (cmd == "PINS") {
     cmdPins();
   } else if (cmd == "HELP" || cmd == "?") {
@@ -355,6 +377,7 @@ void setup() {
 
   // External pulldown on the board (R3); do NOT use INPUT_PULLUP here.
   pinMode(PIN_ARM_INTERLOCK, INPUT);
+  battery_init();
 
   Serial.begin(115200);
   delay(200);
@@ -371,6 +394,7 @@ void loop() {
   pollSerialCommands();
 
   buzzer_update();
+  battery_update();
   deployment_update(); // no-op here (nothing fires this binary); mirrors main.cpp's loop contract
 
   if (g_streaming && (millis() - g_lastStreamAt >= BENCH_STREAM_INTERVAL_MS)) {

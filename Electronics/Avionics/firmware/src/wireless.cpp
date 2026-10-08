@@ -1,5 +1,6 @@
 #include "wireless.h"
 #include "config.h"
+#include "battery.h"
 
 #include "deployment.h"
 #include "flight_state.h"
@@ -84,6 +85,7 @@ LogRecord buildLogRecord(const SensorSample &s) {
   r.deploy_fired = deployment_hasFired();
   r.velocity_est_mps = velocity_estimator_velocityMps();
   r.altitude_est_m = velocity_estimator_altitudeM();
+  r.batt_v = battery_valid() ? battery_voltage() : 0.0f;
   return r;
 }
 
@@ -98,7 +100,8 @@ void buildConfigJson() {
       "\"build_timestamp\":\"%s %s\","
       "\"pin_i2c_sda\":\"%s\",\"pin_i2c_scl\":\"%s\","
       "\"pin_spi_sck\":\"%s\",\"pin_spi_miso\":\"%s\",\"pin_spi_mosi\":\"%s\",\"pin_sd_cs\":\"%s\","
-      "\"pin_buzzer\":\"%s\",\"pin_deploy\":\"%s\",\"pin_arm_interlock\":\"%s\","
+      "\"pin_buzzer\":\"%s\",\"pin_deploy\":\"%s\",\"pin_arm_interlock\":\"%s\",\"pin_batt_sense\":\"%s\","
+      "\"batt_divider_ratio\":%.3f,\"batt_cal_gain\":%.3f,\"batt_low_v\":%.2f,"
       "\"thr_launch_accel_g\":%.2f,"
       "\"thr_launch_accel_confirm_ms\":%lu,"
       "\"thr_boost_min_time_ms\":%lu,"
@@ -121,7 +124,8 @@ void buildConfigJson() {
       FIRMWARE_VERSION, __DATE__, __TIME__,
       WIRELESS_XSTR(PIN_I2C_SDA), WIRELESS_XSTR(PIN_I2C_SCL),
       WIRELESS_XSTR(PIN_SPI_SCK), WIRELESS_XSTR(PIN_SPI_MISO), WIRELESS_XSTR(PIN_SPI_MOSI), WIRELESS_XSTR(PIN_SD_CS),
-      WIRELESS_XSTR(PIN_BUZZER), WIRELESS_XSTR(PIN_DEPLOY), WIRELESS_XSTR(PIN_ARM_INTERLOCK),
+      WIRELESS_XSTR(PIN_BUZZER), WIRELESS_XSTR(PIN_DEPLOY), WIRELESS_XSTR(PIN_ARM_INTERLOCK), WIRELESS_XSTR(PIN_BATT_SENSE),
+      static_cast<double>(BATT_DIVIDER_RATIO), static_cast<double>(BATT_CAL_GAIN), static_cast<double>(BATT_LOW_V),
       static_cast<double>(LAUNCH_ACCEL_THRESHOLD_G),
       static_cast<unsigned long>(LAUNCH_ACCEL_CONFIRM_MS),
       static_cast<unsigned long>(BOOST_MIN_TIME_MS),
@@ -158,7 +162,7 @@ void handleStatus() {
   SensorSample s = flight_state_lastSample();
   FlightState state = flight_state_current();
 
-  char buf[768];
+  char buf[1024];
   int n = snprintf(
       buf, sizeof(buf),
       "{"
@@ -182,7 +186,11 @@ void handleStatus() {
       "\"accel_z_g\":%.3f,"
       "\"accel_mag_g\":%.3f,"
       "\"pad_baseline_captured\":%s,"
-      "\"pad_baseline_pressure_pa\":%.2f"
+      "\"pad_baseline_pressure_pa\":%.2f,"
+      "\"batt_valid\":%s,"
+      "\"batt_voltage_v\":%.3f,"
+      "\"batt_percent\":%u,"
+      "\"batt_low\":%s"
       "}",
       static_cast<unsigned long>(millis()),
       static_cast<unsigned long>(ESP.getFreeHeap()),
@@ -204,7 +212,11 @@ void handleStatus() {
       static_cast<double>(s.accel_z_g),
       static_cast<double>(s.accel_mag_g),
       sensors_baselineCaptured() ? "true" : "false",
-      static_cast<double>(sensors_padBaselinePressurePa()));
+      static_cast<double>(sensors_padBaselinePressurePa()),
+      battery_valid() ? "true" : "false",
+      static_cast<double>(battery_voltage()),
+      static_cast<unsigned>(battery_percent()),
+      battery_low() ? "true" : "false");
 
   if (n < 0 || static_cast<size_t>(n) >= sizeof(buf)) {
     g_server.send(500, "application/json", "{\"ok\":false,\"reason\":\"status_json_truncated\"}");

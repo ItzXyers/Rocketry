@@ -2,10 +2,10 @@
 
 Companion to [`avionics_bom.md`](avionics_bom.md). Two variants: the full build (with GPS recovery locator) and a no-GPS variant (buzzer-only recovery). Pin assignments are the Arduino Nano ESP32's documented defaults (`SDA=A4`/`SCL=A5`, `SCK=D13`/`MISO=D12`/`MOSI=D11`/`CS=D10`, `Serial1` remapped to `D2`/`D3`).
 
-> **2026-10-08 — superseded for the Phoenix ABS 40-43 bay (D9aft v10 + sled v8).** Use the rev B schematic
+> **2026-10-08 — superseded for the Phoenix ABS 40-43 bay (D9aft v10 + sled v8).** Use the rev C schematic
 > [`avionics_bay_schematic_phoenix40.html`](avionics_bay_schematic_phoenix40.html)
-> (rendered: https://claude.ai/artifact/Euva6DDNWa6VnT3Dv4fMjK). It drops the charger, GPS and deploy channels. It adds SW1 reed → Q3 P-FET
-> power switching and the SW2/R3 interlock on D7, and lists 6 open items. The diagrams below remain the reference for the 30 mm CO2 bay.
+> (rendered: https://claude.ai/artifact/Euva6DDNWa6VnT3Dv4fMjK). It drops the charger, GPS and deploy channels. It adds SW1 reed → Q3 AO3400A
+> low-side power switching, an R11/R12 battery-voltage divider on A0, and the SW2/R3 interlock on D7, and lists 8 open items. The diagrams below remain the reference for the 30 mm CO2 bay.
 
 Rendered/interactive versions (Claude Artifacts, private to this account):
 - Full build: https://claude.ai/code/artifact/f4f62a39-6f6f-4bb3-88ec-8186684f46a7
