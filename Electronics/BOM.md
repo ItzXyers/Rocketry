@@ -47,12 +47,11 @@ Quantities are **per vehicle** (or per ground station). Buy spares of anything m
 | Q1 | 1 | 2N7000 N-MOSFET | 60 V / 200 mA | TO-92 | 0.3 g | Specified | AV-10. Buzzer driver only — **not** for deployment. |
 | R1 | 1 | Resistor 220 Ω, ¼ W | Q1 gate series | axial | — | Specified | Wiring doc "Additions" 3. D9 → Q1 gate. |
 | R2 | 1 | Resistor 10 kΩ, ¼ W | Q1 gate pulldown | axial | — | Specified | Wiring doc 4. Keeps buzzer silent during boot. |
-| C1 | 1 | Electrolytic 220 µF, ≥10 V, low-ESR | 5 V bulk | ⌀8 × 12 mm radial | 1.5 g | Specified | Wiring doc 2 / AV power note 3. **Mandatory before using the Wi-Fi ground interface near a loaded vehicle.** |
+| C1 | 1 | Electrolytic 220 µF, ≥10 V, low-ESR (**Phoenix build: 470 µF 16 V from stock**, 2026-10-08) | 5 V bulk | ⌀8 × 12 mm radial (check the 470 µF can: ⌀10 won't fit sled v8) | 1.5 g | Specified | Wiring doc 2 / AV power note 3. **Mandatory before using the Wi-Fi ground interface near a loaded vehicle.** |
 | SW1 | 1 | Magnetic reed switch, SPST-NO | glass capsule | 14 × ⌀2 mm | ~1 g | Specified (generic) | AV-13. Contactless power arming through the sealed wall. **Read open item O2 before wiring it in series with the battery.** |
 | Q3 | 1 | N-MOSFET **low-side** load switch, AO3400A | 30 V, 5.7 A, R<sub>DS(on)</sub> ≤ 48 mΩ at V<sub>GS</sub> = 2.5 V | SOT-23 (+ adapter) | <0.5 g | Candidate | **2026-10-08:** replaces the AO3401A P-FET (on hand; same part as Q2). Sits in the ground return, BATT− → board GND; reed pulls the gate to BATT+. Lets SW1 switch µA instead of the full load (O2). Wiring: `Avionics/avionics_bay_schematic_phoenix40.html`. |
 | R6 | 1 | Resistor 100 kΩ | Q3 gate pulldown to source (BATT−) | axial | — | Candidate | Pairs with Q3. Omit if the KY-021 module's on-board 10 kΩ is used for this (schematic item 3). |
-| R11, R12 | 2 | Resistor 100 kΩ, 1 % | battery-sense divider, BATT+ → A0 → GND | axial | — | Candidate | **New 2026-10-08.** Halves the cell voltage for the ADC (4.2 V → 2.1 V). Draws nothing with Q3 off (low side). |
-| C4 | 1 | Ceramic 100 nF | across R12 | 0805 / radial | — | Candidate | ADC sample reservoir for the 50 kΩ divider source. |
+| R11, R12 | 2 | Resistor 10 kΩ, 1 % | battery-sense divider, BATT+ → A0 → GND | axial | — | Candidate | **New 2026-10-08.** Halves the cell voltage for the ADC (4.2 V → 2.1 V). 5 kΩ source, so no ADC filter cap is needed. ~0.2 mA while armed, nothing with Q3 off (low side). |
 | SW2 | 1 | Wireless-arm interlock, **momentary push button** (tactile, SPST-NO) — or a second KY-021 reed module for magnet operation from outside | 3.3 V logic level | ~6 × 6 mm tactile | ~0.5 g | Candidate | **2026-10-08:** momentary, latched in firmware 0.2.0 (hold 1–5 s and release to toggle). Was a slide/toggle. Wiring doc 8. 3V3 → SW2 → D7. Needs a small wall hole, or set-before-close jumper (Phoenix packing §7). |
 | R3 | 1 | Resistor 10 kΩ | D7 pulldown | axial | — | Specified | Wiring doc 8. External pulldown, **not** `INPUT_PULLUP` (fault-mode reasoning in the wiring doc). |
 | — | 2 | Qwiic / STEMMA QT cable, JST-SH 4-pin, 50–100 mm | — | — | ~1 g | Specified | AV-12. Nano → BMP388 → ADXL375 daisy chain. |
@@ -73,7 +72,7 @@ Quantities are **per vehicle** (or per ground station). Buy spares of anything m
 | D9 | `PIN_BUZZER` | R1 → Q1 | A, B |
 | D6 | `PIN_DEPLOY` | R4 → Q2 (burn-wire) | A |
 | D7 | `PIN_ARM_INTERLOCK` | SW2 + R3 | A, B |
-| A0 | `PIN_BATT_SENSE` | R11/R12 divider + C4 | Phoenix (firmware 0.2.0) |
+| A0 | `PIN_BATT_SENSE` | R11/R12 divider | Phoenix (firmware 0.2.0) |
 | D4 / D5 (proposed) | servo PWM | M1 | B — **not yet in `config.h`** |
 | D2 / D3 | Serial1 (reserved) | future GPS | — |
 

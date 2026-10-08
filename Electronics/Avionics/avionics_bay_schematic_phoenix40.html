@@ -121,11 +121,11 @@ code { font-family: var(--mono); font-size: .92em; }
     </dl>
   </header>
 
-  <p class="lead">This is every electrical part on the sled v8 e-bay and how it connects. The bay is a logging altimeter and fires nothing, because D9aft deploys on the motor charge. Power is switched on the ground side: the reed switch drives the gate of an AO3400A N-FET, which connects the battery's negative lead to board GND. A divider on A0 reads the battery voltage, and the firmware logs it, prints it, and shows it on the pad's Wi-Fi page. The battery charges off the vehicle through its JST-PH lead. Numbered markers point to eight open items, listed below the drawing, to resolve before the first power-up in the airframe.</p>
+  <p class="lead">This is every electrical part on the sled v8 e-bay and how it connects. The bay is a logging altimeter and fires nothing, because D9aft deploys on the motor charge. Power is switched on the ground side: the reed switch drives the gate of an AO3400A N-FET, which connects the battery's negative lead to board GND. A divider on A0 reads the battery voltage, and the firmware logs it, prints it, and shows it on the pad's Wi-Fi page. The battery charges off the vehicle through its JST-PH lead. Numbered markers point to nine open items, listed below the drawing, to resolve before the first power-up in the airframe.</p>
 
   <figure>
     <div class="sch">
-      <svg viewBox="0 0 1240 930" role="img" aria-label="Schematic of the Phoenix 40-43 e-bay. A 1S LiPo's negative lead returns to board ground through an AO3400A N-FET low-side switch; a magnet-actuated reed switch pulls its gate up to the battery positive and a 100 kilohm resistor pulls it back down. A 100k/100k divider from battery positive to board ground feeds A0 for battery voltage. Battery positive feeds an S7V8F5 buck-boost making 5 volts, buffered by a 220 microfarad capacitor, into the Arduino Nano ESP32 VIN pin and the buzzer. The Nano's 3.3 volt rail powers a BMP388 barometer and ADXL375 accelerometer over a Qwiic star on A4 and A5, a microSD reader on SPI D10 to D13, and the SW2 interlock on D7. D9 drives the buzzer through a 2N7000. D6, D2 and D3 are unconnected.">
+      <svg viewBox="0 0 1240 930" role="img" aria-label="Schematic of the Phoenix 40-43 e-bay. A 1S LiPo's negative lead returns to board ground through an AO3400A N-FET low-side switch; a magnet-actuated reed switch pulls its gate up to the battery positive and a 100 kilohm resistor pulls it back down. A 10k/10k divider from battery positive to board ground feeds A0 for battery voltage. Battery positive feeds an S7V8F5 buck-boost making 5 volts, buffered by a 220 microfarad capacitor, into the Arduino Nano ESP32 VIN pin and the buzzer. The Nano's 3.3 volt rail powers a BMP388 barometer and ADXL375 accelerometer over a Qwiic star on A4 and A5, a microSD reader on SPI D10 to D13, and the SW2 interlock on D7. D9 drives the buzzer through a 2N7000. D6, D2 and D3 are unconnected.">
         <defs>
           <g id="gnd">
             <line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1.5"/>
@@ -205,23 +205,17 @@ code { font-family: var(--mono); font-size: .92em; }
         <text class="pin" x="344" y="124" text-anchor="end">+</text>
         <text class="pin" x="344" y="194" text-anchor="end">−</text>
 
-        <!-- battery sense divider R11/R12 + C4 -> A0 -->
+        <!-- battery sense divider R11/R12 (10k/10k, no C4 needed) -> A0 -->
         <path class="w" d="M450 80 V110 M450 150 V178 M450 214 V224"/>
-        <rect class="res" x="444" y="110" width="12" height="40" rx="3"/><rect x="445" y="113" width="10" height="3" fill="#7a4a24"/><rect x="445" y="118" width="10" height="3" fill="#141414"/><rect x="445" y="123" width="10" height="3" fill="#141414"/><rect x="445" y="128" width="10" height="3" fill="#ec7f22"/><rect x="445" y="144" width="10" height="3" fill="#7a4a24"/><rect x="444" y="110" width="12" height="40" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <rect class="res" x="444" y="178" width="12" height="36" rx="3"/><rect x="445" y="181" width="10" height="3" fill="#7a4a24"/><rect x="445" y="186" width="10" height="3" fill="#141414"/><rect x="445" y="191" width="10" height="3" fill="#141414"/><rect x="445" y="196" width="10" height="3" fill="#ec7f22"/><rect x="445" y="208" width="10" height="3" fill="#7a4a24"/><rect x="444" y="178" width="12" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect class="res" x="444" y="110" width="12" height="40" rx="3"/><rect x="445" y="113" width="10" height="3" fill="#7a4a24"/><rect x="445" y="118" width="10" height="3" fill="#141414"/><rect x="445" y="123" width="10" height="3" fill="#141414"/><rect x="445" y="128" width="10" height="3" fill="#cf2e2a"/><rect x="445" y="144" width="10" height="3" fill="#7a4a24"/><rect x="444" y="110" width="12" height="40" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect class="res" x="444" y="178" width="12" height="36" rx="3"/><rect x="445" y="181" width="10" height="3" fill="#7a4a24"/><rect x="445" y="186" width="10" height="3" fill="#141414"/><rect x="445" y="191" width="10" height="3" fill="#141414"/><rect x="445" y="196" width="10" height="3" fill="#cf2e2a"/><rect x="445" y="208" width="10" height="3" fill="#7a4a24"/><rect x="444" y="178" width="12" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
         <text class="ref" x="438" y="128" text-anchor="end">R11</text>
-        <text class="sm" x="438" y="142" text-anchor="end">100 k</text>
+        <text class="sm" x="438" y="142" text-anchor="end">10 k</text>
         <text class="ref" x="462" y="195">R12</text>
-        <text class="sm" x="462" y="209">100 k</text>
+        <text class="sm" x="462" y="209">10 k</text>
         <use href="#gnd" x="450" y="224"/>
-        <path class="w" d="M410 165 H510 V330 H520"/>
+        <path class="w" d="M450 165 H510 V330 H520"/>
         <circle class="dot" cx="450" cy="165" r="3"/>
-        <path class="w" d="M410 165 V188 M410 195 V212"/>
-        <line x1="398" y1="188" x2="422" y2="188" stroke="currentColor" stroke-width="2"/>
-        <line x1="398" y1="195" x2="422" y2="195" stroke="currentColor" stroke-width="2"/>
-        <use href="#gnd" x="410" y="212"/>
-        <text class="ref" x="392" y="200" text-anchor="end">C4</text>
-        <text class="sm" x="392" y="214" text-anchor="end">100 nF</text>
         <text class="sm" x="516" y="200">½ VBATT</text>
 
         <!-- U2 -->
@@ -245,7 +239,7 @@ code { font-family: var(--mono); font-size: .92em; }
         <text class="pin" x="611" y="117" text-anchor="end">+</text>
         <use href="#gnd" x="630" y="145"/>
         <text class="ref" x="611" y="142" text-anchor="end">C1</text>
-        <text class="sm" x="611" y="156" text-anchor="end">220 µF</text>
+        <text class="sm" x="611" y="156" text-anchor="end">470 µF</text>
         <!-- SYS_5V -> VIN -->
         <path class="pw" d="M680 80 V290"/>
 
@@ -385,6 +379,7 @@ code { font-family: var(--mono); font-size: .92em; }
           <circle class="mkc" cx="928" cy="578" r="9"/><text class="mkt" x="928" y="582" text-anchor="middle">2</text>
           <circle class="mkc" cx="192" cy="200" r="9"/><text class="mkt" x="192" y="204" text-anchor="middle">3</text>
           <circle class="mkc" cx="194" cy="234" r="9"/><text class="mkt" x="194" y="238" text-anchor="middle">7</text>
+          <circle class="mkc" cx="660" cy="132" r="9"/><text class="mkt" x="660" y="136" text-anchor="middle">9</text>
           <circle class="mkc" cx="468" cy="130" r="9"/><text class="mkt" x="468" y="134" text-anchor="middle">8</text>
           <circle class="mkc" cx="698" cy="272" r="9"/><text class="mkt" x="698" y="276" text-anchor="middle">4</text>
           <circle class="mkc" cx="1000" cy="730" r="9"/><text class="mkt" x="1000" y="734" text-anchor="middle">5</text>
@@ -470,6 +465,14 @@ code { font-family: var(--mono); font-size: .92em; }
           <p class="fix">Flash <code>chips_bench</code>, run <code>BATT</code>, and measure the cell with a multimeter at about 3.9 V. Set <code>BATT_CAL_GAIN</code> in <code>config.h</code> to meter volts ÷ reported volts. The percentage comes from a generic LiPo curve, so trust the voltage more. <code>BATT_LOW_V</code> (3.70 V, about 12 %) flags LOW in the log, on serial and on the pad page. It never touches flight logic.</p>
         </div>
       </li>
+      <li>
+        <span class="mk">9</span>
+        <div>
+          <h3>Check that C1 fits its slot</h3>
+          <p>Sled v8 has a slot for a ⌀8 × 12 mm capacitor (14 mm with leads), standing in the aft deck. A 470 µF 16 V can is usually ⌀8 × 11.5 mm, but some makers use ⌀10 × 12.5 mm, which won't fit.</p>
+          <p class="fix">Measure it. If it's ⌀10, either lay it on its side along the deck floor with the leads bent, or widen the slot in a sled v9. Respect the polarity: the stripe marks the − lead, which goes to board GND.</p>
+        </div>
+      </li>
     </ol>
   </section>
 
@@ -481,8 +484,8 @@ code { font-family: var(--mono); font-size: .92em; }
         <tbody>
           <tr><td class="m">VIN</td><td class="m">SYS_5V</td><td>U2 OUT, C1 +, BZ1 +</td><td>Live while Q3 closes the ground return</td></tr>
           <tr><td class="m">3V3</td><td class="m">3V3</td><td>U4, U5 (via Qwiic), U6, SW2</td><td>Nano on-board regulator output</td></tr>
-          <tr><td class="m">GND</td><td class="m">GND</td><td>Common bus</td><td>Q3 drain, U2, C1, R12, C4, U4–U6, Q1 S, R2, R3. <b>Not</b> BT1 −, which only reaches GND through Q3</td></tr>
-          <tr><td class="m">A0</td><td class="m">PIN_BATT_SENSE</td><td>R11/R12 midpoint, C4</td><td>½ × cell voltage. ADC1, so it reads with the Wi-Fi AP up</td></tr>
+          <tr><td class="m">GND</td><td class="m">GND</td><td>Common bus</td><td>Q3 drain, U2, C1, R12, U4–U6, Q1 S, R2, R3. <b>Not</b> BT1 −, which only reaches GND through Q3</td></tr>
+          <tr><td class="m">A0</td><td class="m">PIN_BATT_SENSE</td><td>R11/R12 midpoint</td><td>½ × cell voltage. ADC1, so it reads with the Wi-Fi AP up</td></tr>
           <tr><td class="m">A4 / A5</td><td class="m">SDA / SCL</td><td>U4 BMP388 0x76, U5 ADXL375 0x53</td><td>Star at the Nano, one Qwiic cable to each board's forward plug (the aft plugs have no room)</td></tr>
           <tr><td class="m">D13 / D12 / D11</td><td class="m">SCK / MISO / MOSI</td><td>U6 microSD</td><td>Only device on the SPI bus</td></tr>
           <tr><td class="m">D10</td><td class="m">SD_CS</td><td>U6 CS</td><td></td></tr>
@@ -498,7 +501,7 @@ code { font-family: var(--mono); font-size: .92em; }
 
   <section>
     <h2>Resistors from your stock</h2>
-    <p>All six are 1 % metal-film, 5-band parts. Photo numbers refer to your set of resistor photos. Measure each one before soldering. 10 kΩ and 100 kΩ differ only in the fourth band (red vs orange).</p>
+    <p>All six are 1 % metal-film, 5-band parts. Photo numbers refer to your set of resistor photos. Measure each one before soldering. 10 kΩ and 100 kΩ differ only in the fourth band (red vs orange). You need four 10 kΩ (R2, R3, R11, R12; R3 only with a push-button SW2) and one 100 kΩ (R6, unless the KY-021's 10 kΩ does that job).</p>
     <div class="tbl">
       <table>
         <thead><tr><th>Ref</th><th>Value</th><th>Bands</th><th>Photo</th><th>Job</th></tr></thead>
@@ -507,12 +510,12 @@ code { font-family: var(--mono); font-size: .92em; }
           <tr><td class="m">R2</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>Q1 gate pulldown</td></tr>
           <tr><td class="m">R3</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>D7 pulldown (SW2). Omit if SW2 is a KY-021 (item 5)</td></tr>
           <tr><td class="m">R6</td><td class="m">100 kΩ</td><td>brown · black · black · orange · brown</td><td class="m">4</td><td>Q3 gate pulldown. Omit if the KY-021's 10 kΩ does it (item 3)</td></tr>
-          <tr><td class="m">R11</td><td class="m">100 kΩ</td><td>brown · black · black · orange · brown</td><td class="m">4</td><td>Battery divider, top</td></tr>
-          <tr><td class="m">R12</td><td class="m">100 kΩ</td><td>brown · black · black · orange · brown</td><td class="m">4</td><td>Battery divider, bottom</td></tr>
+          <tr><td class="m">R11</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>Battery divider, top</td></tr>
+          <tr><td class="m">R12</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>Battery divider, bottom</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="src">Not used in this bay: photos 1 & 5 (56 kΩ, measure to confirm), 2 (100 Ω), 3 (110 Ω), 7 (330 Ω; its bands also read as 100 kΩ from the other end, so keep it away from R11/R12).</p>
+    <p class="src">Not used in this bay: photos 1 & 5 (56 kΩ, measure to confirm), 2 (100 Ω), 3 (110 Ω), 7 (330 Ω; its bands also read as 100 kΩ from the other end, so keep it away from R6).</p>
   </section>
 
   <section>
@@ -525,9 +528,9 @@ code { font-family: var(--mono); font-size: .92em; }
           <tr><td class="m">J1</td><td>JST-PH 2-pin (battery lead)</td><td>Forward end of the tray</td></tr>
           <tr><td class="m">SW1</td><td>KY-021 reed module (pins reversed, item 3)</td><td>Edge rails, capsule under the ARM mark</td></tr>
           <tr><td class="m">Q3, R6</td><td>AO3400A N-FET on SOT-23 adapter, 100 kΩ (photo 4; or the KY-021's 10 kΩ)</td><td>Aft deck, central bay, on top of U2 (the AO3401's slot)</td></tr>
-          <tr><td class="m">R11, R12, C4</td><td>2 × 100 kΩ 1 % (photo 4), 100 nF ceramic</td><td class="dim">Not in sled v8. Fit inline on the A0 lead in heat-shrink, C4 at the Nano end</td></tr>
+          <tr><td class="m">R11, R12</td><td>2 × 10 kΩ 1 % (photo 6)</td><td class="dim">Not in sled v8. Fit inline on the A0 lead in heat-shrink</td></tr>
           <tr><td class="m">U2</td><td>Pololu S7V8F5</td><td>Aft deck, central bay floor</td></tr>
-          <tr><td class="m">C1</td><td>220 µF ≥10 V low-ESR electrolytic</td><td>Aft deck, central bay south</td></tr>
+          <tr><td class="m">C1</td><td>470 µF 16 V electrolytic (from your stock)</td><td>Aft deck, central bay south. The slot fits a ⌀8 mm can up to 14 mm tall including leads: measure yours (item 9)</td></tr>
           <tr><td class="m">U1</td><td>Arduino Nano ESP32 (no headers)</td><td>Rails + snap catch, USB-C forward</td></tr>
           <tr><td class="m">U4</td><td>BMP388 Qwiic</td><td>West lane on edge, 2 × M2.5</td></tr>
           <tr><td class="m">U5</td><td>ADXL375 (Adafruit 5374)</td><td>Grooved rails, inboard of the Nano</td></tr>
@@ -553,7 +556,8 @@ code { font-family: var(--mono); font-size: .92em; }
       <div>
         <h3>Battery monitor and SW2</h3>
         <ul>
-          <li>R11/R12/C4 divider into A0 (new firmware module <code>battery.cpp</code>).</li>
+          <li>R11/R12 10 kΩ divider into A0 (new firmware module <code>battery.cpp</code>). At 10 kΩ the ADC needs no filter capacitor, and the divider draws about 0.2 mA, only while armed.</li>
+          <li>C1 is your 470 µF 16 V part instead of 220 µF. More bulk capacitance only helps against brownouts.</li>
           <li>SW2 is a momentary push button, latched in firmware (hold 1–5 s and release to toggle). No latching switches are needed anywhere in the bay.</li>
           <li>Logged as <code>batt_v</code> in every FLIGHTnnn.CSV row. On <code>/status</code> as <code>batt_voltage_v</code>, <code>batt_percent</code> and <code>batt_low</code>. Shown in the serial <code>STATE</code> output, the bench <code>BATT</code> command, and a Battery row on the LaunchControl pad page.</li>
         </ul>

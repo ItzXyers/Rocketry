@@ -64,8 +64,9 @@
 // as a magnet-operated button from outside the sealed bay.
 #define PIN_ARM_INTERLOCK D7
 
-// Battery voltage sense: BATT+ -> R11 100k -> A0 -> R12 100k -> GND, C4 100nF
-// across R12 (ADC sample-cap reservoir for the 50k source impedance). A0 =
+// Battery voltage sense: BATT+ -> R11 10k -> A0 -> R12 10k -> GND. The 5k
+// source impedance is low enough for the ADC without a filter cap; the
+// divider draws ~0.2 mA, and only while Q3 is on. A0 =
 // GPIO1 = ADC1_CH0: ADC1 keeps working while the Wi-Fi AP is up (ADC2 is
 // shared with the radio on the ESP32-S3). Not a strapping pin. On the Phoenix
 // bay the divider's bottom is board GND, which Q3 (low-side switch) connects
@@ -137,7 +138,7 @@ static_assert(DEPLOY_MAX_ON_TIME_MS > DEPLOY_ON_TIME_MS + 1000UL,
 #define PAD_CAL_MAG_MAX_G 1.2f                // STARTING DEFAULT (g)
 
 // -- Battery monitor (see battery.*) --
-#define BATT_DIVIDER_RATIO 2.0f            // (R11 + R12) / R12 = (100k + 100k) / 100k
+#define BATT_DIVIDER_RATIO 2.0f            // (R11 + R12) / R12 = (10k + 10k) / 10k
 #define BATT_CAL_GAIN 1.000f               // STARTING DEFAULT -- set to (multimeter volts / reported volts) at ~3.9 V on the real board; absorbs resistor tolerance + ADC gain error
 #define BATT_ADC_SAMPLES 8                 // averaged per reading (~0.1 ms total, non-blocking enough for loop())
 #define BATT_SAMPLE_INTERVAL_MS 500UL      // 2 Hz -- the cell voltage moves slowly

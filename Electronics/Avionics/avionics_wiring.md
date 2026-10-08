@@ -167,7 +167,7 @@ flowchart LR
 The BOM's open items and standard practice call for a few parts it doesn't list a part number for. None of these change the chain — they close gaps in it.
 
 1. **SW1, arm/power switch** — placed between the battery/charger junction and the regulator's VIN, not directly on the battery terminal. That way the charger can still trickle-charge the battery with the switch off (pad-safe), and the whole downstream system is dead with the switch off — satisfying both open items in one part.
-2. **C1, 220µF bulk cap** — across SYS_5V right at the regulator output, per the BOM's transient-current recommendation, to absorb SD-write/WiFi-TX current spikes without browning out the Nano.
+2. **C1, 220µF bulk cap** (Phoenix build, 2026-10-08: 470 µF 16 V from stock) — across SYS_5V right at the regulator output, per the BOM's transient-current recommendation, to absorb SD-write/WiFi-TX current spikes without browning out the Nano.
 3. **R1, 220Ω gate resistor** — not in the BOM, but a bare GPIO-to-gate connection is asking for ringing on a long lead to the buzzer. Cheap insurance.
 4. **R2, 10kΩ pulldown** — ESP32 GPIOs can float momentarily during boot/reset; without this the buzzer could chirp on power-up before firmware sets D9 low.
 5. **Serial1 on D2/D3 for the GPS** (full build only), instead of the default D0/D1 — Serial0 (D0/D1) is shared with the ESP32's boot log and crash dumps, which would land in the middle of NMEA sentences if the GPS shared that UART.
