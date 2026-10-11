@@ -432,9 +432,9 @@ code { font-family: var(--mono); font-size: .92em; }
       <li>
         <span class="mk">5</span>
         <div>
-          <h3>SW2 is a push button, but the bay is sealed</h3>
+          <h3>SW2 is a push button inside the sealed bay</h3>
           <p>SW2 is now a momentary button. The firmware latches it: hold 1–5 s, then release, to turn the Wi-Fi interlock on, and do it again to turn it off. Every boot starts with it off. A tap is ignored, and a line stuck high (shorted to 3V3) never releases, so it can't turn Wi-Fi on. Once on, the AP stays up until <code>/arm</code>, confirmed BOOST, a second press or power-off. That draws roughly 100 mA, hours of margin on 620 mAh. Sled v8 has no place for SW2, and the bay has no wall hole.</p>
-          <p class="fix"><b>Button inside:</b> press it with the e-bay out, just before closing the bay. <b>Better, if you have a second KY-021:</b> put it on its own mark and operate it with the magnet from outside. Wire it with its pins reversed (− → 3V3, S → D7, + → GND); its on-board 10 kΩ then replaces R3. The firmware treats it exactly like the button.</p>
+          <p class="fix"><b>Procedure:</b> with the e-bay out and powered, hold the button 1–5 s and release, check that the AP is up, then close the bay. <b>Placement:</b> it needs a spot in a sled v9 where your finger can reach it with the e-bay out, but nothing can press it once the bay is closed.</p>
         </div>
       </li>
       <li>
@@ -498,14 +498,14 @@ code { font-family: var(--mono); font-size: .92em; }
 
   <section>
     <h2>Resistors from your stock</h2>
-    <p>All six are 1 % metal-film, 5-band parts. Photo numbers refer to your set of resistor photos. Measure each one before soldering. 10 kΩ and 100 kΩ differ only in the fourth band (red vs orange). You need four 10 kΩ (R2, R3, R11, R12; R3 only with a push-button SW2) and one 100 kΩ (R6). R1 is 1 kΩ, which you don't have yet.</p>
+    <p>All six are 1 % metal-film, 5-band parts. Photo numbers refer to your set of resistor photos. Measure each one before soldering. 10 kΩ and 100 kΩ differ only in the fourth band (red vs orange). You need four 10 kΩ (R2, R3, R11, R12) and one 100 kΩ (R6). R1 is 1 kΩ, which you don't have yet.</p>
     <div class="tbl">
       <table>
         <thead><tr><th>Ref</th><th>Value</th><th>Bands</th><th>Photo</th><th>Job</th></tr></thead>
         <tbody>
           <tr><td class="m">R1</td><td class="m">1 kΩ</td><td>brown · black · black · brown · brown</td><td class="m">—</td><td>Q1 base resistor (D9). <b>Not in your stock</b> (photo 3 is 110 Ω): buy one, or use the 330 Ω (photo 7) meanwhile, about 8 mA from D9</td></tr>
           <tr><td class="m">R2</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>Q1 base pulldown</td></tr>
-          <tr><td class="m">R3</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>D7 pulldown (SW2). Omit if SW2 is a KY-021 (item 5)</td></tr>
+          <tr><td class="m">R3</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>D7 pulldown (SW2)</td></tr>
           <tr><td class="m">R6</td><td class="m">100 kΩ</td><td>brown · black · black · orange · brown</td><td class="m">4</td><td>Q3 gate pull-up to BATT+. Leave the KY-021's + pin unconnected (item 3)</td></tr>
           <tr><td class="m">R11</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>Battery divider, top</td></tr>
           <tr><td class="m">R12</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>Battery divider, bottom</td></tr>
@@ -534,7 +534,7 @@ code { font-family: var(--mono); font-size: .92em; }
           <tr><td class="m">U6</td><td>Adafruit 4682 microSD</td><td>Aft deck, west lane</td></tr>
           <tr><td class="m">BZ1</td><td>Piezo module</td><td>Aft deck pocket, can facing the sound port</td></tr>
           <tr><td class="m">Q1, R1, R2</td><td>BC337-40 NPN (usually C–B–E, check the datasheet), 1 kΩ, 10 kΩ (photo 6)</td><td>Aft deck, central bay south</td></tr>
-          <tr><td class="m">SW2, R3</td><td>Momentary push button (or a second KY-021), 10 kΩ (photo 6)</td><td class="dim">No location yet (item 5)</td></tr>
+          <tr><td class="m">SW2, R3</td><td>Momentary push button, 10 kΩ (photo 6)</td><td class="dim">No location yet (item 5)</td></tr>
         </tbody>
       </table>
     </div>

@@ -61,8 +61,7 @@
 // SW2 is a MOMENTARY push button (3V3 -> button -> D7): wireless.cpp latches
 // it -- a press held WIFI_BUTTON_HOLD_MIN_MS..MAX_MS, then released, toggles
 // the interlock for this power cycle. A line stuck HIGH never releases, so it
-// can never enable the radio. A second reed module wired the same way works
-// as a magnet-operated button from outside the sealed bay.
+// can never enable the radio.
 #define PIN_ARM_INTERLOCK D7
 
 // Battery voltage sense: BATT+ -> R11 10k -> A0 -> R12 10k -> GND. The 5k
