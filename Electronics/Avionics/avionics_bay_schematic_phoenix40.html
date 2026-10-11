@@ -111,7 +111,7 @@ code { font-family: var(--mono); font-size: .92em; }
   <header class="tb">
     <div>
       <div class="eyebrow">Phoenix ABS 40-43 · Avionics bay</div>
-      <h1>E-bay schematic, rev D</h1>
+      <h1>E-bay schematic, rev E</h1>
     </div>
     <dl>
       <dt>Date</dt><dd>2026-10-08</dd>
@@ -121,11 +121,11 @@ code { font-family: var(--mono); font-size: .92em; }
     </dl>
   </header>
 
-  <p class="lead">This is every electrical part on the sled v8 e-bay and how it connects. The bay is a logging altimeter and fires nothing, because D9aft deploys on the motor charge. Power is switched on the battery side: the reed switch pulls the gate of an AO3401A P-FET low, which connects BATT+ to the regulator. A divider on A0 reads the battery voltage, and the firmware logs it, prints it, and shows it on the pad's Wi-Fi page. The battery charges off the vehicle through its JST-PH lead. Numbered markers point to nine open items, listed below the drawing, to resolve before the first power-up in the airframe.</p>
+  <p class="lead">This is every electrical part on the sled v8 e-bay and how it connects. The bay is a logging altimeter and fires nothing, because D9aft deploys on the motor charge. Power is switched on the battery side: the reed switch pulls the gate of a G75P04T P-FET low, which connects BATT+ to the regulator. A divider on A0 reads the battery voltage, and the firmware logs it, prints it, and shows it on the pad's Wi-Fi page. The battery charges off the vehicle through its JST-PH lead. Numbered markers point to nine open items, listed below the drawing, to resolve before the first power-up in the airframe.</p>
 
   <figure>
     <div class="sch">
-      <svg viewBox="0 0 1240 930" role="img" aria-label="Schematic of the Phoenix 40-43 e-bay. A 1S LiPo's positive lead feeds an AO3401A P-FET high-side switch; a 100 kilohm resistor holds its gate at battery positive and a magnet-actuated reed switch pulls it to ground. A 10k/10k divider on the switched battery line feeds A0 for battery voltage. The switched battery feeds an S7V8F5 buck-boost making 5 volts, buffered by a 470 microfarad capacitor, into the Arduino Nano ESP32 VIN pin and the buzzer. The Nano's 3.3 volt rail powers a BMP388 barometer and ADXL375 accelerometer over a Qwiic star on A4 and A5, a microSD reader on SPI D10 to D13, and the SW2 interlock on D7. D9 drives the buzzer through a 2N7000. D6, D2 and D3 are unconnected.">
+      <svg viewBox="0 0 1240 930" role="img" aria-label="Schematic of the Phoenix 40-43 e-bay. A 1S LiPo's positive lead feeds a G75P04T P-FET high-side switch; a 100 kilohm resistor holds its gate at battery positive and a magnet-actuated reed switch pulls it to ground. A 10k/10k divider on the switched battery line feeds A0 for battery voltage. The switched battery feeds an S7V8F5 buck-boost making 5 volts, buffered by a 470 microfarad capacitor, into the Arduino Nano ESP32 VIN pin and the buzzer. The Nano's 3.3 volt rail powers a BMP388 barometer and ADXL375 accelerometer over a Qwiic star on A4 and A5, a microSD reader on SPI D10 to D13, and the SW2 interlock on D7. D9 drives the buzzer through a BC337 NPN transistor. D6, D2 and D3 are unconnected.">
         <defs>
           <g id="gnd">
             <line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="1.5"/>
@@ -169,7 +169,7 @@ code { font-family: var(--mono); font-size: .92em; }
         <!-- Q3 high-side P-FET -->
         <rect class="box" x="270" y="55" width="80" height="50" rx="3"/>
         <text class="ref" x="310" y="71" text-anchor="middle">Q3 · P-FET</text>
-        <text class="sm" x="310" y="85" text-anchor="middle">AO3401A</text>
+        <text class="sm" x="310" y="85" text-anchor="middle">G75P04T</text>
         <text class="pin" x="275" y="99">S</text>
         <text class="pin" x="345" y="99" text-anchor="end">D</text>
         <text class="pin" x="310" y="101" text-anchor="middle">G</text>
@@ -322,9 +322,9 @@ code { font-family: var(--mono); font-size: .92em; }
 
         <!-- ============ BUZZER ============ -->
         <path class="w" d="M720 660 H750 M800 660 H960"/>
-        <rect class="res" x="750" y="654" width="50" height="12" rx="3"/><rect x="753" y="655" width="4" height="10" fill="#cf2e2a"/><rect x="759" y="655" width="4" height="10" fill="#cf2e2a"/><rect x="765" y="655" width="4" height="10" fill="#141414"/><rect x="771" y="655" width="4" height="10" fill="#141414"/><rect x="793" y="655" width="4" height="10" fill="#7a4a24"/><rect x="750" y="654" width="50" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <rect class="res" x="750" y="654" width="50" height="12" rx="3"/><rect x="753" y="655" width="4" height="10" fill="#7a4a24"/><rect x="759" y="655" width="4" height="10" fill="#141414"/><rect x="765" y="655" width="4" height="10" fill="#141414"/><rect x="771" y="655" width="4" height="10" fill="#7a4a24"/><rect x="793" y="655" width="4" height="10" fill="#7a4a24"/><rect x="750" y="654" width="50" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
         <text class="ref" x="775" y="646" text-anchor="middle">R1</text>
-        <text class="sm" x="775" y="684" text-anchor="middle">220 Ω</text>
+        <text class="sm" x="775" y="684" text-anchor="middle">1 kΩ</text>
         <circle class="dot" cx="840" cy="660" r="3"/>
         <path class="w" d="M840 660 V680 M840 710 V720"/>
         <rect class="res" x="834" y="680" width="12" height="30" rx="3"/><rect x="835" y="683" width="10" height="3" fill="#7a4a24"/><rect x="835" y="688" width="10" height="3" fill="#141414"/><rect x="835" y="693" width="10" height="3" fill="#141414"/><rect x="835" y="698" width="10" height="3" fill="#cf2e2a"/><rect x="835" y="704" width="10" height="3" fill="#7a4a24"/><rect x="834" y="680" width="12" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
@@ -334,10 +334,10 @@ code { font-family: var(--mono); font-size: .92em; }
         <!-- Q1 -->
         <rect class="box" x="960" y="635" width="70" height="50" rx="3"/>
         <text class="ref" x="1000" y="657" text-anchor="middle">Q1</text>
-        <text class="sm" x="1000" y="672" text-anchor="middle">2N7000</text>
-        <text class="pin" x="965" y="664">G</text>
-        <text class="pin" x="1018" y="647">D</text>
-        <text class="pin" x="1018" y="682">S</text>
+        <text class="sm" x="1000" y="672" text-anchor="middle">BC337-40</text>
+        <text class="pin" x="965" y="664">B</text>
+        <text class="pin" x="1018" y="647">C</text>
+        <text class="pin" x="1018" y="682">E</text>
         <path class="w" d="M995 685 V698"/>
         <use href="#gnd" x="995" y="698"/>
         <!-- BZ1 -->
@@ -410,15 +410,15 @@ code { font-family: var(--mono); font-size: .92em; }
         <div>
           <h3>Buzzer type must match the firmware</h3>
           <p><code>buzzer.cpp</code> holds D9 high or low with no tone generation, so it needs an <em>active</em> buzzer that oscillates on its own. The sled v7/v8 notes describe the module as "KY-006-style", and a KY-006 is usually a <em>passive</em> transducer. Driven with DC it only clicks.</p>
-          <p class="fix"><b>Check:</b> put 5 V across the module's + and − pins. A steady tone means it is active and fine. A single click means it is passive. In that case, swap in an active module or change <code>buzzer.cpp</code> to drive a 2–4 kHz LEDC tone on D9. Confirm the module pinout too: some KY boards leave the middle pin unconnected.</p>
+          <p class="fix"><b>Check:</b> put 5 V across the module's + and − pins. A steady tone means it is active and fine. A single click means it is passive. In that case, swap in an active module or change <code>buzzer.cpp</code> to drive a 2–4 kHz LEDC tone on D9. If you go the tone route with a plain piezo, also fit a ~1 kΩ resistor across BZ1 (+ to −): otherwise the piezo can't discharge when Q1 turns off, and it plays quietly. Confirm the module pinout too: some KY boards leave the middle pin unconnected.</p>
         </div>
       </li>
       <li>
         <span class="mk">3</span>
         <div>
-          <h3>R6 may already be on the reed module</h3>
-          <p>KY-021 boards normally carry a 10 kΩ resistor between + and S, with the reed between S and −. That is exactly R6 and SW1: wire the module's <b>+</b> to BATT+ (Q3's source), <b>S</b> to Q3's gate, and <b>−</b> to GND. The on-board 10 kΩ then does R6's job, and R6 can stay off.</p>
-          <p class="fix"><b>Check with a meter</b> before wiring that the 10 kΩ sits between + and S and that the board has no LED. Armed drain through the 10 kΩ is about 0.4 mA, which is negligible against 620 mAh.</p>
+          <h3>Use only the reed module's S and − pins</h3>
+          <p>KY-021 boards carry a 10 kΩ resistor between + and S, with the reed between S and −. Wire only <b>S</b> to Q3's gate and <b>−</b> to GND, as drawn, and leave <b>+</b> unconnected. R6 (100 kΩ) is the gate pull-up. If you also connect +, the module's 10 kΩ sits in parallel with R6 and draws ten times the current while the reed is closed (about 0.4 mA instead of 0.04 mA).</p>
+          <p class="fix"><b>Check with a meter</b> that the reed sits between S and −, and that the board has no LED in that path.</p>
         </div>
       </li>
       <li>
@@ -434,7 +434,7 @@ code { font-family: var(--mono); font-size: .92em; }
         <div>
           <h3>SW2 is a push button, but the bay is sealed</h3>
           <p>SW2 is now a momentary button. The firmware latches it: hold 1–5 s, then release, to turn the Wi-Fi interlock on, and do it again to turn it off. Every boot starts with it off. A tap is ignored, and a line stuck high (shorted to 3V3) never releases, so it can't turn Wi-Fi on. Once on, the AP stays up until <code>/arm</code>, confirmed BOOST, a second press or power-off. That draws roughly 100 mA, hours of margin on 620 mAh. Sled v8 has no place for SW2, and the bay has no wall hole.</p>
-          <p class="fix"><b>Button inside:</b> press it with the e-bay out, just before closing the bay. <b>Better, if you have a second KY-021:</b> put it on its own mark and operate it with the magnet from outside. Wire it reversed like SW1 (− → 3V3, S → D7, + → GND); its on-board 10 kΩ then replaces R3. The firmware treats it exactly like the button.</p>
+          <p class="fix"><b>Button inside:</b> press it with the e-bay out, just before closing the bay. <b>Better, if you have a second KY-021:</b> put it on its own mark and operate it with the magnet from outside. Wire it with its pins reversed (− → 3V3, S → D7, + → GND); its on-board 10 kΩ then replaces R3. The firmware treats it exactly like the button.</p>
         </div>
       </li>
       <li>
@@ -448,9 +448,10 @@ code { font-family: var(--mono); font-size: .92em; }
       <li>
         <span class="mk">7</span>
         <div>
-          <h3>Q3 is on the shopping list</h3>
-          <p>You don't have a P-channel FET yet. Buy an <b>AO3401A</b> (−30 V, −4 A, about 60–85 mΩ at a 3.7 V gate). An <b>IRLML6401</b> or <b>Si2301</b> also works. All three are SOT-23, so get adapter boards. It goes in the sled's existing slot on top of U2. Don't substitute a through-hole P-channel part (BS250, IRF9540, FQP27P06) or a 2N2907: none of them turns fully on from a 3–4 V cell.</p>
-          <p class="fix">Pin order on most SOT-23 FETs is 1 = G, 2 = S, 3 = D, but check the datasheet of the part you buy. <b>Until it arrives:</b> rev C's ground-side circuit with your AO3400A works as a stand-in. Its one extra rule is that battery − may connect only to the FET.</p>
+          <h3>Q3 is a G75P04T in TO-220: wire it by pin name, and find it a home</h3>
+          <p>The G75P04T is −40 V, −70 A, about 7 mΩ at a −10 V gate. It's rated from a −4.5 V gate with a threshold of at most −2.5 V, so the cell's 3.0–4.2 V turns it on, but below its characterized drive. At this board's current that is still a small drop. Bench-check it: with ~200 mA flowing, the voltage from S to D should be well under 50 mV. A worst-case part on a nearly empty cell drops more, one more reason not to fly below <code>BATT_LOW_V</code>.</p>
+          <p><b>Pins:</b> with the printed face toward you and legs down, the order is <b>G – D – S</b>. That isn't the S-G-D order of the box on the drawing, so wire by name: <b>S</b> to BATT+, <b>D</b> to SW_BATT, <b>G</b> to the R6 / SW1 junction. The metal tab is the drain (SW_BATT): cut it off or cover it in Kapton so it can't touch anything.</p>
+          <p class="fix"><b>Size:</b> the body is about 10 × 15 × 4.5 mm plus the tab, and it weighs about 2 g. It doesn't fit sled v8's SOT-23 slot on top of U2. With the tab cut it is about 10 × 9 × 4.5 mm plus legs, which still needs a pocket in a sled v9 or a measured spot in the aft deck.</p>
         </div>
       </li>
       <li>
@@ -485,7 +486,7 @@ code { font-family: var(--mono); font-size: .92em; }
           <tr><td class="m">A4 / A5</td><td class="m">SDA / SCL</td><td>U4 BMP388 0x76, U5 ADXL375 0x53</td><td>Star at the Nano, one Qwiic cable to each board's forward plug (the aft plugs have no room)</td></tr>
           <tr><td class="m">D13 / D12 / D11</td><td class="m">SCK / MISO / MOSI</td><td>U6 microSD</td><td>Only device on the SPI bus</td></tr>
           <tr><td class="m">D10</td><td class="m">SD_CS</td><td>U6 CS</td><td></td></tr>
-          <tr><td class="m">D9</td><td class="m">PIN_BUZZER</td><td>R1 220 Ω → Q1 gate</td><td>R2 10 kΩ gate pulldown keeps the buzzer quiet during boot</td></tr>
+          <tr><td class="m">D9</td><td class="m">PIN_BUZZER</td><td>R1 1 kΩ → Q1 base</td><td>R2 10 kΩ base pulldown keeps the buzzer quiet during boot</td></tr>
           <tr><td class="m">D7</td><td class="m">PIN_ARM_INTERLOCK</td><td>SW2 button → 3V3, R3 10 kΩ → GND</td><td>Hold 1–5 s and release to toggle Wi-Fi. External pulldown on purpose: a chafed wire shorting to GND reads not-pressed</td></tr>
           <tr><td class="m">D6</td><td class="m">PIN_DEPLOY</td><td class="dim">not connected</td><td>D9aft fires nothing</td></tr>
           <tr><td class="m">D2 / D3</td><td class="m">Serial1 RX / TX</td><td class="dim">not connected</td><td>Reserved for a future GPS</td></tr>
@@ -497,21 +498,21 @@ code { font-family: var(--mono); font-size: .92em; }
 
   <section>
     <h2>Resistors from your stock</h2>
-    <p>All six are 1 % metal-film, 5-band parts. Photo numbers refer to your set of resistor photos. Measure each one before soldering. 10 kΩ and 100 kΩ differ only in the fourth band (red vs orange). You need four 10 kΩ (R2, R3, R11, R12; R3 only with a push-button SW2) and one 100 kΩ (R6, unless the KY-021's 10 kΩ does that job).</p>
+    <p>All six are 1 % metal-film, 5-band parts. Photo numbers refer to your set of resistor photos. Measure each one before soldering. 10 kΩ and 100 kΩ differ only in the fourth band (red vs orange). You need four 10 kΩ (R2, R3, R11, R12; R3 only with a push-button SW2) and one 100 kΩ (R6). R1 is 1 kΩ, which you don't have yet.</p>
     <div class="tbl">
       <table>
         <thead><tr><th>Ref</th><th>Value</th><th>Bands</th><th>Photo</th><th>Job</th></tr></thead>
         <tbody>
-          <tr><td class="m">R1</td><td class="m">220 Ω</td><td>red · red · black · black · brown</td><td class="m">8</td><td>Q1 gate series (D9)</td></tr>
-          <tr><td class="m">R2</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>Q1 gate pulldown</td></tr>
+          <tr><td class="m">R1</td><td class="m">1 kΩ</td><td>brown · black · black · brown · brown</td><td class="m">—</td><td>Q1 base resistor (D9). <b>Not in your stock</b> (photo 3 is 110 Ω): buy one, or use the 330 Ω (photo 7) meanwhile, about 8 mA from D9</td></tr>
+          <tr><td class="m">R2</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>Q1 base pulldown</td></tr>
           <tr><td class="m">R3</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>D7 pulldown (SW2). Omit if SW2 is a KY-021 (item 5)</td></tr>
-          <tr><td class="m">R6</td><td class="m">100 kΩ</td><td>brown · black · black · orange · brown</td><td class="m">4</td><td>Q3 gate pull-up to BATT+. Omit if the KY-021's 10 kΩ does it (item 3)</td></tr>
+          <tr><td class="m">R6</td><td class="m">100 kΩ</td><td>brown · black · black · orange · brown</td><td class="m">4</td><td>Q3 gate pull-up to BATT+. Leave the KY-021's + pin unconnected (item 3)</td></tr>
           <tr><td class="m">R11</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>Battery divider, top</td></tr>
           <tr><td class="m">R12</td><td class="m">10 kΩ</td><td>brown · black · black · red · brown</td><td class="m">6</td><td>Battery divider, bottom</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="src">Not used in this bay: photos 1 & 5 (56 kΩ, measure to confirm), 2 (100 Ω), 3 (110 Ω), 7 (330 Ω; its bands also read as 100 kΩ from the other end, so keep it away from R6).</p>
+    <p class="src">Not used in this bay: photos 1 & 5 (56 kΩ, measure to confirm), 2 (100 Ω), 3 (110 Ω), 8 (220 Ω, the old R1). Photo 7 (330 Ω) is only R1's stand-in. Its bands also read as 100 kΩ from the other end, so measure it.</p>
   </section>
 
   <section>
@@ -522,8 +523,8 @@ code { font-family: var(--mono); font-size: .92em; }
         <tbody>
           <tr><td class="m">BT1</td><td>EEMB LP852040 1S LiPo, 620 mAh</td><td>Battery tray, opens outboard, one zip tie</td></tr>
           <tr><td class="m">J1</td><td>JST-PH 2-pin (battery lead)</td><td>Forward end of the tray</td></tr>
-          <tr><td class="m">SW1</td><td>KY-021 reed module (+ → BATT+, S → Q3 gate, − → GND)</td><td>Edge rails, capsule under the ARM mark</td></tr>
-          <tr><td class="m">Q3, R6</td><td>AO3401A P-FET on SOT-23 adapter (<b>to buy</b>, item 7), 100 kΩ (photo 4; or the KY-021's 10 kΩ)</td><td>Aft deck, central bay, on top of U2</td></tr>
+          <tr><td class="m">SW1</td><td>KY-021 reed module (S → Q3 gate, − → GND, + unconnected)</td><td>Edge rails, capsule under the ARM mark</td></tr>
+          <tr><td class="m">Q3, R6</td><td>G75P04T P-FET, TO-220 (G–D–S, tab = D), 100 kΩ (photo 4)</td><td class="dim">No slot in sled v8: the SOT-23 slot on top of U2 is too small (item 7)</td></tr>
           <tr><td class="m">R11, R12</td><td>2 × 10 kΩ 1 % (photo 6)</td><td class="dim">Not in sled v8. Fit inline on the A0 lead in heat-shrink</td></tr>
           <tr><td class="m">U2</td><td>Pololu S7V8F5</td><td>Aft deck, central bay floor</td></tr>
           <tr><td class="m">C1</td><td>470 µF 16 V electrolytic (from your stock)</td><td>Aft deck, central bay south. The slot fits a ⌀8 mm can up to 14 mm tall including leads: measure yours (item 9)</td></tr>
@@ -532,7 +533,7 @@ code { font-family: var(--mono); font-size: .92em; }
           <tr><td class="m">U5</td><td>ADXL375 (Adafruit 5374)</td><td>Grooved rails, inboard of the Nano</td></tr>
           <tr><td class="m">U6</td><td>Adafruit 4682 microSD</td><td>Aft deck, west lane</td></tr>
           <tr><td class="m">BZ1</td><td>Piezo module</td><td>Aft deck pocket, can facing the sound port</td></tr>
-          <tr><td class="m">Q1, R1, R2</td><td>2N7000, 220 Ω (photo 8), 10 kΩ (photo 6)</td><td>Aft deck, central bay south</td></tr>
+          <tr><td class="m">Q1, R1, R2</td><td>BC337-40 NPN (usually C–B–E, check the datasheet), 1 kΩ, 10 kΩ (photo 6)</td><td>Aft deck, central bay south</td></tr>
           <tr><td class="m">SW2, R3</td><td>Momentary push button (or a second KY-021), 10 kΩ (photo 6)</td><td class="dim">No location yet (item 5)</td></tr>
         </tbody>
       </table>
@@ -540,14 +541,14 @@ code { font-family: var(--mono); font-size: .92em; }
   </section>
 
   <section>
-    <h2>What changed in rev C and D</h2>
+    <h2>What changed in rev C, D and E</h2>
     <div class="cols">
       <div>
         <h3>Power switch</h3>
         <ul>
           <li><b>Rev D:</b> Q3 is an AO3401A P-FET on the battery's positive side. R6 holds its gate at BATT+, and the reed pulls it to GND. Board GND is the battery's negative lead again, and the KY-021 wires up with its normal pin labels.</li>
           <li>The battery divider is tapped after Q3 (SW_BATT), so it still draws nothing while the bay is off.</li>
-          <li><b>Rev C</b> (the AO3400A N-FET in the ground return) stays valid as a stand-in until the P-FET arrives.</li>
+          <li><b>Rev E:</b> Q3 is a G75P04T (TO-220) instead of the AO3401A. Q1 is a BC337-40 NPN instead of the 2N7000, with R1 raised to 1 kΩ. The KY-021 uses only S and −, with R6 as the pull-up.</li>
         </ul>
       </div>
       <div>

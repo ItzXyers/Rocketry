@@ -32,7 +32,8 @@
 #define PIN_SPI_MOSI D11
 #define PIN_SD_CS D10
 
-// Buzzer MOSFET gate (2N7000, via 220R gate resistor + 10k pulldown on the board).
+// Buzzer driver: BC337-40 NPN base via R1 1k, R2 10k base pulldown on the board
+// (was a 2N7000 + 220R; Phoenix schematic rev E). HIGH = buzzer on.
 #define PIN_BUZZER D9
 
 // D2/D3 are reserved for a possible future GPS (Serial1 RX/TX) — do not reuse.
