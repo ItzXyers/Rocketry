@@ -69,8 +69,9 @@
 // divider draws ~0.2 mA, and only while Q3 is on. A0 =
 // GPIO1 = ADC1_CH0: ADC1 keeps working while the Wi-Fi AP is up (ADC2 is
 // shared with the radio on the ESP32-S3). Not a strapping pin. On the Phoenix
-// bay the divider's bottom is board GND, which Q3 (low-side switch) connects
-// to BATT- only while armed -- so the divider draws nothing when off.
+// bay the divider's top is SW_BATT, after Q3 (high-side P-FET), so it draws
+// nothing while the bay is off. The reading is the cell minus Q3's drop
+// (~10-40 mV at this board's current) -- BATT_CAL_GAIN absorbs the typical part.
 // See ../../avionics_bay_schematic_phoenix40.html.
 #define PIN_BATT_SENSE A0
 
