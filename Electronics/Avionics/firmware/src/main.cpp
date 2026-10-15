@@ -12,6 +12,7 @@
 #include "deployment.h"
 #include "flight_state.h"
 #include "logger.h"
+#include "power.h"
 #include "sensors.h"
 #include "velocity_estimator.h"
 #include "wireless.h"
@@ -118,6 +119,7 @@ void setup() {
   // not just a buzzer chirp. Must be the literal first call, before even
   // Serial.begin().
   deployment_init();
+  power_init(); // latch power on before anything slow -- the user is holding the magnet until this runs
   buzzer_init();
 
   Serial.begin(115200);
@@ -177,6 +179,17 @@ void loop() {
   deployment_update();
   buzzer_update();
   battery_update();
+
+  {
+    FlightState fs = flight_state_current();
+    bool offAllowed = fs == FlightState::IDLE_ARMED || fs == FlightState::LANDED || fs == FlightState::ERROR;
+    if (power_poll(offAllowed)) {
+      buzzer_setPattern(BuzzerPattern::OFF);
+      SensorSample s = flight_state_lastSample();
+      logger_logEvent("POWER_OFF", buildRoutineRecord(s)); // flushes before power goes
+      power_release();
+    }
+  }
 
   pollSerialCommands();
   wireless_update(); // services HTTP + SW2 button / AP power + any deferred

@@ -48,8 +48,7 @@
 // same gate-resistor + pulldown pattern as the buzzer, and — separately, a
 // hardware concern, not a firmware one — a higher-current logic-level MOSFET
 // than the 2N7000 (200mA max), since a nichrome burn-wire coil is expected to
-// draw hundreds of mA to a few amps. Backups if D6 proves awkward on the real
-// schematic: D4, D5, D7.
+// draw hundreds of mA to a few amps. (D4/D5 are the power latch, D7 is SW2.)
 #define PIN_DEPLOY D6
 
 // Wireless-arm interlock (SW2) — separate from SW1 (whole-board power
@@ -74,6 +73,13 @@
 // (~10-40 mV at this board's current) -- BATT_CAL_GAIN absorbs the typical part.
 // See ../../avionics_bay_schematic_phoenix40.html.
 #define PIN_BATT_SENSE A0
+
+// Magnet toggle power latch (see power.*, schematic rev F). D4 = GPIO7 drives
+// Q5's gate through R14 (C5 + R13 hold it ~1 s through a reset). D5 = GPIO8
+// senses SW1 through CR2 with the internal pull-up: LOW = magnet present.
+// Neither is a strapping pin, native USB or UART0.
+#define PIN_POWER_HOLD D4
+#define PIN_POWER_SENSE D5
 
 // ---------------------------------------------------------------------------
 // Tunables — STARTING DEFAULTS for bench tuning, not asserted specs.
@@ -147,6 +153,10 @@ static_assert(DEPLOY_MAX_ON_TIME_MS > DEPLOY_ON_TIME_MS + 1000UL,
 #define BATT_PRESENT_MIN_V 2.5f            // below this the reading is "no battery" (divider missing, or USB-only bench power)
 #define BATT_LOW_V 3.70f                   // STARTING DEFAULT -- ~15 % on the generic curve; don't fly below this. Pad go/no-go only, never a flight-logic input
 
+// -- Power latch (see power.*) --
+#define POWER_OFF_HOLD_MS 1000UL           // magnet held this long (after one release since boot) = power off
+#define POWER_SENSE_DEBOUNCE_MS 50UL
+
 // -- Bench-test deployment gate --
 #define DEPLOY_BENCH_ARM_TIMEOUT_MS 10000UL // window after ARM in which FIRE is accepted
 
@@ -164,4 +174,4 @@ static_assert(DEPLOY_MAX_ON_TIME_MS > DEPLOY_ON_TIME_MS + 1000UL,
 #define WIFI_BUTTON_HOLD_MIN_MS 1000UL       // shorter presses are ignored (bumps, handling, glitches)
 #define WIFI_BUTTON_HOLD_MAX_MS 5000UL       // longer = treated as a stuck/shorted line, ignored until released
 #define WIFI_ARM_SHUTDOWN_GRACE_MS 500UL     // STARTING DEFAULT — verify on bench this is enough for the Pi to see the full /arm response before the AP drops
-#define FIRMWARE_VERSION "0.2.0"             // bump manually per notable firmware change; surfaced read-only via GET /config
+#define FIRMWARE_VERSION "0.3.0"             // bump manually per notable firmware change; surfaced read-only via GET /config

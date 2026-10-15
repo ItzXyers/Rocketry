@@ -37,6 +37,7 @@
 #include "config.h"
 #include "deployment.h"
 #include "logger.h"
+#include "power.h"
 #include "sensors.h"
 
 #include <Arduino.h>
@@ -373,6 +374,7 @@ void setup() {
   // channel, but if it is flashed to a board with Q2 wired, the gate must
   // not sit floating during bring-up. Same ordering reasoning as main.cpp.
   deployment_init();
+  power_init(); // keep the bay powered on battery once the magnet is removed
   buzzer_init();
 
   // External pulldown on the board (R3); do NOT use INPUT_PULLUP here.
@@ -395,6 +397,9 @@ void loop() {
 
   buzzer_update();
   battery_update();
+  if (power_poll(true)) {
+    power_release();
+  }
   deployment_update(); // no-op here (nothing fires this binary); mirrors main.cpp's loop contract
 
   if (g_streaming && (millis() - g_lastStreamAt >= BENCH_STREAM_INTERVAL_MS)) {

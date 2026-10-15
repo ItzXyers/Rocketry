@@ -51,6 +51,12 @@ Quantities are **per vehicle** (or per ground station). Buy spares of anything m
 | SW1 | 1 | Magnetic reed switch, SPST-NO | glass capsule | 14 × ⌀2 mm | ~1 g | Specified (generic) | AV-13. Contactless power arming through the sealed wall. **Read open item O2 before wiring it in series with the battery.** |
 | Q3 | 1 | P-MOSFET **high-side** load switch, **G75P04T** (Goford, Electrokit) | −40 V, −70 A, 7 mΩ at V<sub>GS</sub> = −10 V; V<sub>GS(th)</sub> ≤ −2.5 V, rated from −4.5 V | TO-220 (pins G–D–S, tab = drain) | ~2 g | Specified | **2026-10-11 (schematic rev E):** BATT+ → Q3 → SW_BATT → U2; R6 holds the gate at BATT+, the reed pulls it to GND. A 3.0–4.2 V cell drives it below its characterized gate voltage, so bench-check the S–D drop. Doesn't fit sled v8's SOT-23 slot; cut or insulate the drain tab. Wiring: `Avionics/avionics_bay_schematic_phoenix40.html`. |
 | R6 | 1 | Resistor 100 kΩ | Q3 gate pull-up to source (BATT+) | axial | — | Candidate | Pairs with Q3. Always fitted; wire the KY-021 by S and − only, so its on-board 10 kΩ stays out of circuit (schematic item 3). |
+| Q5 | 1 | N-MOSFET AO3400A (on hand) | 30 V, 5.7 A | SOT-23 (+ adapter) | <0.5 g | Specified | **2026-10-15 (schematic rev F): power latch.** Drain to Q3 gate, source to GND, gate from D4 via R14. Firmware 0.3.0 drives D4 high at boot to hold power on after a magnet tap. |
+| R13 | 1 | Resistor 100 kΩ | Q5 gate pulldown to GND | axial | — | Specified | Keeps Q5 off while the Nano is unpowered; with C5 holds Q5 on ~1 s through an ESP32 reset. |
+| R14 | 1 | Resistor 220 Ω | D4 → Q5 gate series | axial | — | Specified | Limits D4's charging current into C5. |
+| C5 | 1 | Electrolytic 10 µF, 50 V (on hand) | Q5 gate hold capacitor, + to gate | radial | — | Specified | ~1 s reset ride-through with R13. |
+| CR1 | 1 | Schottky diode 1N5819 or BAT43 | SW1 → Q3 gate (cathode toward SW1) | DO-41 / DO-35 | — | To buy | Starts the bay on a magnet tap. Schottky so Q3 keeps gate drive on a low cell. |
+| CR2 | 1 | Diode 1N4148 | D5 → SW1 sense (cathode toward SW1) | DO-35 | — | To buy | Lets firmware see the magnet without back-powering D5 while the bay is off. |
 | R11, R12 | 2 | Resistor 10 kΩ, 1 % | battery-sense divider, SW_BATT (after Q3) → A0 → GND | axial | — | Candidate | **New 2026-10-08.** Halves the cell voltage for the ADC (4.2 V → 2.1 V). 5 kΩ source, so no ADC filter cap is needed. ~0.2 mA while armed, nothing with Q3 off (tapped after Q3). |
 | SW2 | 1 | Wireless-arm interlock, **momentary push button** (tactile, SPST-NO), inside the bay | 3.3 V logic level | ~6 × 6 mm tactile | ~0.5 g | Candidate | **2026-10-08:** momentary, latched in firmware 0.2.0 (hold 1–5 s and release to toggle). Was a slide/toggle. Wiring doc 8. 3V3 → SW2 → D7. Pressed with the e-bay out, before the bay is closed (2026-10-11 decision; no second reed). |
 | R3 | 1 | Resistor 10 kΩ | D7 pulldown | axial | — | Specified | Wiring doc 8. External pulldown, **not** `INPUT_PULLUP` (fault-mode reasoning in the wiring doc). |
@@ -73,7 +79,8 @@ Quantities are **per vehicle** (or per ground station). Buy spares of anything m
 | D6 | `PIN_DEPLOY` | R4 → Q2 (burn-wire) | A |
 | D7 | `PIN_ARM_INTERLOCK` | SW2 + R3 | A, B |
 | A0 | `PIN_BATT_SENSE` | R11/R12 divider | Phoenix (firmware 0.2.0) |
-| D4 / D5 (proposed) | servo PWM | M1 | B — **not yet in `config.h`** |
+| D4 | `PIN_POWER_HOLD` | R14 → Q5 (power latch) | Phoenix (firmware 0.3.0) |
+| D5 | `PIN_POWER_SENSE` | CR2 → SW1 (magnet sense) | Phoenix (firmware 0.3.0) |
 | D2 / D3 | Serial1 (reserved) | future GPS | — |
 
 ---
