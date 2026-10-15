@@ -32,7 +32,8 @@
 #define PIN_SPI_MOSI D11
 #define PIN_SD_CS D10
 
-// Buzzer MOSFET gate (2N7000, via 220R gate resistor + 10k pulldown on the board).
+// Buzzer driver: BC337-40 NPN base via R1 1k, R2 10k base pulldown on the board
+// (was a 2N7000 + 220R; Phoenix schematic rev E). HIGH = buzzer on.
 #define PIN_BUZZER D9
 
 // D2/D3 are reserved for a possible future GPS (Serial1 RX/TX) — do not reuse.
@@ -51,13 +52,28 @@
 // schematic: D4, D5, D7.
 #define PIN_DEPLOY D6
 
-// Wireless-arm physical interlock switch (SW2) — separate from SW1 (whole-
-// board power cutoff, not firmware-readable). D7 = GPIO10: free of I2C/
-// SPI/buzzer/deploy, not D2/D3 (GPS-reserved), not a strapping pin, not
-// native-USB/UART0. External pulldown (R3, 10k), not INPUT_PULLUP — see
+// Wireless-arm interlock (SW2) — separate from SW1 (whole-board power
+// cutoff, not firmware-readable). D7 = GPIO10: free of I2C/SPI/buzzer/
+// deploy, not D2/D3 (GPS-reserved), not a strapping pin, not native-USB/
+// UART0. External pulldown (R3, 10k), not INPUT_PULLUP — see
 // avionics_wiring.md for the fault-mode rationale (a chafed signal wire
 // shorting to the common GND bus must read as NOT armed, not armed).
+// SW2 is a MOMENTARY push button (3V3 -> button -> D7): wireless.cpp latches
+// it -- a press held WIFI_BUTTON_HOLD_MIN_MS..MAX_MS, then released, toggles
+// the interlock for this power cycle. A line stuck HIGH never releases, so it
+// can never enable the radio.
 #define PIN_ARM_INTERLOCK D7
+
+// Battery voltage sense: BATT+ -> R11 10k -> A0 -> R12 10k -> GND. The 5k
+// source impedance is low enough for the ADC without a filter cap; the
+// divider draws ~0.2 mA, and only while Q3 is on. A0 =
+// GPIO1 = ADC1_CH0: ADC1 keeps working while the Wi-Fi AP is up (ADC2 is
+// shared with the radio on the ESP32-S3). Not a strapping pin. On the Phoenix
+// bay the divider's top is SW_BATT, after Q3 (high-side P-FET), so it draws
+// nothing while the bay is off. The reading is the cell minus Q3's drop
+// (~10-40 mV at this board's current) -- BATT_CAL_GAIN absorbs the typical part.
+// See ../../avionics_bay_schematic_phoenix40.html.
+#define PIN_BATT_SENSE A0
 
 // ---------------------------------------------------------------------------
 // Tunables — STARTING DEFAULTS for bench tuning, not asserted specs.
@@ -122,12 +138,21 @@ static_assert(DEPLOY_MAX_ON_TIME_MS > DEPLOY_ON_TIME_MS + 1000UL,
 #define PAD_CAL_MAG_MIN_G 0.8f                // STARTING DEFAULT (g) — pad accel calibration sanity band; ADXL375 at rest should read ~1.0g
 #define PAD_CAL_MAG_MAX_G 1.2f                // STARTING DEFAULT (g)
 
+// -- Battery monitor (see battery.*) --
+#define BATT_DIVIDER_RATIO 2.0f            // (R11 + R12) / R12 = (10k + 10k) / 10k
+#define BATT_CAL_GAIN 1.000f               // STARTING DEFAULT -- set to (multimeter volts / reported volts) at ~3.9 V on the real board; absorbs resistor tolerance + ADC gain error
+#define BATT_ADC_SAMPLES 8                 // averaged per reading (~0.1 ms total, non-blocking enough for loop())
+#define BATT_SAMPLE_INTERVAL_MS 500UL      // 2 Hz -- the cell voltage moves slowly
+#define BATT_FILTER_ALPHA 0.2f             // EMA on top of the averaging -- smooths SD-write / Wi-Fi TX sag
+#define BATT_PRESENT_MIN_V 2.5f            // below this the reading is "no battery" (divider missing, or USB-only bench power)
+#define BATT_LOW_V 3.70f                   // STARTING DEFAULT -- ~15 % on the generic curve; don't fly below this. Pad go/no-go only, never a flight-logic input
+
 // -- Bench-test deployment gate --
 #define DEPLOY_BENCH_ARM_TIMEOUT_MS 10000UL // window after ARM in which FIRE is accepted
 
 // -- Wireless ground interface (WiFi AP + HTTP, see wireless.*) --
-// AP powers up only while SW2 (PIN_ARM_INTERLOCK) is closed, and only
-// before real flight (confirmed BOOST latches it off for the rest of the
+// AP powers up only while the SW2 button has latched the interlock on, and
+// only before real flight (confirmed BOOST latches it off for the rest of the
 // power cycle regardless of SW2 — see flight_state.cpp). Never touches
 // PIN_DEPLOY; wireless FIRE does not exist.
 #define WIFI_AP_SSID "FLIGHTCOMPUTER-XXXX"   // STARTING DEFAULT — set unique per board before flying near other boards
@@ -135,6 +160,8 @@ static_assert(DEPLOY_MAX_ON_TIME_MS > DEPLOY_ON_TIME_MS + 1000UL,
 #define WIFI_AP_CHANNEL 6                    // STARTING DEFAULT — fixed channel, no scan needed for a single-purpose AP
 #define WIFI_AP_MAX_CONNECTIONS 1            // deliberately capped so a stray device can't also join
 #define WIFI_AP_HTTP_PORT 80
-#define WIFI_INTERLOCK_DEBOUNCE_MS 50UL      // avoids WiFi start/stop thrashing on switch bounce
+#define WIFI_INTERLOCK_DEBOUNCE_MS 50UL      // contact-bounce filter on the SW2 button
+#define WIFI_BUTTON_HOLD_MIN_MS 1000UL       // shorter presses are ignored (bumps, handling, glitches)
+#define WIFI_BUTTON_HOLD_MAX_MS 5000UL       // longer = treated as a stuck/shorted line, ignored until released
 #define WIFI_ARM_SHUTDOWN_GRACE_MS 500UL     // STARTING DEFAULT — verify on bench this is enough for the Pi to see the full /arm response before the AP drops
-#define FIRMWARE_VERSION "0.1.0"             // bump manually per notable firmware change; surfaced read-only via GET /config
+#define FIRMWARE_VERSION "0.2.0"             // bump manually per notable firmware change; surfaced read-only via GET /config

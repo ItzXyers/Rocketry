@@ -6,6 +6,7 @@
 // This file is thin orchestration only — no flight logic lives here.
 
 #include "config.h"
+#include "battery.h"
 
 #include "buzzer.h"
 #include "deployment.h"
@@ -40,6 +41,7 @@ LogRecord buildRoutineRecord(const SensorSample &s) {
   r.deploy_fired = deployment_hasFired();
   r.velocity_est_mps = velocity_estimator_velocityMps();
   r.altitude_est_m = velocity_estimator_altitudeM();
+  r.batt_v = battery_valid() ? battery_voltage() : 0.0f;
   return r;
 }
 
@@ -66,8 +68,20 @@ void handleSerialCommand(String cmd) {
   } else if (cmd == "STATE") {
     Serial.print(F("[bench] flight_state = "));
     Serial.println(static_cast<uint8_t>(flight_state_current()));
-    Serial.print(F("[bench] arm_interlock (SW2) = "));
-    Serial.println(wireless_armInterlockClosed() ? F("CLOSED") : F("OPEN"));
+    Serial.print(F("[bench] wifi interlock = "));
+    Serial.print(wireless_interlockEnabled() ? F("ON") : F("OFF"));
+    Serial.print(F(" (SW2 button "));
+    Serial.print(wireless_interlockButtonPressed() ? F("pressed") : F("released"));
+    Serial.println(')');
+    Serial.print(F("[bench] battery = "));
+    if (battery_valid()) {
+      Serial.print(battery_voltage(), 3);
+      Serial.print(F(" V, ~"));
+      Serial.print(battery_percent());
+      Serial.println(battery_low() ? F(" % LOW") : F(" %"));
+    } else {
+      Serial.println(F("no reading"));
+    }
     Serial.print(F("[bench] velocity_est_mps = "));
     Serial.print(velocity_estimator_velocityMps());
     Serial.print(F(" altitude_est_m = "));
@@ -118,6 +132,17 @@ void setup() {
   WiFi.mode(WIFI_OFF);
   btStop();
 
+  battery_init(); // before flight_state_init() so the boot self-test record already carries batt_v
+  if (battery_valid()) {
+    Serial.print(F("[main] battery "));
+    Serial.print(battery_voltage(), 2);
+    Serial.print(F(" V (~"));
+    Serial.print(battery_percent());
+    Serial.println(battery_low() ? F(" %) -- LOW, charge before flight") : F(" %)"));
+  } else {
+    Serial.println(F("[main] battery: no reading (divider not fitted, or USB-only power)"));
+  }
+
   sensors_init();
   flight_state_init(); // runs self-test, opens the log, plays pass/fail tone
 
@@ -127,7 +152,7 @@ void setup() {
                       "Do not fly without a fresh power-cycle + reload."));
   }
 
-  wireless_init(); // brings up the ground-support AP once SW2 is closed
+  wireless_init(); // brings up the ground-support AP once an SW2 press latches the interlock on
 }
 
 void loop() {
@@ -151,9 +176,10 @@ void loop() {
   // a blocking call elsewhere. No delay() exists anywhere in this loop.
   deployment_update();
   buzzer_update();
+  battery_update();
 
   pollSerialCommands();
-  wireless_update(); // services HTTP + SW2-follow AP power + any deferred
+  wireless_update(); // services HTTP + SW2 button / AP power + any deferred
                       // radio shutdown; ordered after deployment_update()/
                       // buzzer_update() so it can never starve them
 }

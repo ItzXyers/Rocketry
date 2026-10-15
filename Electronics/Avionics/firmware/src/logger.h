@@ -19,6 +19,7 @@ struct LogRecord {
   bool deploy_fired = false;
   float velocity_est_mps = 0.0f; // Kalman-fused vertical velocity, up +, telemetry only — see velocity_estimator.h
   float altitude_est_m = 0.0f;   // Kalman-fused altitude AGL, same frame as altitude_agl_m, telemetry only
+  float batt_v = 0.0f;           // filtered cell voltage, 0 when no battery reading -- see battery.h
   char event[16] = {0}; // short tag, empty for routine (non-event) samples
 };
 

@@ -20,7 +20,7 @@ void writeHeader() {
   g_file.println(F("timestamp_ms,state,altitude_agl_m,pressure_pa,temperature_c,"
                     "accel_x_g,accel_y_g,accel_z_g,accel_mag_g,"
                     "baro_valid,accel_valid,deploy_fired,"
-                    "velocity_est_mps,altitude_est_m,event"));
+                    "velocity_est_mps,altitude_est_m,batt_v,event"));
 }
 
 void writeRecord(const LogRecord &r) {
@@ -51,6 +51,8 @@ void writeRecord(const LogRecord &r) {
   g_file.print(r.velocity_est_mps, 3);
   g_file.print(',');
   g_file.print(r.altitude_est_m, 2);
+  g_file.print(',');
+  g_file.print(r.batt_v, 3);
   g_file.print(',');
   g_file.println(r.event);
 }

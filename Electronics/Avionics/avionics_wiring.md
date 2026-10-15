@@ -2,6 +2,11 @@
 
 Companion to [`avionics_bom.md`](avionics_bom.md). Two variants: the full build (with GPS recovery locator) and a no-GPS variant (buzzer-only recovery). Pin assignments are the Arduino Nano ESP32's documented defaults (`SDA=A4`/`SCL=A5`, `SCK=D13`/`MISO=D12`/`MOSI=D11`/`CS=D10`, `Serial1` remapped to `D2`/`D3`).
 
+> **2026-10-08 — superseded for the Phoenix ABS 40-43 bay (D9aft v10 + sled v8).** Use the rev C schematic
+> [`avionics_bay_schematic_phoenix40.html`](avionics_bay_schematic_phoenix40.html)
+> (rendered: https://claude.ai/artifact/Euva6DDNWa6VnT3Dv4fMjK). It drops the charger, GPS and deploy channels. It adds SW1 reed → Q3 G75P04T P-FET
+> high-side power switching (rev D), an R11/R12 battery-voltage divider on A0, and the SW2 push button/R3 interlock on D7, and lists 8 open items. The diagrams below remain the reference for the 30 mm CO2 bay.
+
 Rendered/interactive versions (Claude Artifacts, private to this account):
 - Full build: https://claude.ai/code/artifact/f4f62a39-6f6f-4bb3-88ec-8186684f46a7
 - No-GPS variant: https://claude.ai/code/artifact/93769de8-e7bb-4562-b7f9-f643bc10d751
@@ -162,13 +167,13 @@ flowchart LR
 The BOM's open items and standard practice call for a few parts it doesn't list a part number for. None of these change the chain — they close gaps in it.
 
 1. **SW1, arm/power switch** — placed between the battery/charger junction and the regulator's VIN, not directly on the battery terminal. That way the charger can still trickle-charge the battery with the switch off (pad-safe), and the whole downstream system is dead with the switch off — satisfying both open items in one part.
-2. **C1, 220µF bulk cap** — across SYS_5V right at the regulator output, per the BOM's transient-current recommendation, to absorb SD-write/WiFi-TX current spikes without browning out the Nano.
+2. **C1, 220µF bulk cap** (Phoenix build, 2026-10-08: 470 µF 16 V from stock) — across SYS_5V right at the regulator output, per the BOM's transient-current recommendation, to absorb SD-write/WiFi-TX current spikes without browning out the Nano.
 3. **R1, 220Ω gate resistor** — not in the BOM, but a bare GPIO-to-gate connection is asking for ringing on a long lead to the buzzer. Cheap insurance.
 4. **R2, 10kΩ pulldown** — ESP32 GPIOs can float momentarily during boot/reset; without this the buzzer could chirp on power-up before firmware sets D9 low.
 5. **Serial1 on D2/D3 for the GPS** (full build only), instead of the default D0/D1 — Serial0 (D0/D1) is shared with the ESP32's boot log and crash dumps, which would land in the middle of NMEA sentences if the GPS shared that UART.
 6. **SD reader and Qwiic parts on the 3V3 rail, not 5V** — the Nano ESP32's GPIOs are natively 3.3 V, so this is required regardless of the BOM's "no level shifter" caveat, not just a precaution.
 7. **GPS module voltage** (full build only) — the BOM specifies a "GY-NEO6MV2-style" generic breakout, not a verified SKU. Most have an onboard 3.3 V regulator and accept 3.3–5 V in, with 3.3 V logic on TX/RX — confirm before wiring; if the specific module's UART is 5 V logic, its TX line needs a divider or level shifter into the Nano's RX1.
-8. **SW2, wireless-arm interlock switch** — separate from SW1 (whole-board power cutoff, not firmware-readable). One leg to 3V3, other leg to `PIN_ARM_INTERLOCK` (D7) and to a new **R3, 10kΩ pulldown** to GND. Closed = interlock satisfied (the wireless ground-support AP powers up and `/arm` is permitted); open — or the signal wire broken — reads not-armed and the AP drops. Chosen over `INPUT_PULLUP` + switch-to-GND because the likely fault mode on this harness is the signal wire chafing against the common GND bus (the most abundant net on the board), which would read *armed* under that alternative topology; this topology reads *not armed* instead. Both topologies fail safe on a clean wire break — GND-chafe is the discriminator. See `../firmware/src/wireless.*` for how this gates the wireless ground interface; it can never reach the deployment channel (`PIN_DEPLOY`) — wireless FIRE does not exist.
+8. **SW2, wireless-arm interlock** — **a momentary push button since firmware 0.2.0** (2026-10-08): the firmware latches a 1–5 s press-and-release as a toggle, and the interlock always starts off at boot. A line shorted to 3V3 never releases, so it can't enable the radio. The text below describes the original latching switch; the wiring and the fail-safe reasoning are unchanged. Separate from SW1 (whole-board power cutoff, not firmware-readable). One leg to 3V3, other leg to `PIN_ARM_INTERLOCK` (D7) and to a new **R3, 10kΩ pulldown** to GND. Closed = interlock satisfied (the wireless ground-support AP powers up and `/arm` is permitted); open — or the signal wire broken — reads not-armed and the AP drops. Chosen over `INPUT_PULLUP` + switch-to-GND because the likely fault mode on this harness is the signal wire chafing against the common GND bus (the most abundant net on the board), which would read *armed* under that alternative topology; this topology reads *not armed* instead. Both topologies fail safe on a clean wire break — GND-chafe is the discriminator. See `../firmware/src/wireless.*` for how this gates the wireless ground interface; it can never reach the deployment channel (`PIN_DEPLOY`) — wireless FIRE does not exist.
 
 ---
 

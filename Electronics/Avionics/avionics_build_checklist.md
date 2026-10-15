@@ -141,19 +141,27 @@ treat their absence there as "nothing to check." Verify directly against
 
 ## 6. Wireless-arm interlock (D7 → SW2 → R3)
 
+SW2 is a **momentary push button** (firmware 0.2.0+). The firmware latches it:
+press and hold 1–5 s (`WIFI_BUTTON_HOLD_MIN_MS`..`MAX_MS`), then release, to
+toggle the interlock. Every boot starts with it off.
+
 - [ ] SW2 wired per `avionics_wiring.md` #8: one leg to 3V3, other leg to
       `PIN_ARM_INTERLOCK` (D7) **and** to R3 (10 kΩ) to GND. This is an
       external pulldown, not `INPUT_PULLUP` — confirm the topology matches,
       inverting it changes the fail-safe direction on a chafed wire.
-- [ ] With SW2 open at boot, confirm no WiFi AP appears (scan for
-      `WIFI_AP_SSID` from `config.h` on a phone/laptop) — radio must stay off.
-- [ ] With SW2 closed, confirm the AP appears within a few seconds.
-- [ ] Opening SW2 again after the AP is up: confirm it goes back down
-      (debounced, `WIFI_INTERLOCK_DEBOUNCE_MS`).
+- [ ] After boot, confirm no WiFi AP appears (scan for `WIFI_AP_SSID` from
+      `config.h` on a phone/laptop) — radio must stay off.
+- [ ] Tap SW2 briefly (< 1 s): nothing happens.
+- [ ] Hold SW2 ~2 s and release: serial prints `SW2: interlock ON`, and the AP
+      appears within a few seconds.
+- [ ] Hold ~2 s and release again: `interlock OFF`, and the AP goes down.
+- [ ] Hold SW2 > 5 s: serial prints `held too long -- ignored`, and releasing
+      it changes nothing (this is how a line shorted to 3V3 behaves).
+- [ ] Boot with SW2 held down, release after boot: interlock stays off.
 
 ## 7. Self-test / boot behavior
 
-Power up with SW1 closed, SW2 open, USB serial monitor attached
+Power up with SW1 closed, SW2 not pressed, USB serial monitor attached
 (115200 baud):
 
 - [ ] Deploy gate (D6) reads LOW immediately — `deployment_init()` is the

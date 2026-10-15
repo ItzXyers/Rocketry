@@ -1,5 +1,6 @@
 #include "wireless.h"
 #include "config.h"
+#include "battery.h"
 
 #include "deployment.h"
 #include "flight_state.h"
@@ -30,9 +31,14 @@ bool g_shutdownPending = false;
 bool g_shutdownImmediate = false;
 uint32_t g_shutdownRequestedAt = 0;
 
-bool g_interlockReading = false; // debounced, accepted value
-bool g_interlockRawLast = false;
-uint32_t g_interlockChangedAt = 0;
+// SW2 is a momentary button. Debounced level first, then a press-and-release
+// gesture latches g_interlockEnabled -- see config.h's PIN_ARM_INTERLOCK.
+bool g_buttonPressed = false; // debounced level (HIGH = pressed)
+bool g_buttonRawLast = false;
+uint32_t g_buttonChangedAt = 0;
+uint32_t g_pressStartedAt = 0;
+bool g_ignoreUntilRelease = false; // pressed at boot, or held past the max -> this press never counts
+bool g_interlockEnabled = false;   // latched; what the AP follows
 
 bool g_lastArmSucceeded = false; // this session's wireless-arm outcome
 
@@ -40,14 +46,38 @@ char g_configJson[1536];
 
 bool readInterlockRaw() { return digitalRead(PIN_ARM_INTERLOCK) == HIGH; }
 
-void updateInterlockDebounce() {
+// A press counts only on RELEASE, and only if it lasted
+// WIFI_BUTTON_HOLD_MIN_MS..WIFI_BUTTON_HOLD_MAX_MS. So a bump is too short, a
+// line shorted to 3V3 never releases (and passes MAX first), and a line
+// shorted to GND never presses -- none of them can turn the radio on.
+void updateInterlockButton() {
+  uint32_t now = millis();
   bool raw = readInterlockRaw();
-  if (raw != g_interlockRawLast) {
-    g_interlockRawLast = raw;
-    g_interlockChangedAt = millis();
+  if (raw != g_buttonRawLast) {
+    g_buttonRawLast = raw;
+    g_buttonChangedAt = now;
   }
-  if (raw != g_interlockReading && millis() - g_interlockChangedAt >= WIFI_INTERLOCK_DEBOUNCE_MS) {
-    g_interlockReading = raw;
+  if (raw == g_buttonPressed || now - g_buttonChangedAt < WIFI_INTERLOCK_DEBOUNCE_MS) {
+    if (g_buttonPressed && !g_ignoreUntilRelease && now - g_pressStartedAt > WIFI_BUTTON_HOLD_MAX_MS) {
+      g_ignoreUntilRelease = true;
+      Serial.println(F("[wireless] SW2 held too long -- ignored (stuck or shorted line?)"));
+    }
+    return;
+  }
+
+  g_buttonPressed = raw;
+  if (g_buttonPressed) {
+    g_pressStartedAt = now;
+    return;
+  }
+
+  // released
+  uint32_t held = now - g_pressStartedAt;
+  if (g_ignoreUntilRelease) {
+    g_ignoreUntilRelease = false;
+  } else if (held >= WIFI_BUTTON_HOLD_MIN_MS && held <= WIFI_BUTTON_HOLD_MAX_MS) {
+    g_interlockEnabled = !g_interlockEnabled;
+    Serial.println(g_interlockEnabled ? F("[wireless] SW2: interlock ON") : F("[wireless] SW2: interlock OFF"));
   }
 }
 
@@ -84,6 +114,7 @@ LogRecord buildLogRecord(const SensorSample &s) {
   r.deploy_fired = deployment_hasFired();
   r.velocity_est_mps = velocity_estimator_velocityMps();
   r.altitude_est_m = velocity_estimator_altitudeM();
+  r.batt_v = battery_valid() ? battery_voltage() : 0.0f;
   return r;
 }
 
@@ -98,7 +129,8 @@ void buildConfigJson() {
       "\"build_timestamp\":\"%s %s\","
       "\"pin_i2c_sda\":\"%s\",\"pin_i2c_scl\":\"%s\","
       "\"pin_spi_sck\":\"%s\",\"pin_spi_miso\":\"%s\",\"pin_spi_mosi\":\"%s\",\"pin_sd_cs\":\"%s\","
-      "\"pin_buzzer\":\"%s\",\"pin_deploy\":\"%s\",\"pin_arm_interlock\":\"%s\","
+      "\"pin_buzzer\":\"%s\",\"pin_deploy\":\"%s\",\"pin_arm_interlock\":\"%s\",\"pin_batt_sense\":\"%s\","
+      "\"batt_divider_ratio\":%.3f,\"batt_cal_gain\":%.3f,\"batt_low_v\":%.2f,"
       "\"thr_launch_accel_g\":%.2f,"
       "\"thr_launch_accel_confirm_ms\":%lu,"
       "\"thr_boost_min_time_ms\":%lu,"
@@ -121,7 +153,8 @@ void buildConfigJson() {
       FIRMWARE_VERSION, __DATE__, __TIME__,
       WIRELESS_XSTR(PIN_I2C_SDA), WIRELESS_XSTR(PIN_I2C_SCL),
       WIRELESS_XSTR(PIN_SPI_SCK), WIRELESS_XSTR(PIN_SPI_MISO), WIRELESS_XSTR(PIN_SPI_MOSI), WIRELESS_XSTR(PIN_SD_CS),
-      WIRELESS_XSTR(PIN_BUZZER), WIRELESS_XSTR(PIN_DEPLOY), WIRELESS_XSTR(PIN_ARM_INTERLOCK),
+      WIRELESS_XSTR(PIN_BUZZER), WIRELESS_XSTR(PIN_DEPLOY), WIRELESS_XSTR(PIN_ARM_INTERLOCK), WIRELESS_XSTR(PIN_BATT_SENSE),
+      static_cast<double>(BATT_DIVIDER_RATIO), static_cast<double>(BATT_CAL_GAIN), static_cast<double>(BATT_LOW_V),
       static_cast<double>(LAUNCH_ACCEL_THRESHOLD_G),
       static_cast<unsigned long>(LAUNCH_ACCEL_CONFIRM_MS),
       static_cast<unsigned long>(BOOST_MIN_TIME_MS),
@@ -158,7 +191,7 @@ void handleStatus() {
   SensorSample s = flight_state_lastSample();
   FlightState state = flight_state_current();
 
-  char buf[768];
+  char buf[1024];
   int n = snprintf(
       buf, sizeof(buf),
       "{"
@@ -169,7 +202,8 @@ void handleStatus() {
       "\"boot_self_test_passed\":%s,"
       "\"wireless_armed\":%s,"
       "\"deploy_has_fired\":%s,"
-      "\"arm_interlock_closed\":%s,"
+      "\"wifi_interlock_enabled\":%s,"
+      "\"interlock_button_pressed\":%s,"
       "\"logger_ready\":%s,"
       "\"sample_age_ms\":%lu,"
       "\"baro_valid\":%s,"
@@ -182,7 +216,11 @@ void handleStatus() {
       "\"accel_z_g\":%.3f,"
       "\"accel_mag_g\":%.3f,"
       "\"pad_baseline_captured\":%s,"
-      "\"pad_baseline_pressure_pa\":%.2f"
+      "\"pad_baseline_pressure_pa\":%.2f,"
+      "\"batt_valid\":%s,"
+      "\"batt_voltage_v\":%.3f,"
+      "\"batt_percent\":%u,"
+      "\"batt_low\":%s"
       "}",
       static_cast<unsigned long>(millis()),
       static_cast<unsigned long>(ESP.getFreeHeap()),
@@ -191,7 +229,8 @@ void handleStatus() {
       flight_state_bootSelfTestPassed() ? "true" : "false",
       g_lastArmSucceeded ? "true" : "false",
       deployment_hasFired() ? "true" : "false",
-      wireless_armInterlockClosed() ? "true" : "false",
+      wireless_interlockEnabled() ? "true" : "false",
+      wireless_interlockButtonPressed() ? "true" : "false",
       logger_isReady() ? "true" : "false",
       static_cast<unsigned long>(millis() - s.timestamp_ms),
       s.baro_valid ? "true" : "false",
@@ -204,7 +243,11 @@ void handleStatus() {
       static_cast<double>(s.accel_z_g),
       static_cast<double>(s.accel_mag_g),
       sensors_baselineCaptured() ? "true" : "false",
-      static_cast<double>(sensors_padBaselinePressurePa()));
+      static_cast<double>(sensors_padBaselinePressurePa()),
+      battery_valid() ? "true" : "false",
+      static_cast<double>(battery_voltage()),
+      static_cast<unsigned>(battery_percent()),
+      battery_low() ? "true" : "false");
 
   if (n < 0 || static_cast<size_t>(n) >= sizeof(buf)) {
     g_server.send(500, "application/json", "{\"ok\":false,\"reason\":\"status_json_truncated\"}");
@@ -227,8 +270,8 @@ void handleConfig() {
 // radio. Preconditions checked in order, each with a distinct reason, no
 // state change on any failure.
 void handleArm() {
-  if (!wireless_armInterlockClosed()) {
-    g_server.send(409, "application/json", "{\"ok\":false,\"reason\":\"interlock_open\"}");
+  if (!wireless_interlockEnabled()) {
+    g_server.send(409, "application/json", "{\"ok\":false,\"reason\":\"interlock_off\"}");
     return;
   }
   if (flight_state_current() != FlightState::IDLE_ARMED) {
@@ -288,9 +331,12 @@ void wireless_init() {
   // External R3 pulldown supplies the default (open = LOW) -- no
   // INPUT_PULLUP, see config.h's PIN_ARM_INTERLOCK comment for why.
   pinMode(PIN_ARM_INTERLOCK, INPUT);
-  g_interlockRawLast = readInterlockRaw();
-  g_interlockReading = g_interlockRawLast;
-  g_interlockChangedAt = millis();
+  g_buttonRawLast = readInterlockRaw();
+  g_buttonPressed = g_buttonRawLast;
+  g_buttonChangedAt = millis();
+  g_pressStartedAt = g_buttonChangedAt;
+  g_ignoreUntilRelease = g_buttonPressed; // a press already in progress at boot never counts
+  g_interlockEnabled = false;
 
   buildConfigJson();
 
@@ -300,14 +346,13 @@ void wireless_init() {
   g_server.on("/arm", HTTP_POST, handleArm);
   g_server.onNotFound(handleNotFound);
 
-  // Deliberately do NOT bring the radio up here -- wireless_update()'s
-  // SW2-follow logic (below) only does that once the interlock reads
-  // closed, so SW2-open at boot behaves exactly like today's firmware
-  // (radio off).
+  // Deliberately do NOT bring the radio up here -- wireless_update() only
+  // does that once an SW2 press has latched the interlock on, so every boot
+  // starts with the radio off.
 }
 
 void wireless_update() {
-  updateInterlockDebounce();
+  updateInterlockButton();
 
   if (g_lockedOut) {
     if (g_shutdownPending) {
@@ -323,10 +368,10 @@ void wireless_update() {
     return; // permanent no-op for the rest of this power cycle once the radio is down
   }
 
-  if (g_interlockReading && !g_radioActive) {
+  if (g_interlockEnabled && !g_radioActive) {
     bringApUp();
-  } else if (!g_interlockReading && g_radioActive) {
-    bringRadioDown(); // deliberate operator action (opened SW2) -- no grace window needed
+  } else if (!g_interlockEnabled && g_radioActive) {
+    bringRadioDown(); // deliberate operator action (second SW2 press) -- no grace window needed
   }
 
   if (g_radioActive) {
@@ -334,7 +379,9 @@ void wireless_update() {
   }
 }
 
-bool wireless_armInterlockClosed() { return g_interlockReading; }
+bool wireless_interlockEnabled() { return g_interlockEnabled; }
+
+bool wireless_interlockButtonPressed() { return g_buttonPressed; }
 
 void wireless_requestShutdown(bool immediate) {
   g_lockedOut = true;

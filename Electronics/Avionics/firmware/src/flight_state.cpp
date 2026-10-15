@@ -1,5 +1,6 @@
 #include "flight_state.h"
 #include "config.h"
+#include "battery.h"
 
 #include "buzzer.h"
 #include "deployment.h"
@@ -49,6 +50,7 @@ LogRecord buildRecord() {
   r.deploy_fired = deployment_hasFired();
   r.velocity_est_mps = velocity_estimator_velocityMps();
   r.altitude_est_m = velocity_estimator_altitudeM();
+  r.batt_v = battery_valid() ? battery_voltage() : 0.0f;
   return r;
 }
 
