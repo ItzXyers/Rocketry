@@ -347,7 +347,8 @@ code { font-family: var(--mono); font-size: .92em; }
         <path class="w" d="M995 617 V635"/>
         <rect class="box" x="940" y="585" width="150" height="32" rx="3"/>
         <text class="ref" x="1010" y="606">BZ1 · piezo</text>
-        <text class="pin" x="948" y="606">+</text>
+        <text class="pin" x="948" y="606">S</text>
+        <text class="sm" x="1040" y="632">middle pin: not connected</text>
         <text class="pin" x="990" y="614" text-anchor="end">−</text>
         <path class="pw" d="M960 585 V568"/>
         <text class="ptxt" x="968" y="572">SYS_5V</text>
@@ -535,7 +536,7 @@ code { font-family: var(--mono); font-size: .92em; }
           <tr><td class="m">U4</td><td>BMP388 Qwiic</td><td>West lane on edge, 2 × M2.5</td></tr>
           <tr><td class="m">U5</td><td>ADXL375 (Adafruit 5374)</td><td>Grooved rails, inboard of the Nano</td></tr>
           <tr><td class="m">U6</td><td>Adafruit 4682 microSD</td><td>Aft deck, west lane</td></tr>
-          <tr><td class="m">BZ1</td><td>Piezo module</td><td>Aft deck pocket, can facing the sound port</td></tr>
+          <tr><td class="m">BZ1</td><td>Piezo module: S → SYS_5V, − → Q1 collector, middle pin not connected. The element sits between S and −</td><td>Aft deck pocket, can facing the sound port</td></tr>
           <tr><td class="m">Q1, R1, R2</td><td>BC337-40 NPN (usually C–B–E, check the datasheet), 1 kΩ, 10 kΩ (photo 6)</td><td>Aft deck, central bay south</td></tr>
           <tr><td class="m">SW2, R3</td><td>Momentary push button, 10 kΩ (photo 6)</td><td class="dim">No location yet (item 5)</td></tr>
         </tbody>
