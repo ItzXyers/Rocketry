@@ -7,8 +7,8 @@
 // Power-ON is pure hardware: the magnet closes SW1, which pulls Q3's gate
 // low through CR1 and powers the bay. power_init() then drives
 // PIN_POWER_HOLD high, turning on Q5, which keeps Q3's gate low after the
-// magnet is removed. C5 + R13 on Q5's gate hold it on for ~1 s through a
-// reset, long enough for the ESP32 to reboot and re-assert the latch.
+// magnet is removed. C5 + R13 on Q5's gate (a 2N7000) hold it on for ~0.5 s
+// through a reset, long enough for the ESP32 to reboot and re-assert the latch.
 //
 // Power-OFF is a firmware gesture: SW1 also pulls PIN_POWER_SENSE low through
 // CR2. Holding the magnet POWER_OFF_HOLD_MS (after it was released once since
