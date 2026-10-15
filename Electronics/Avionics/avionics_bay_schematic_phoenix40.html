@@ -577,7 +577,7 @@ code { font-family: var(--mono); font-size: .92em; }
           <tr><td class="m">J1</td><td>JST-PH 2-pin (battery lead)</td><td>Forward end of the tray</td></tr>
           <tr><td class="m">SW1</td><td>KY-021 reed module (S → CR1/CR2 node, − → GND, + unconnected)</td><td>Edge rails, capsule under the mark</td></tr>
           <tr><td class="m">Q5, R13, R14, C5</td><td>2N7000 (your spare; TO-92, S–G–D with the flat face toward you), 100 kΩ, 220 Ω, 10 µF 50 V (from stock, + to Q5 gate). A second 100 kΩ in series with R13 stretches the reset hold from ~0.5 s to ~1 s</td><td class="dim">No slot in sled v8. Small enough to sit beside Q3 or U2</td></tr>
-          <tr><td class="m">CR1, CR2</td><td><b>To buy:</b> CR1 1N5819 or BAT43 (Schottky), CR2 1N4148. Bands toward SW1 S</td><td class="dim">Inline on the SW1 leads, in heat-shrink</td></tr>
+          <tr><td class="m">CR1, CR2</td><td><b>To buy:</b> CR1 1N5819 or BAT43 (Schottky), CR2 1N4148. A 1N5819 also works as CR2 if R6 is 10 kΩ (its leakage would otherwise half-turn-on Q3 while off). Bands toward SW1 S</td><td class="dim">Inline on the SW1 leads, in heat-shrink</td></tr>
           <tr><td class="m">Q3, R6</td><td>G75P04T P-FET, TO-220 (G–D–S, tab = D), 100 kΩ (photo 4)</td><td class="dim">No slot in sled v8: the SOT-23 slot on top of U2 is too small (item 7)</td></tr>
           <tr><td class="m">R11, R12</td><td>2 × 10 kΩ 1 % (photo 6)</td><td class="dim">Not in sled v8. Fit inline on the A0 lead in heat-shrink</td></tr>
           <tr><td class="m">U2</td><td>Pololu S7V8F5</td><td>Aft deck, central bay floor</td></tr>
