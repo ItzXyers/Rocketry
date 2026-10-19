@@ -25,8 +25,7 @@ FIRE_PIN = 17
 # Arm-sense input -- reads the physical arm switch position. This is
 # advisory/UI-only: the switch itself lives in the igniter's high-current
 # path in hardware, so the igniter physically cannot fire with the switch
-# open regardless of what this line (or a software bug) reads. Debounced,
-# same spirit as the flight computer's PIN_ARM_INTERLOCK.
+# open regardless of what this line (or a software bug) reads. Debounced.
 ARM_SENSE_PIN = 27
 
 # Continuity-check input -- HIGH means the firing circuit's own low-current
@@ -38,7 +37,7 @@ ARM_SENSE_PIN = 27
 # gpiozero input -- confirm against the real circuit before relying on this.
 CONTINUITY_PIN = 22
 
-GPIO_DEBOUNCE_S = 0.05  # 50ms, matches WIFI_INTERLOCK_DEBOUNCE_MS in config.h
+GPIO_DEBOUNCE_S = 0.05  # 50ms contact-bounce filter
 
 # ---------------------------------------------------------------------------
 # Ignition timing -- STARTING DEFAULTS, not verified specs. The igniter's

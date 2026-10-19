@@ -9,8 +9,8 @@ enum class BuzzerPattern : uint8_t {
   RECOVERY_BEACON,  // slow, low-duty chirp — battery-conscious for a multi-hour search
 };
 
-// pinMode(OUTPUT) + LOW. Mirrors deployment_init()'s boot-safety ordering
-// reasoning, though a stray HIGH here is just an unwanted chirp, not a hazard.
+// pinMode(OUTPUT) + LOW, first thing in setup(): a stray HIGH during boot is
+// an unwanted chirp, not a hazard.
 void buzzer_init();
 
 // No-op if already playing this pattern (restarting an identical pattern

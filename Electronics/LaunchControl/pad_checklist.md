@@ -5,7 +5,15 @@ CO2 deployment module, and RSP4 LaunchControl ground station. Companion to
 [`README.md`](README.md), [`../Avionics/avionics_build_checklist.md`](../Avionics/avionics_build_checklist.md),
 and [`../CO2 Deployment/co2_assembly_checklist.md`](../CO2%20Deployment/co2_assembly_checklist.md).
 
-Last updated: 2026-08-08
+Last updated: 2026-08-08; flight-computer deploy channel removed 2026-10-19
+
+> **2026-10-19 — Phoenix ABS 40-43 has no CO2 module and no burn wire.** It
+> deploys on the motor's ejection charge, and the flight computer (firmware
+> 0.2.3+) is a logging altimeter that fires nothing: there is no deploy
+> channel, no fired-latch and no `ARM`/`FIRE` bench command any more. For
+> Phoenix, skip every CO2 / burn-wire / cartridge step below (§0's CO2 item,
+> the CO2 parts of §1, §2 and §7, and §4 steps 1 and 3). The igniter
+> (LaunchControl) steps still apply as written.
 
 ---
 
@@ -43,14 +51,8 @@ some point before today — this doc doesn't re-derive that.
 
 ## 1. Before leaving for the range
 
-- [ ] **Both fired-latches cleared.** These are two independent latches,
-      cleared two different ways — check both:
-  - Flight computer: `deployment.cpp`'s `RTC_DATA_ATTR g_firedLatch`
-    survives software/watchdog/brownout resets, cleared only by a **cold
-    power-on**. Power up the sled and watch the serial console for
-    `"WARNING: deploy latch already set at boot"` — if it prints, this
-    board fired since its last full power-cycle and must not fly without
-    one.
+- [ ] **LaunchControl fired-latch cleared.** (The flight computer has had no
+      fired-latch since its deploy channel was removed 2026-10-19.)
   - LaunchControl: `state/fired.latch` on disk, cleared only by
     `scripts/clear_fired_latch.py` (an explicit operator action — nothing
     in the webapp can clear it). Run it and confirm no boot warning about
@@ -60,14 +62,15 @@ some point before today — this doc doesn't re-derive that.
       memory that "it was fine last time," verify it's the board actually
       going today.
 - [ ] Charge/verify both batteries: flight computer's LiPo, and the Pi's
-      power source. Confirm SW1 can fully power down the sled between now
-      and pad arrival (battery isolated for transport).
-- [ ] Both fired-latches step above re-confirmed **after** any bench
-      testing done today, not just once this morning — a bench `FIRE`
-      test on the avionics serial console or an `ignition.py` dummy-load
-      test both set their respective latches.
-- [ ] microSD card has free space and isn't the card from the last flight
-      still full of old data (or is, and that's backed up first).
+      power source. Flight computer battery **unplugged** for transport:
+      there is no power switch, plugging the battery in powers the bay.
+- [ ] Fired-latch step above re-confirmed **after** any bench testing done
+      today, not just once this morning — an `ignition.py` dummy-load test
+      sets it.
+- [ ] Flight computer flash has room: `LOGS` on the USB console (or
+      `GET /logs` over Wi-Fi) shows at least 5 MB free. Old logs pulled
+      (`DUMP n` / `GET /log?n=`) and backed up, then deleted (`DEL n`, or
+      `FORMAT YES` to erase all). Below 5 MB free the boot self-test fails.
 - [ ] Recovery hardware (parachute, shock cord, CO2 module's *fresh* line
       and inspected coil per `co2_assembly_checklist.md` §2) packed
       separately from the pre-armed state — the reload procedure happens
@@ -85,8 +88,9 @@ some point before today — this doc doesn't re-derive that.
       `co2_assembly_checklist.md` §2, **including the burn-wire continuity
       check (step 13)** — done here, at the range, not assumed from a prior
       session.
-- [ ] Sled powered up (SW1 closed), SW2 **not pressed**. Confirm self-test
-      pass tone. Confirm no WiFi AP visible yet (SW2 gates it).
+- [ ] Sled powered up (battery plugged in). Confirm self-test pass tone.
+      The ground-support WiFi AP comes up right after boot and stays up
+      until `/arm` or launch.
 - [ ] **Do not connect the CO2 module's burn-wire leads to the sled's
       deploy channel yet.** That connection is deliberately one of the
       last steps in this checklist (§4) — see the ordering rationale below.
@@ -111,29 +115,30 @@ some point before today — this doc doesn't re-derive that.
 **Why this order:** `flight_state_init()` puts the sled into `IDLE_ARMED`
 automatically at boot, right after self-test passes — there is no separate
 "arm" step in the firmware at that point. Launch detection is a 3.0 g bump
-sustained 100 ms (`LAUNCH_ACCEL_THRESHOLD_G` / `LAUNCH_ACCEL_CONFIRM_MS`),
-and once `COAST` is entered, `MAX_TIME_TO_APOGEE_MS` (20 s, currently a
-STARTING DEFAULT) is an **unconditional backstop that fires the deploy
-channel regardless of barometer state** if the primary apogee detector never
-confirms. In plain terms: **any hard jolt above 3 g for a tenth of a second,
-after the burn-wire is connected, can end with the deploy channel firing
-about 20 seconds later, with nothing left to stop it.**
+sustained 100 ms (`LAUNCH_ACCEL_THRESHOLD_G` / `LAUNCH_ACCEL_CONFIRM_MS`).
+The flight computer fires nothing (no deploy channel since 2026-10-19), so a
+false launch can't deploy anything — but it does latch the Wi-Fi AP off and
+run the flight state machine, so the sled has to be power-cycled before it
+can be re-armed. **Any hard jolt above 3 g for a tenth of a second on the pad
+means a stand-down and power-cycle.** (On a CO2 / burn-wire vehicle this
+ordering also kept the coil disconnected until the last moment; that
+firmware path no longer exists.)
 
 1. [ ] Carry the vehicle to the pad and mount it on the rail/rod.
        **Burn-wire leads still disconnected at this point.**
 2. [ ] Vehicle vertical, undisturbed, on the rail.
 3. [ ] **Now** connect the CO2 module's burn-wire leads to the sled's
        deploy channel. This is the last physical handling step before the
-       interlock/arm sequence below.
+       wireless-arm sequence below.
 4. [ ] **From this point on, do not handle, bump, or jar the vehicle.** If
        it needs to come back off the rail for any reason after this step,
        treat that as a full stand-down: disconnect the burn-wire leads,
        power-cycle the sled (clears nothing dangerous by itself, but
        re-establishes a known `IDLE_ARMED` state from a clean self-test),
        and restart this section from step 1.
-5. [ ] Press and hold SW2 (wireless-arm interlock button) for ~2 s, then
-       release (must be 1–5 s). Confirm the ground-support AP appears in the
-       LaunchControl status view within a few seconds.
+5. [ ] Confirm the flight computer shows as reachable in the LaunchControl
+       status view (its AP has been up since boot). If it isn't, power-cycle
+       the sled by unplugging and replugging the battery.
 
 ## 5. Wireless arm (flight computer re-zero, via LaunchControl)
 
@@ -159,9 +164,9 @@ about 20 seconds later, with nothing left to stop it.**
 ## 6. Final arm and fire (LaunchControl, igniter channel)
 
 Independent of §5 — this section only concerns the SRB igniter, and never
-touches the flight computer's deploy channel (`ignition.py` and
-`deployment.*` are fully separate systems; wireless FIRE for the CO2 channel
-does not exist anywhere in this project).
+touches the flight computer (`ignition.py` and the flight firmware are fully
+separate systems; the flight computer has no deploy channel at all since
+2026-10-19).
 
 - [ ] All personnel clear to the range's mandated safe distance.
 - [ ] Physical arm switch (igniter's high-current path) closed by the
@@ -187,16 +192,17 @@ does not exist anywhere in this project).
 
 ## 7. Post-flight / recovery
 
-- [ ] Confirm `deployment_hasFired()` / the logged `DEPLOY_FIRE` event once
-      the sled is recovered and its log pulled — cross-check against
-      observed parachute deployment. A fired latch with no observed
-      deployment (or vice versa) is worth investigating before the next flight,
-      not waving off.
-- [ ] Both fired-latches (flight computer + LaunchControl) will read "set"
-      after a normal flight — that's expected, not a fault. Clear both per
+- [ ] Once the log is pulled, find the `APOGEE_CONFIRMED` (or
+      `APOGEE_TIMEOUT`) event and compare it with when the motor's ejection
+      charge actually fired (accel spike in the log, or video). A large gap
+      means the motor delay is wrong for this vehicle — fix it before the
+      next flight.
+- [ ] The LaunchControl fired-latch will read "set" after a normal flight —
+      that's expected, not a fault. Clear it per
       §1 before the *next* launch day, not immediately at the field unless
       re-flying same-day.
 - [ ] Spent CO2 cartridge removed and confirmed vented before the module is
       reloaded (see `co2_assembly_checklist.md` §2, step 2).
-- [ ] Pull the microSD card / log and back it up before it's overwritten by
-      a future flight.
+- [ ] Pull the log off the flight computer's internal flash and back it up:
+      power-cycle the sled (the AP is off after launch), then `GET /log?n=`
+      over Wi-Fi or `DUMP n` on USB. Then `DEL n` to free the space.

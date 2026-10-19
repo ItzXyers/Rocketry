@@ -10,7 +10,7 @@ enum class FlightState : uint8_t {
   IDLE_ARMED,
   BOOST,
   COAST,
-  APOGEE_DEPLOY,
+  APOGEE,        // one-sample marker; code 5 (was APOGEE_DEPLOY, which fired the deploy channel)
   DESCENT,
   LANDED,
   ERROR,
@@ -18,7 +18,7 @@ enum class FlightState : uint8_t {
 
 // Runs self-test (sensors + logger), plays the pass/fail buzzer tone, and
 // transitions to IDLE_ARMED or ERROR. Call once from setup(), after
-// sensors_init() / buzzer_init() / deployment_init().
+// sensors_init() / buzzer_init().
 void flight_state_init();
 
 // Feeds one sensor sample into the state machine and advances it as

@@ -6,7 +6,10 @@ and before it's flown. This is a bench checklist, not a pad checklist — see
 [`../LaunchControl/pad_checklist.md`](../LaunchControl/pad_checklist.md) for
 day-of-launch procedure.
 
-Last updated: 2026-08-08
+Last updated: 2026-10-19 — SW1 (reed), Q3/R6, SW2/R3 and the microSD reader
+dropped from the harness. The bay powers up when the battery is plugged in,
+the Wi-Fi AP comes up at boot, and the log is on the Nano's internal flash
+(firmware 0.2.1+). §3 and §6 are rewritten for that.
 
 ---
 
@@ -16,27 +19,17 @@ Last updated: 2026-08-08
 that don't have a sourced SKU yet. Don't start continuity checks assuming
 they're generic/interchangeable without reading the specific caveat:
 
-- [ ] **SW1** (power/arm switch) — placed between battery/charger junction
-      and the regulator's VIN, per `avionics_wiring.md`'s "Additions beyond
-      the BOM" #1. Not a specific SKU yet, any switch rated for the current
-      works.
-- [ ] **SW2** (wireless-arm interlock) + **R3** (10 kΩ pulldown) — gates the
-      wireless ground-support AP, wired to `PIN_ARM_INTERLOCK` (D7). See
-      `avionics_wiring.md` #8 for the fault-mode rationale (must read
-      NOT-ARMED on a chafed signal wire, not armed) — do not substitute
-      `INPUT_PULLUP` + switch-to-GND, that inverts the fail-safe direction.
+- [ ] **No power switch (SW1) and no SW2/R3** — both dropped 2026-10-19.
+      Power on/off is plugging/unplugging the battery's JST lead, so that
+      connector has to be reachable whenever the bay needs to be switched.
 - [ ] **C1** (220 µF low-ESR bulk cap) — **this is a hard gate, not a nice-to-have.**
-      Fit it, or bench-verify the SD-write + WiFi-TX transient on a
+      Fit it, or bench-verify the flash-write + WiFi-TX transient on a
       representative supply, **before using the wireless interface anywhere
       near a loaded rocket or an installed CO2 cartridge.** See
       `avionics_bom.md` open item 3.
-- [ ] **Deploy MOSFET (Q2, drives `PIN_DEPLOY`/D6)** — not in the BOM at all.
-      The 2N7000 used for the buzzer (Q1) is rated 200 mA max; the burn-wire
-      nichrome coil is expected to draw hundreds of mA to a few amps. **Do
-      not reuse a 2N7000 for the deploy channel.** Source a logic-level
-      MOSFET rated for the actual coil current once that's bench-measured
-      (see the CO2 checklist). Needs the same gate-resistor + pulldown
-      pattern as Q1.
+- [ ] **No deploy MOSFET (Q2) or burn-wire coil.** The deploy channel was
+      removed from the firmware 2026-10-19 (motor-ejection deployment); D6
+      is free and must stay unconnected.
 - [ ] R1 (220 Ω, buzzer gate) and R2 (10 kΩ, buzzer pulldown) — in the BOM's
       wiring doc, not the BOM table itself. Confirm on hand.
 
@@ -49,14 +42,13 @@ Chain: **LiPo → S7V8F5 (5 V) → C1 → Nano VIN → onboard buck (3.3 V) → 
 - [ ] Battery connector matches the charger/regulator's JST-PH. If using the
       EEMB LP852040 (Option B), confirm the JST-RCY→JST-PH adapter/re-termination
       is done, not just planned (`avionics_bom.md` §3, Option B).
-- [ ] SW1 sits between the battery/charger junction and the regulator VIN
-      (not directly on the battery terminal) — verify with a continuity
-      meter, don't assume from the diagram alone.
-- [ ] With SW1 open, confirm the charger can still trickle-charge the
-      battery via USB-C (pad-safety property this placement is meant to
-      guarantee).
-- [ ] With SW1 closed and no USB connected, measure S7V8F5 output at C1:
-      expect ~5.0 V.
+- [ ] BATT+ goes straight to the regulator input and the R11/R12 divider —
+      no switch in between (SW1/Q3 dropped 2026-10-19). Verify with a
+      continuity meter, don't assume from the diagram alone.
+- [ ] Unplugging the battery lead powers everything down (no other source
+      back-feeds the bay with USB disconnected).
+- [ ] With the battery plugged in and no USB connected, measure S7V8F5
+      output at C1: expect ~5.0 V.
 - [ ] **VIN margin caveat:** 5 V into the Nano's VIN is 1 V under Arduino's
       documented 6 V minimum. Works per community testing, but there is no
       margin — if the board is flaky on this supply, this is the first
@@ -69,25 +61,31 @@ Chain: **LiPo → S7V8F5 (5 V) → C1 → Nano VIN → onboard buck (3.3 V) → 
 - [ ] Both sensors' SDA/SCL tie to A4/A5, not a second bus — this design
       uses one shared I²C bus for both (`avionics_wiring.md` diagram).
 - [ ] Both sensors powered from 3V3, not 5V — the Nano ESP32's GPIOs are
-      natively 3.3 V; this is required regardless of the SD reader's
-      3V-only caveat below (`avionics_wiring.md` #6).
+      natively 3.3 V (`avionics_wiring.md` #6).
 - [ ] Pull-ups present (onboard the Qwiic breakouts — confirm, don't add a
       second set if already populated).
 - [ ] After power-up, `flight_state_init()`'s self-test (`sensors_selfTest()`
       in `firmware/src/sensors.cpp`) must pass — see §5 below for what that
       looks/sounds like.
 
-## 3. SPI bus — microSD reader (SCK=D13, MISO=D12, MOSI=D11, CS=D10)
+## 3. Flight log — internal flash (no microSD since 2026-10-19)
 
-- [ ] SD reader is on the 3V3 rail — **Adafruit 4682 is 3 V logic only, no
-      level shifter.** Driving it from 5 V will damage it, not just
-      malfunction (`avionics_bom.md` §7).
-- [ ] CS (D10) is dedicated to the SD reader — confirm no other SPI device
-      shares this bus per the current design.
-- [ ] Card is the Kingston Industrial 16 GB (wide temp range) if following
-      the BOM's recommendation over the consumer Verbatim option — confirm
-      which was actually bought.
-- [ ] Card is formatted and blank/backed-up before first flight use.
+The log is `FLIGHTnnn.CSV` in the Nano ESP32's ~9.4 MB FFat partition, one
+file per boot. D10–D13 are free. Commands are on the flight firmware's USB
+serial console: `LOGS`, `DUMP n`, `DEL n`, `FORMAT YES`.
+
+- [ ] **New board:** the first boot fails self-test with `ffat mount failed`
+      (the partition is unformatted). Send `FORMAT YES`, power-cycle, and
+      confirm the self-test now passes.
+- [ ] **Uploads keep logs:** flash the firmware again (`pio run -t upload`),
+      then `LOGS` still lists the earlier files. (`pio run -t erase` or a
+      partition-table change wipes them — pull logs first.)
+- [ ] `DUMP n` prints a readable CSV between `BEGIN`/`END` lines, and
+      `GET /log?n=` over Wi-Fi downloads the same file.
+- [ ] `STATE` shows the worst flush stall (`worst flush ... us`). Note it;
+      after the first flight, check the CSV for timestamp gaps under load.
+- [ ] At least 5 MB free (`LOGS`) before a flight day — below that the boot
+      self-test fails on purpose.
 
 ## 4. Buzzer drive (D9 → R1 → Q1 → buzzer)
 
@@ -99,84 +97,47 @@ Chain: **LiPo → S7V8F5 (5 V) → C1 → Nano VIN → onboard buck (3.3 V) → 
       diagram's `C1 -. "SYS_5V tap" .-> BZ`.
 - [ ] Q1's source ties to the common GND bus.
 
-## 5. Deployment channel (D6 → gate resistor → Q2 → burn-wire coil) — NEW, undocumented in the schematic
+## 5. Deployment channel — removed 2026-10-19
 
-**`config.h` states outright these two nets are "NOT YET in the schematic."**
-`avionics_wiring.md`'s pin-reference tables have no rows for D6 or D7 — don't
-treat their absence there as "nothing to check." Verify directly against
-`firmware/src/config.h` instead:
+There is no deploy channel any more: the burn wire is gone, Phoenix deploys on
+the motor's ejection charge, and firmware 0.2.3+ has no `PIN_DEPLOY`, no
+`ARM`/`FIRE` serial commands and no fired-latch. Apogee is still detected and
+logged (`APOGEE_CONFIRMED` / `APOGEE_TIMEOUT` events, state code 5 `APOGEE`).
 
-- [ ] `PIN_DEPLOY` = D6 (GPIO9 on the underlying ESP32-S3) — confirmed free
-      of I²C/SPI/buzzer, not D2/D3 (GPS-reserved), not a strapping pin
-      (GPIO0/3/45/46), not native-USB/UART0. Verify the physical wire lands
-      on D6 and nowhere else — a swap with the buzzer channel here is a
-      real failure mode the symbolic-pin-macro discipline in `config.h` is
-      specifically trying to prevent.
-- [ ] Gate resistor + pulldown pattern present on this channel too, same as
-      the buzzer's R1/R2 (not yet assigned reference designators — call
-      them out on the schematic when it's drawn).
-- [ ] Deploy MOSFET (Q2, see §0) is *not* the same 2N7000 part as Q1 — confirm
-      by reading the part off the board, not by assuming symmetry with the
-      buzzer channel.
-- [ ] **Bench-only verification, never a live coil on this bench:** with the
-      real burn-wire coil disconnected, send `ARM` then `FIRE` over USB
-      serial (see `firmware/src/main.cpp`'s `handleSerialCommand`) and
-      confirm D6 pulses HIGH for the configured on-time
-      (`DEPLOY_ON_TIME_MS`, currently a 1500 ms placeholder — **not an
-      empirical spec**, see `config.h`) via multimeter/scope/logic analyzer,
-      then goes LOW on its own. Confirm a `STATE` command afterward reports
-      the fired latch is set.
-- [ ] With the coil connected to a dummy load (never a live striker/cartridge
-      on the bench), repeat the pulse-timing check and measure actual
-      current draw — this is the number the deploy MOSFET's rating (§0) and
-      C1's transient budget both depend on, and it doesn't exist yet
-      anywhere in this project.
-- [ ] After any bench FIRE test, **power-cycle the board** before it's
-      considered flight-clean — `deployment.cpp`'s fired-latch
-      (`RTC_DATA_ATTR g_firedLatch`) survives a software/watchdog/brownout
-      reset and is only cleared by a cold power-on. `main.cpp` prints a
-      boot warning (`"WARNING: deploy latch already set at boot"`) if this
-      step was skipped — watch for that line on the serial console after
-      every power-up before flight.
+- [ ] D6 has nothing soldered to it.
+- [ ] On the bench, `STATE` lists no deploy information and `HELP`-style
+      output from an unknown command doesn't offer `ARM`/`FIRE`.
 
-## 6. Wireless-arm interlock (D7 → SW2 → R3)
+## 6. Wireless ground interface (no SW2 since 2026-10-19)
 
-SW2 is a **momentary push button** (firmware 0.2.0+). The firmware latches it:
-press and hold 1–5 s (`WIFI_BUTTON_HOLD_MIN_MS`..`MAX_MS`), then release, to
-toggle the interlock. Every boot starts with it off.
+There is no interlock button any more: the AP comes up at every boot and
+stays up until a successful `/arm` or a confirmed launch latches it off for
+the rest of that power cycle.
 
-- [ ] SW2 wired per `avionics_wiring.md` #8: one leg to 3V3, other leg to
-      `PIN_ARM_INTERLOCK` (D7) **and** to R3 (10 kΩ) to GND. This is an
-      external pulldown, not `INPUT_PULLUP` — confirm the topology matches,
-      inverting it changes the fail-safe direction on a chafed wire.
-- [ ] After boot, confirm no WiFi AP appears (scan for `WIFI_AP_SSID` from
-      `config.h` on a phone/laptop) — radio must stay off.
-- [ ] Tap SW2 briefly (< 1 s): nothing happens.
-- [ ] Hold SW2 ~2 s and release: serial prints `SW2: interlock ON`, and the AP
-      appears within a few seconds.
-- [ ] Hold ~2 s and release again: `interlock OFF`, and the AP goes down.
-- [ ] Hold SW2 > 5 s: serial prints `held too long -- ignored`, and releasing
-      it changes nothing (this is how a line shorted to 3V3 behaves).
-- [ ] Boot with SW2 held down, release after boot: interlock stays off.
+- [ ] After boot, serial prints `[wireless] AP up` and `WIFI_AP_SSID` from
+      `config.h` is visible on a phone/laptop within a few seconds.
+- [ ] `GET /status` answers, and `log_free_bytes` / `logger_ready` look right.
+- [ ] `POST /arm` succeeds, and the AP disappears ~0.5 s later. It stays
+      down until the next power cycle.
 
 ## 7. Self-test / boot behavior
 
-Power up with SW1 closed, SW2 not pressed, USB serial monitor attached
+Power up by plugging in the battery, with the USB serial monitor attached
 (115200 baud):
 
-- [ ] Deploy gate (D6) reads LOW immediately — `deployment_init()` is the
-      literal first call in `setup()`, before `Serial.begin()`, so this
-      should already be true before any serial output appears.
+- [ ] The buzzer stays silent through boot — `buzzer_init()` is the first
+      call in `setup()`, before `Serial.begin()`.
 - [ ] `flight_state_init()` runs a sensor self-test and logger-open check.
       Confirm a pass tone (`BuzzerPattern::SELF_TEST_PASS`) plays, or the
-      fail tone if a sensor/SD fault is injected on purpose (e.g.
-      unplugging the SD card) — the fail path should also be exercised
+      fail tone if a sensor/logger fault is injected on purpose (e.g.
+      unplugging a Qwiic cable, or a not-yet-formatted flash on a new
+      board) — the fail path should also be exercised
       once, not just the pass path.
 - [ ] On self-test pass, state transitions to `IDLE_ARMED` — confirm via
       the `STATE` serial command or `/status` once wireless is up.
       **This transition is immediate and automatic — there is no separate
       arm step at this point.** See the pad checklist for why this matters
-      for handling discipline once the deploy channel is later connected.
+      for handling discipline on the pad.
 - [ ] `WIFI_AP_SSID` in `config.h` has been changed from the shared default
       to something unique per board — flying near another board on the
       default SSID/password is a real collision risk. Same for
@@ -201,19 +162,15 @@ separately verify, per motor/flight:
 - [ ] `MAX_TIME_TO_APOGEE_MS` — must exceed the OpenRocket-simulated
       time-to-apogee for the actual flight, with margin
       (`../../OpenRocket Designs/`). This is the unconditional backup that
-      fires deployment regardless of barometer state if the primary
-      detector never confirms — getting this wrong in either direction is
-      a real deployment-timing risk, not a cosmetic tuning knob.
-- [ ] `DEPLOY_ON_TIME_MS` / `DEPLOY_MAX_ON_TIME_MS` — bench-measured against
-      the real coil (see §5), not the current 1500 ms / 4500 ms placeholders.
+      marks apogee in the log if the barometer detector never confirms. It
+      fires nothing (no deploy channel), so a wrong value only mislabels
+      the log, but it should still be right.
 
 ---
 
 ## Sign-off
 
-- [ ] Every unchecked "not yet in the BOM/schematic" item in §0 and §5 has
-      either been closed out or is explicitly accepted as a known gap for
-      this build (bench-only, not for flight).
-- [ ] This sled has not yet been mated to a CO2 deployment module or
-      airframe — see the CO2 module's own checklist and the pad checklist
-      for what comes after this one.
+- [ ] Every unchecked item in §0 has either been closed out or is
+      explicitly accepted as a known gap for this build (bench-only, not
+      for flight).
+- [ ] See the pad checklist for what comes after this one.

@@ -9,6 +9,12 @@ screw holes — arming has to be contactless, so a magnetic reed switch
 (item 13 below) replaces the power switch called for in item 2 of the
 Power notes below. Items 13–14 are new.
 
+**2026-10-19:** the reed switch (item 13), the microSD reader and card
+(items 7–8), and the SW2 Wi-Fi button were all dropped from the built
+harness. The bay powers up when the battery is plugged in, and the log is
+written to the Nano's internal flash (~9.4 MB FFat partition, firmware
+0.2.1+). See `avionics_bay_schematic_phoenix40.html`.
+
 ## Summary table
 
 | # | Component | Purpose / key spec | Dimensions | Weight | Interface | Source |
@@ -19,13 +25,13 @@ Power notes below. Items 13–14 are new.
 | 4 | USB-C LiPo charger (BQ25302) | Ground charging, 0.2–2 A adjustable, power-path | small | ~2 g | — | Electrokit |
 | 5 | BMP388 barometer — Qwiic | Altitude/pressure, ~0.5 m res | small breakout | ~2.5 g | I²C | Electrokit |
 | 6 | ADXL375 ±200 g accelerometer | High-g boost/shock capture | ~25 × 18 mm | ~2 g | I²C/SPI | Adafruit |
-| 7 | MicroSD reader, 3V only (Adafruit 4682) | Data logging — no level shifter | small breakout | ~1.5 g | SPI | Adafruit |
-| 8 | microSD card, 16 GB | Storage medium | — | ~0.5 g | — | Electrokit |
+| 7 | ~~MicroSD reader, 3V only (Adafruit 4682)~~ **dropped 2026-10-19** | Logging moved to the Nano's internal flash | — | — | — | — |
+| 8 | ~~microSD card, 16 GB~~ **dropped 2026-10-19** | Not needed without item 7 | — | — | — | — |
 | 9 | Active buzzer | Recovery beacon, driven via MOSFET | ~12 mm ⌀ | ~1.5 g | GPIO (via Q1) | Electrokit |
 | 10 | Logic-level MOSFET, 2N7000 | Switches buzzer off 3.3 V GPIO | TO-92 | ~0.3 g | — | Electrokit |
 | 11 | u-blox NEO-6M / NEO-M8N GPS — **optional (superseded)** | Recovery locator, drops out >~Mach 1.5 | ~25 × 35 mm + antenna | ~9 g | UART | generic |
 | 12 | Qwiic cable + JST leads, headers, wire | Interconnect | — | ~3–8 g | — | Electrokit |
-| 13 | Magnetic reed switch (SPST, normally-open) + external magnet | Arming, contactless through the sealed airframe wall — no hole needed | switch ~14×2mm glass capsule | ~1 g + magnet ~1 g | GPIO/power | generic, e.g. Electrokit reed switch range |
+| 13 | ~~Magnetic reed switch + external magnet~~ **dropped 2026-10-19** | Power on/off is now plugging/unplugging the battery | — | — | — | — |
 | 14 | O-rings, 2× | Seals `AvBay_AftBulkhead` and `AvBay_FwdCollar` to the tube ID | ~2mm cross-section, ID to match each part's groove (⌀27.6–28.8 aft, groove TBD-matched fwd) | <1 g ea. | — | nitrile, generic hardware/hobby source |
 
 ---
@@ -79,13 +85,13 @@ Two options were evaluated for this slot; specs collected for both.
 - Current draw: ~35–145 µA in measurement mode — negligible.
 - STEMMA QT/Qwiic connector, also breaks out SPI.
 
-### 7. MicroSD reader — Adafruit 4682
+### 7. MicroSD reader — Adafruit 4682 (dropped 2026-10-19, kept for reference)
 - Adafruit: https://www.adafruit.com/product/4682
 - Guide: https://cdn-learn.adafruit.com/downloads/pdf/adafruit-microsd-spi-sdio.pdf
 - **3 V logic only, no level shifter** — do not drive from a 5 V bus.
 - Current draw: 5–25 mA idle/read, 100–200 mA spikes on write/init. Biggest single contributor to transient current draw on the board — see bulk-cap recommendation in [Power notes](#power-notes).
 
-### 8. microSD card, 16 GB
+### 8. microSD card, 16 GB (dropped 2026-10-19)
 - Electrokit options: https://www.electrokit.com/en/minneskort-microsdhc-16gb (Verbatim) or https://www.electrokit.com/en/minneskort-microsdhc-16gb-industrial-grade (Kingston Industrial, wider temp range −40…85 °C — better suited to a rocket airframe than consumer-grade cards).
 
 ### 9. Active buzzer
@@ -118,13 +124,13 @@ Chain: **LiPo → S7V8F5 (5 V) → Nano VIN → onboard buck (3.3 V) → everyth
 |---|---|---|---|
 | Cruise, no GPS | ~50–100 mA | ~6–7 h | ~5.6 h |
 | Cruise + GPS | ~95–145 mA | ~4–5 h | ~3.9 h |
-| Worst-case transient (SD write + WiFi burst) | ~500–700 mA, ms-scale | — | — |
+| Worst-case transient (flash write + WiFi burst; was SD write + WiFi) | ~500–700 mA, ms-scale (estimate from the SD era, likely lower now) | — | — |
 
 Both battery options comfortably clear the actual duty cycle. Both regulator (500 mA–1 A) and battery discharge ratings (1.5 A / 620 mA respectively) have adequate margin over the transient peak; see the per-battery pulse-rating discussion above for the 620 mAh option specifically.
 
 **Open items / recommendations:**
 1. **VIN margin:** S7V8F5's fixed 5 V is 1 V under the Nano's documented 6 V VIN minimum. Works per community reports, but consider swapping to an adjustable Pololu buck-boost set to ~6.5–7 V for proper margin.
-2. **No power switch in the BOM.** Needed to disconnect the battery for pad safety/arming and to isolate the system during ground charging. **2026-08-19:** the airframe bay this avionics set is now built into (`SampleRocketABS33-36/Design-Notes-AvBayIntegration.md`) has no cutout for a physical toggle switch — item 13 above (magnetic reed switch + external magnet) fills this role instead, actuated by holding a magnet against the outside of the sealed tube. Still doesn't address ground-charging isolation on its own; the charger's own power-path management (item 4) may be sufficient, but confirm before relying on it.
-3. **Add a bulk cap** (100–220 µF low-ESR) at the S7V8F5's 5 V output to buffer SD-card write and WiFi TX transients and avoid brownout resets. **This is no longer just a hypothetical worst case:** the wireless ground-interface feature (`../firmware/src/wireless.*`) brings the radio up during every pad checkout while SW2 is closed, including a moment where a wireless-arm event-log SD write happens while the AP is still active. **C1 should be fitted (or the transient bench-verified on a representative supply, not a lab bench supply) before using the wireless interface anywhere near a loaded rocket or an installed CO2 cartridge.**
+2. **No power switch in the BOM.** **2026-10-19: resolved by dropping it** — the reed switch below was removed from the harness, and the bay is switched by plugging/unplugging the battery's JST lead. Unplug it for transport and storage (the R11/R12 divider draws ~0.2 mA whenever it's plugged in). Original note: needed to disconnect the battery for pad safety/arming and to isolate the system during ground charging. **2026-08-19:** the airframe bay this avionics set is now built into (`SampleRocketABS33-36/Design-Notes-AvBayIntegration.md`) has no cutout for a physical toggle switch — item 13 above (magnetic reed switch + external magnet) fills this role instead, actuated by holding a magnet against the outside of the sealed tube. Still doesn't address ground-charging isolation on its own; the charger's own power-path management (item 4) may be sufficient, but confirm before relying on it.
+3. **Add a bulk cap** (100–220 µF low-ESR) at the S7V8F5's 5 V output to buffer flash-write and WiFi TX transients and avoid brownout resets. **This is no longer just a hypothetical worst case:** the wireless ground-interface feature (`../firmware/src/wireless.*`) brings the radio up at every boot (no SW2 since 2026-10-19), including a moment where a wireless-arm event-log flash write happens while the AP is still active. **C1 should be fitted (or the transient bench-verified on a representative supply, not a lab bench supply) before using the wireless interface anywhere near a loaded rocket or an installed CO2 cartridge.**
 4. **Battery connector:** if going with the EEMB LP852040 (Option B), budget for a JST-RCY→JST-PH adapter lead or re-termination to mate with the regulator/charger boards.
-5. **No wireless-arm interlock switch (SW2) or its pulldown resistor (R3) in the BOM.** New for the wireless ground-interface feature (see `../firmware` — `wireless.*`, `PIN_ARM_INTERLOCK`). Separate from the power switch in item 2 above — SW2 gates whether the wireless AP/`/arm` action is available, not board power. Any SPST/SPDT toggle or slide switch rated for 3.3 V logic-level switching works; R3 = 10 kΩ (same family as R2). Not yet a verified SKU.
+5. **Wireless-arm interlock switch (SW2) and R3: dropped 2026-10-19.** Firmware 0.2.1+ brings the AP up at boot and still latches it off after `/arm` or confirmed launch. Original note: new for the wireless ground-interface feature (see `../firmware` — `wireless.*`, `PIN_ARM_INTERLOCK`). Separate from the power switch in item 2 above — SW2 gates whether the wireless AP/`/arm` action is available, not board power. Any SPST/SPDT toggle or slide switch rated for 3.3 V logic-level switching works; R3 = 10 kΩ (same family as R2). Not yet a verified SKU.

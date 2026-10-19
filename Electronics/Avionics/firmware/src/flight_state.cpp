@@ -3,7 +3,6 @@
 #include "battery.h"
 
 #include "buzzer.h"
-#include "deployment.h"
 #include "logger.h"
 #include "sensors.h"
 #include "velocity_estimator.h"
@@ -28,7 +27,6 @@ float g_altitudeFilteredM = 0.0f;
 float g_altitudePeakM = 0.0f;
 uint16_t g_apogeeConfirmCount = 0;
 
-uint32_t g_deployDwellStart = 0;
 
 bool g_landedStableActive = false;
 float g_landedStableRefM = 0.0f;
@@ -47,7 +45,7 @@ LogRecord buildRecord() {
   r.accel_mag_g = g_lastSample.accel_mag_g;
   r.baro_valid = g_lastSample.baro_valid;
   r.accel_valid = g_lastSample.accel_valid;
-  r.deploy_fired = deployment_hasFired();
+  r.deploy_fired = false; // no deploy channel since 2026-10-19 (motor ejection); column kept for CSV compatibility
   r.velocity_est_mps = velocity_estimator_velocityMps();
   r.altitude_est_m = velocity_estimator_altitudeM();
   r.batt_v = battery_valid() ? battery_voltage() : 0.0f;
@@ -77,10 +75,14 @@ void flight_state_init() {
 
   if (sensorsOk && loggerOk) {
     logTransition("SELFTEST_OK");
-    buzzer_setPattern(BuzzerPattern::SELF_TEST_PASS);
 
     sensors_capturePadBaseline();
     velocity_estimator_reset();
+
+    // Only after the two blocking calibrations above (~4-5 s together):
+    // the pattern is stepped from loop(), so starting it before them held
+    // the first beep on for the whole calibration -- a long solid tone.
+    buzzer_setPattern(BuzzerPattern::SELF_TEST_PASS);
 
     g_state = FlightState::IDLE_ARMED;
     g_aboveLaunchThreshold = false;
@@ -115,14 +117,14 @@ FlightState flight_state_update(const SensorSample &sample) {
 
       // Force the wireless ground-support radio off the instant a real
       // launch is confirmed -- independent of the wireless-arm step
-      // already having disabled it (e.g. operator rebooted after arming
-      // and forgot to re-close SW2/re-disable before a real flight).
+      // already having disabled it (e.g. operator rebooted after arming,
+      // which brings the AP back up, and never re-armed).
       // Placed here (confirmed BOOST), not on the first over-threshold
       // sample, so ordinary pad handling (mounting on the rail, connecting
       // the igniter) can't trip it -- the cost of waiting for
       // LAUNCH_ACCEL_CONFIRM_MS is negligible next to the alternative of
       // false-tripping on every bump. Recovery from here requires a power
-      // cycle; SW2 has no effect once this lockout is set.
+      // cycle.
       wireless_requestShutdown(/*immediate=*/true);
     }
     break;
@@ -149,17 +151,17 @@ FlightState flight_state_update(const SensorSample &sample) {
   case FlightState::COAST: {
     uint32_t sinceLaunch = sample.timestamp_ms - g_launchTimestamp;
 
-    // Backup ceiling — fires unconditionally regardless of barometer state
-    // if the primary detector never confirms (sensor fault, flat/noisy
-    // trace, unusual flight profile).
+    // Backup ceiling — marks apogee unconditionally regardless of barometer
+    // state if the primary detector never confirms (sensor fault, flat/noisy
+    // trace, unusual flight profile), so the log still reaches DESCENT.
     if (sinceLaunch >= MAX_TIME_TO_APOGEE_MS) {
-      g_state = FlightState::APOGEE_DEPLOY;
+      g_state = FlightState::APOGEE;
       logTransition("APOGEE_TIMEOUT");
       break;
     }
 
     // Floor: primary detector stays disarmed until this elapses, so
-    // boost-phase baro noise/transients can't false-trigger deployment at
+    // boost-phase baro noise/transients can't false-trigger apogee at
     // max-Q.
     if (sinceLaunch < MIN_COAST_TIME_MS) {
       break;
@@ -185,7 +187,7 @@ FlightState flight_state_update(const SensorSample &sample) {
     } else if (g_altitudePeakM - g_altitudeFilteredM >= APOGEE_DROP_THRESHOLD_M) {
       g_apogeeConfirmCount++;
       if (g_apogeeConfirmCount >= APOGEE_CONFIRM_SAMPLES) {
-        g_state = FlightState::APOGEE_DEPLOY;
+        g_state = FlightState::APOGEE;
         logTransition("APOGEE_CONFIRMED");
       }
     } else {
@@ -194,18 +196,12 @@ FlightState flight_state_update(const SensorSample &sample) {
     break;
   }
 
-  case FlightState::APOGEE_DEPLOY: {
-    if (!deployment_hasFired()) {
-      deployment_fire();
-      g_deployDwellStart = sample.timestamp_ms;
-      logTransition("DEPLOY_FIRE");
-      break;
-    }
-    if (sample.timestamp_ms - g_deployDwellStart >= APOGEE_DEPLOY_DWELL_MS) {
-      g_landedStableActive = false;
-      g_state = FlightState::DESCENT;
-      logTransition("DESCENT");
-    }
+  case FlightState::APOGEE: {
+    // A marker only: the board fires nothing (the motor's ejection charge
+    // deploys the chute), so apogee lasts one sample and moves on.
+    g_landedStableActive = false;
+    g_state = FlightState::DESCENT;
+    logTransition("DESCENT");
     break;
   }
 
@@ -252,7 +248,7 @@ const char *flight_state_name(FlightState state) {
   case FlightState::IDLE_ARMED: return "IDLE_ARMED";
   case FlightState::BOOST: return "BOOST";
   case FlightState::COAST: return "COAST";
-  case FlightState::APOGEE_DEPLOY: return "APOGEE_DEPLOY";
+  case FlightState::APOGEE: return "APOGEE";
   case FlightState::DESCENT: return "DESCENT";
   case FlightState::LANDED: return "LANDED";
   case FlightState::ERROR: return "ERROR";

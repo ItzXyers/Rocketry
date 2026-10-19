@@ -1,6 +1,6 @@
 # Electronics — Consolidated Bill of Materials
 
-Last updated: 2026-09-30
+Last updated: 2026-10-19 (reed switch, Q3/R6, SW2/R3 and microSD dropped; log on internal flash; power on = battery plugged in)
 
 One list for every electrical part in the project: the flight computer, both
 recovery-deployment variants, and the RSP4 LaunchControl ground station.
@@ -41,22 +41,20 @@ Quantities are **per vehicle** (or per ground station). Buy spares of anything m
 | U3 | 1 | USB-C LiPo charger, BQ25302 module (Electrokit) | 0.2–2 A, power-path | ~23 × 16 mm | 2 g | Specified | AV-4. Set charge current to ~0.2–0.5C (125–310 mA for 620 mAh). |
 | U4 | 1 | BMP388 barometer, Qwiic | I²C **0x76** on this board | ~25 × 18 mm | 2.5 g | Specified | AV-5. Firmware pins the address to 0x76 (`config.h`) — a 0x77 board will fail self-test by design. |
 | U5 | 1 | ADXL375 ±200 g accelerometer (Adafruit 5374) | I²C, STEMMA QT | 25.4 × 17.8 mm | 2 g | Specified | AV-6 |
-| U6 | 1 | microSD breakout, 3 V only (Adafruit 4682) | SPI, no level shifter | 20.3 × 15.2 mm | 1.5 g | Specified | AV-7. 3V3 rail only. |
-| — | 1 *(+spare)* | microSD card 16 GB, **industrial grade** (Kingston) | −40…85 °C | — | 0.5 g | Specified | AV-8. Prefer the industrial SKU over consumer. |
+| ~~U6~~ | 0 | ~~microSD breakout (Adafruit 4682)~~ | — | — | — | **Dropped 2026-10-19** | AV-7. The log goes to the Nano's internal flash (~9.4 MB FFat partition, firmware 0.2.1+). D10–D13 are free. |
+| ~~—~~ | 0 | ~~microSD card 16 GB~~ | — | — | — | **Dropped 2026-10-19** | AV-8. Not needed without U6. |
 | BZ1 | 1 | Active buzzer, 3–16 V miniature (Electrokit) | ~20–30 mA | ⌀12 × 9.5 mm | 1.5 g | Specified | AV-9. Needs a sound port in the airframe (integrated-bay open item). |
 | Q1 | 1 | **BC337-40** NPN (Phoenix rev E; was 2N7000 N-MOSFET) | 45 V / 800 mA, h<sub>FE</sub> 250–630 | TO-92 (usually C–B–E, check datasheet) | 0.3 g | Specified | AV-10. Buzzer driver only — **not** for deployment. Saturates reliably from the 3.3 V pin, where a 2N7000 (V<sub>GS(th)</sub> up to 3 V) is marginal. |
 | R1 | 1 | Resistor **1 kΩ**, ¼ W (was 220 Ω) | Q1 base resistor | axial | — | Specified | D9 → Q1 base, ~2.6 mA base drive. Not in stock yet; 330 Ω works as a stand-in. |
 | R2 | 1 | Resistor 10 kΩ, ¼ W | Q1 gate pulldown | axial | — | Specified | Wiring doc 4. Keeps buzzer silent during boot. |
 | C1 | 1 | Electrolytic 220 µF, ≥10 V, low-ESR (**Phoenix build: 470 µF 16 V from stock**, 2026-10-08) | 5 V bulk | ⌀8 × 12 mm radial (check the 470 µF can: ⌀10 won't fit sled v8) | 1.5 g | Specified | Wiring doc 2 / AV power note 3. **Mandatory before using the Wi-Fi ground interface near a loaded vehicle.** |
-| SW1 | 1 | Magnetic reed switch, SPST-NO | glass capsule | 14 × ⌀2 mm | ~1 g | Specified (generic) | AV-13. Contactless power arming through the sealed wall. **Read open item O2 before wiring it in series with the battery.** |
-| Q3 | 1 | P-MOSFET **high-side** load switch, **G75P04T** (Goford, Electrokit) | −40 V, −70 A, 7 mΩ at V<sub>GS</sub> = −10 V; V<sub>GS(th)</sub> ≤ −2.5 V, rated from −4.5 V | TO-220 (pins G–D–S, tab = drain) | ~2 g | Specified | **2026-10-11 (schematic rev E):** BATT+ → Q3 → SW_BATT → U2; R6 holds the gate at BATT+, the reed pulls it to GND. A 3.0–4.2 V cell drives it below its characterized gate voltage, so bench-check the S–D drop. Doesn't fit sled v8's SOT-23 slot; cut or insulate the drain tab. Wiring: `Avionics/avionics_bay_schematic_phoenix40.html`. |
-| R6 | 1 | Resistor 100 kΩ | Q3 gate pull-up to source (BATT+) | axial | — | Candidate | Pairs with Q3. Always fitted; wire the KY-021 by S and − only, so its on-board 10 kΩ stays out of circuit (schematic item 3). |
-| R11, R12 | 2 | Resistor 10 kΩ, 1 % | battery-sense divider, SW_BATT (after Q3) → A0 → GND | axial | — | Candidate | **New 2026-10-08.** Halves the cell voltage for the ADC (4.2 V → 2.1 V). 5 kΩ source, so no ADC filter cap is needed. ~0.2 mA while armed, nothing with Q3 off (tapped after Q3). |
-| SW2 | 1 | Wireless-arm interlock, **momentary push button** (tactile, SPST-NO), inside the bay | 3.3 V logic level | ~6 × 6 mm tactile | ~0.5 g | Candidate | **2026-10-08:** momentary, latched in firmware 0.2.0 (hold 1–5 s and release to toggle). Was a slide/toggle. Wiring doc 8. 3V3 → SW2 → D7. Pressed with the e-bay out, before the bay is closed (2026-10-11 decision; no second reed). |
-| R3 | 1 | Resistor 10 kΩ | D7 pulldown | axial | — | Specified | Wiring doc 8. External pulldown, **not** `INPUT_PULLUP` (fault-mode reasoning in the wiring doc). |
+| ~~SW1~~ | 0 | ~~Magnetic reed switch (KY-021)~~ | — | — | — | **Dropped 2026-10-19** | AV-13. No power switch: the bay powers up when the battery's JST lead is plugged in, and powers down when it is unplugged. |
+| ~~Q3, R6~~ | 0 | ~~G75P04T P-MOSFET high-side switch + 100 kΩ gate pull-up~~ | — | — | — | **Dropped 2026-10-19** | Went with SW1. BATT+ now feeds U2 and the R11/R12 divider directly. |
+| R11, R12 | 2 | Resistor 10 kΩ, 1 % | battery-sense divider, BATT+ → A0 → GND | axial | — | Candidate | **New 2026-10-08.** Halves the cell voltage for the ADC (4.2 V → 2.1 V). 5 kΩ source, so no ADC filter cap is needed. Draws ~0.2 mA whenever the battery is plugged in (no switch ahead of it), so unplug the battery for storage. |
+| ~~SW2, R3~~ | 0 | ~~Wireless-arm push button + 10 kΩ D7 pulldown~~ | — | — | — | **Dropped 2026-10-19** | Firmware 0.2.1+ brings the Wi-Fi AP up at boot; it still latches off after `/arm` or confirmed launch. D7 is free. |
 | — | 2 | Qwiic / STEMMA QT cable, JST-SH 4-pin, 50–100 mm | — | — | ~1 g | Specified | AV-12. Nano → BMP388 → ADXL375 daisy chain. |
 | — | 1 lot | JST-PH 2-pin leads, 26–28 AWG silicone wire, heat-shrink, pin headers | — | — | 3–5 g | Specified | AV-12 |
-| — | 1 | Arming magnet, neodymium ⌀10 × 5 mm (N42+) | — | — | ~3 g | Candidate | Ground tool for SW1 — **not** flown. Bench-check actuation distance through the actual wall. |
+| ~~—~~ | 0 | ~~Arming magnet~~ | — | — | — | **Dropped 2026-10-19** | Was the ground tool for SW1. |
 | — | 2 | O-rings, nitrile, ~2 mm CS | bay seals | — | <1 g ea. | Specified | AV-14. Sealing hardware, listed here only because the avionics BOM does. |
 
 **Not bought:** u-blox NEO-6M/M8N GPS (AV-11) — superseded; D2/D3 stay reserved for it.
@@ -68,10 +66,10 @@ Quantities are **per vehicle** (or per ground station). Buy spares of anything m
 | Nano pin | Net | Used by | Config |
 |---|---|---|---|
 | A4 / A5 | I²C SDA / SCL | U4, U5 | A, B |
-| D13 / D12 / D11 / D10 | SPI SCK / MISO / MOSI / CS | U6 | A, B |
+| D13 / D12 / D11 / D10 | free (was microSD SPI) | — | — |
 | D9 | `PIN_BUZZER` | R1 → Q1 | A, B |
-| D6 | `PIN_DEPLOY` | R4 → Q2 (burn-wire) | A |
-| D7 | `PIN_ARM_INTERLOCK` | SW2 + R3 | A, B |
+| D6 | free (was `PIN_DEPLOY`; deploy channel removed from firmware 2026-10-19) | — | — |
+| D7 | free (was `PIN_ARM_INTERLOCK`, SW2) | — | — |
 | A0 | `PIN_BATT_SENSE` | R11/R12 divider | Phoenix (firmware 0.2.0) |
 | D4 / D5 (proposed) | servo PWM | M1 | B — **not yet in `config.h`** |
 | D2 / D3 | Serial1 (reserved) | future GPS | — |
@@ -79,6 +77,12 @@ Quantities are **per vehicle** (or per ground station). Buy spares of anything m
 ---
 
 ## 3. Config A — CO2 burn-wire deployment channel
+
+> **2026-10-19: no longer supported by the firmware.** The burn wire is gone and
+> the deploy channel (`PIN_DEPLOY`, `deployment.*`) was removed in firmware
+> 0.2.3; Phoenix deploys on the motor's ejection charge. This section is kept
+> for reference only — flying Config A would need the deploy code restored
+> from git history first.
 
 Everything here is gated by `co2_assembly_checklist.md` §1 and
 `avionics_build_checklist.md` §0/§5: **no coil current spec exists yet**, so
@@ -95,8 +99,8 @@ against a dummy load, not by this table.
 | — | 1 *(+spare)* | 2-pin micro connector for the coil leads, e.g. JST-PH or JST-SH | ≥2 A contact rating | — | <0.5 g | Candidate | Pad checklist §4 connects the coil **last**, on the rail — the connector has to be reachable at that point. |
 | — | 2 | Coil feedthroughs potted in `AvBay_FwdCollar` (⌀2 mm) | — | — | — | Specified (mech.) | `SampleRocketABS33-36/BOM.md` item 10. Wire gauge must pass the ⌀2 mm hole. |
 
-**Power path:** take the coil supply from the **battery side of Q3** (switched
-BATT+), not from U2's 5 V output. A 1–3 A coil pulse on the regulator's 5 V rail
+**Power path:** take the coil supply from **BATT+** (ahead of U2), not from
+U2's 5 V output. A 1–3 A coil pulse on the regulator's 5 V rail
 would exceed U2's rating and brown out the Nano mid-deploy.
 
 ---
@@ -165,7 +169,7 @@ numbers are BCM and still unconfirmed in `config.py`.
 ## Open items raised by this BOM
 
 - **O1 — Nano VIN margin** (carried over from AV power note 1). U2's fixed 5 V is under the 6 V VIN spec. Fix: Pololu adjustable buck-boost (S9V11MA, 2.5–9 V out) set to ~6.5 V — but then the servo in Config B needs its own 5–6 V feed and can't share that rail.
-- **O2 — Reed switch current rating (new).** Typical glass reed switches are rated ~0.5 A switching / ~1 A carry. The load path already peaks at 500–700 mA (AV power notes), and in Config A a coil fed through the same switch adds 1–3 A. Putting SW1 directly in series with the battery risks welding or pitting the contacts. **Recommended:** SW1 switches only Q3's gate (Q3 + R6 in §1), so the reed carries microamps. SW1's charge-isolation placement from the wiring doc (after the charger junction) is unchanged.
+- **O2 — Reed switch current rating.** **Closed 2026-10-19:** the reed switch (SW1) and Q3/R6 were dropped; power is switched by plugging/unplugging the battery.
 - **O3 — Coil current vs. battery (new).** BT1 Option B is rated 1C = 620 mA continuous with no published pulse rating. A nichrome coil drawing 1–3 A for `DEPLOY_ON_TIME_MS` (1.5 s) is outside that rating, and within reach of the estimated 2.5–3.5 A PCM trip. Pick nichrome gauge and length for the **lowest current that reliably cuts the line** on the bench, fit C2, and confirm that the voltage at U2's input stays above 2.7 V during the pulse.
 - **O4 — Servo on the 5 V rail (new).** SG90 stall (~650 mA) plus a Wi-Fi TX burst can exceed U2's output while boosting from a 3.7 V cell. C3 helps; bench-verify by stalling the servo with the AP up.
 - **O5 — Servo pin not assigned.** Add a `PIN_SERVO` to `config.h` (D4 or D5 — both are listed as free backups there). Phoenix has no Q2, so D6 is also free on that build.

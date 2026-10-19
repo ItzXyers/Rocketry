@@ -14,7 +14,7 @@ and are specifically handled below:
 
 Runs a background poll thread that keeps a cached FlightComputerStatus
 so app.py's request handlers never block on the flight computer being slow
-or offline (e.g. SW2 interlock not latched on, out of range).
+or offline (e.g. AP already latched off by /arm or BOOST, out of range).
 """
 
 from __future__ import annotations

@@ -1,11 +1,15 @@
 # Flight Computer — Interconnect Diagram
 
-Companion to [`avionics_bom.md`](avionics_bom.md). Two variants: the full build (with GPS recovery locator) and a no-GPS variant (buzzer-only recovery). Pin assignments are the Arduino Nano ESP32's documented defaults (`SDA=A4`/`SCL=A5`, `SCK=D13`/`MISO=D12`/`MOSI=D11`/`CS=D10`, `Serial1` remapped to `D2`/`D3`).
+Companion to [`avionics_bom.md`](avionics_bom.md). Two variants: the full build (with GPS recovery locator) and a no-GPS variant (buzzer-only recovery). Pin assignments are the Arduino Nano ESP32's documented defaults (`SDA=A4`/`SCL=A5`, `Serial1` remapped to `D2`/`D3`). There is no microSD reader any more (2026-10-19): the firmware logs to the Nano's internal flash, so D10–D13 are free.
 
 > **2026-10-08 — superseded for the Phoenix ABS 40-43 bay (D9aft v10 + sled v8).** Use the rev C schematic
 > [`avionics_bay_schematic_phoenix40.html`](avionics_bay_schematic_phoenix40.html)
 > (rendered: https://claude.ai/artifact/Euva6DDNWa6VnT3Dv4fMjK). It drops the charger, GPS and deploy channels. It adds SW1 reed → Q3 G75P04T P-FET
 > high-side power switching (rev D), an R11/R12 battery-voltage divider on A0, and the SW2 push button/R3 interlock on D7, and lists 8 open items. The diagrams below remain the reference for the 30 mm CO2 bay.
+>
+> **2026-10-19 — Phoenix harness as soldered:** SW1 (reed), Q3/R6, SW2/R3 and the microSD reader are all gone. The bay
+> powers up when the battery is plugged in, the Wi-Fi AP comes up at boot, and the log is on internal flash. The burn
+> wire is gone too: Phoenix deploys on the motor ejection charge only. The schematic HTML is updated to match.
 
 Rendered/interactive versions (Claude Artifacts, private to this account):
 - Full build: https://claude.ai/code/artifact/f4f62a39-6f6f-4bb3-88ec-8186684f46a7
@@ -33,8 +37,6 @@ flowchart LR
         ADXL["ADXL375<br/>+/-200g accel - Qwiic"]
     end
 
-    SD["microSD reader<br/>Adafruit 4682<br/>3V logic only - SPI"]
-
     GPS["u-blox NEO-6M / M8N<br/>GPS (optional) - UART"]
 
     subgraph DRIVE["Buzzer drive"]
@@ -53,7 +55,6 @@ flowchart LR
 
     NANO -- "SDA / SCL" --> BMP
     BMP -- "SDA / SCL (shared bus)" --> ADXL
-    NANO -- "SCK D13, MISO D12,<br/>MOSI D11, CS D10" --> SD
     NANO -- "Serial1 RX D2 <-- GPS TX" --> GPS
     NANO -- "Serial1 TX D3 --> GPS RX" --> GPS
     NANO -- "D9 -> R1 220ohm gate resistor" --> Q1
@@ -66,7 +67,6 @@ flowchart LR
     REG -. GND .-> GND
     BMP -. GND .-> GND
     ADXL -. GND .-> GND
-    SD -. GND .-> GND
     GPS -. GND .-> GND
     Q1 -. "source" .-> GND
 ```
@@ -77,13 +77,10 @@ flowchart LR
 |---|---|---|---|
 | SYS_5V | VIN | S7V8F5 VOUT, via C1 & SW1 | 1 V under the 6 V VIN spec — works per community testing, no margin |
 | GND | GND | common ground bus | all board grounds tie to one bus |
-| 3V3 | 3V3 | BMP388, ADXL375, SD reader, GPS | onboard buck output, shared rail |
+| 3V3 | 3V3 | BMP388, ADXL375, GPS | onboard buck output, shared rail |
 | I²C | A4 (SDA) | BMP388 SDA, ADXL375 SDA | default Wire pins |
 | I²C | A5 (SCL) | BMP388 SCL, ADXL375 SCL | default Wire pins |
-| SPI | D13 (SCK) | SD reader SCK | default SPI pins |
-| SPI | D12 (CIPO/MISO) | SD reader MISO | |
-| SPI | D11 (COPI/MOSI) | SD reader MOSI | |
-| SPI | D10 (CS) | SD reader CS | dedicated, not shared — no other SPI device on this bus |
+| — | D10–D13 | free | was the microSD reader's SPI bus; dropped 2026-10-19, the log is on the Nano's internal flash |
 | UART | D2 → Serial1 RX | GPS TX | remapped off D0/D1 — Serial0 carries boot/crash-dump text that would corrupt NMEA parsing |
 | UART | D3 → Serial1 TX | GPS RX | wired for future config commands; most firmware never uses it |
 | GPIO | D9 | R1 (220Ω) → Q1 gate | R2 (10kΩ) gate-to-GND pulldown holds buzzer off during boot |
@@ -112,8 +109,6 @@ flowchart LR
         ADXL["ADXL375<br/>+/-200g accel - Qwiic"]
     end
 
-    SD["microSD reader<br/>Adafruit 4682<br/>3V logic only - SPI"]
-
     subgraph DRIVE["Buzzer drive"]
         Q1["Q1<br/>2N7000 MOSFET"]
         BZ["Active buzzer"]
@@ -130,7 +125,6 @@ flowchart LR
 
     NANO -- "SDA / SCL" --> BMP
     BMP -- "SDA / SCL (shared bus)" --> ADXL
-    NANO -- "SCK D13, MISO D12,<br/>MOSI D11, CS D10" --> SD
     NANO -- "D9 -> R1 220ohm gate resistor" --> Q1
     Q1 -- "drain" --> BZ
     C1 -. "SYS_5V tap" .-> BZ
@@ -141,7 +135,6 @@ flowchart LR
     REG -. GND .-> GND
     BMP -. GND .-> GND
     ADXL -. GND .-> GND
-    SD -. GND .-> GND
     Q1 -. "source" .-> GND
 ```
 
@@ -151,13 +144,10 @@ flowchart LR
 |---|---|---|---|
 | SYS_5V | VIN | S7V8F5 VOUT, via C1 & SW1 | 1 V under the 6 V VIN spec — works per community testing, no margin |
 | GND | GND | common ground bus | all board grounds tie to one bus |
-| 3V3 | 3V3 | BMP388, ADXL375, SD reader | onboard buck output, shared rail |
+| 3V3 | 3V3 | BMP388, ADXL375 | onboard buck output, shared rail |
 | I²C | A4 (SDA) | BMP388 SDA, ADXL375 SDA | default Wire pins |
 | I²C | A5 (SCL) | BMP388 SCL, ADXL375 SCL | default Wire pins |
-| SPI | D13 (SCK) | SD reader SCK | default SPI pins |
-| SPI | D12 (CIPO/MISO) | SD reader MISO | |
-| SPI | D11 (COPI/MOSI) | SD reader MOSI | |
-| SPI | D10 (CS) | SD reader CS | dedicated, not shared — no other SPI device on this bus |
+| — | D10–D13 | free | was the microSD reader's SPI bus; dropped 2026-10-19, the log is on the Nano's internal flash |
 | GPIO | D9 | R1 (220Ω) → Q1 gate | R2 (10kΩ) gate-to-GND pulldown holds buzzer off during boot |
 
 ---
@@ -167,21 +157,21 @@ flowchart LR
 The BOM's open items and standard practice call for a few parts it doesn't list a part number for. None of these change the chain — they close gaps in it.
 
 1. **SW1, arm/power switch** — placed between the battery/charger junction and the regulator's VIN, not directly on the battery terminal. That way the charger can still trickle-charge the battery with the switch off (pad-safe), and the whole downstream system is dead with the switch off — satisfying both open items in one part.
-2. **C1, 220µF bulk cap** (Phoenix build, 2026-10-08: 470 µF 16 V from stock) — across SYS_5V right at the regulator output, per the BOM's transient-current recommendation, to absorb SD-write/WiFi-TX current spikes without browning out the Nano.
+2. **C1, 220µF bulk cap** (Phoenix build, 2026-10-08: 470 µF 16 V from stock) — across SYS_5V right at the regulator output, per the BOM's transient-current recommendation, to absorb flash-write/WiFi-TX current spikes without browning out the Nano.
 3. **R1, 220Ω gate resistor** — not in the BOM, but a bare GPIO-to-gate connection is asking for ringing on a long lead to the buzzer. Cheap insurance.
 4. **R2, 10kΩ pulldown** — ESP32 GPIOs can float momentarily during boot/reset; without this the buzzer could chirp on power-up before firmware sets D9 low.
 5. **Serial1 on D2/D3 for the GPS** (full build only), instead of the default D0/D1 — Serial0 (D0/D1) is shared with the ESP32's boot log and crash dumps, which would land in the middle of NMEA sentences if the GPS shared that UART.
-6. **SD reader and Qwiic parts on the 3V3 rail, not 5V** — the Nano ESP32's GPIOs are natively 3.3 V, so this is required regardless of the BOM's "no level shifter" caveat, not just a precaution.
+6. **Qwiic parts on the 3V3 rail, not 5V** — the Nano ESP32's GPIOs are natively 3.3 V, so this is required regardless of the BOM's "no level shifter" caveat, not just a precaution.
 7. **GPS module voltage** (full build only) — the BOM specifies a "GY-NEO6MV2-style" generic breakout, not a verified SKU. Most have an onboard 3.3 V regulator and accept 3.3–5 V in, with 3.3 V logic on TX/RX — confirm before wiring; if the specific module's UART is 5 V logic, its TX line needs a divider or level shifter into the Nano's RX1.
-8. **SW2, wireless-arm interlock** — **a momentary push button since firmware 0.2.0** (2026-10-08): the firmware latches a 1–5 s press-and-release as a toggle, and the interlock always starts off at boot. A line shorted to 3V3 never releases, so it can't enable the radio. The text below describes the original latching switch; the wiring and the fail-safe reasoning are unchanged. Separate from SW1 (whole-board power cutoff, not firmware-readable). One leg to 3V3, other leg to `PIN_ARM_INTERLOCK` (D7) and to a new **R3, 10kΩ pulldown** to GND. Closed = interlock satisfied (the wireless ground-support AP powers up and `/arm` is permitted); open — or the signal wire broken — reads not-armed and the AP drops. Chosen over `INPUT_PULLUP` + switch-to-GND because the likely fault mode on this harness is the signal wire chafing against the common GND bus (the most abundant net on the board), which would read *armed* under that alternative topology; this topology reads *not armed* instead. Both topologies fail safe on a clean wire break — GND-chafe is the discriminator. See `../firmware/src/wireless.*` for how this gates the wireless ground interface; it can never reach the deployment channel (`PIN_DEPLOY`) — wireless FIRE does not exist.
+8. **SW2, wireless-arm interlock — dropped 2026-10-19.** Firmware 0.2.1+ has no interlock input: the AP comes up at boot and still latches off after `/arm` or confirmed BOOST. D7 is free. Kept below for history: **a momentary push button since firmware 0.2.0** (2026-10-08): the firmware latches a 1–5 s press-and-release as a toggle, and the interlock always starts off at boot. A line shorted to 3V3 never releases, so it can't enable the radio. The text below describes the original latching switch; the wiring and the fail-safe reasoning are unchanged. Separate from SW1 (whole-board power cutoff, not firmware-readable). One leg to 3V3, other leg to `PIN_ARM_INTERLOCK` (D7) and to a new **R3, 10kΩ pulldown** to GND. Closed = interlock satisfied (the wireless ground-support AP powers up and `/arm` is permitted); open — or the signal wire broken — reads not-armed and the AP drops. Chosen over `INPUT_PULLUP` + switch-to-GND because the likely fault mode on this harness is the signal wire chafing against the common GND bus (the most abundant net on the board), which would read *armed* under that alternative topology; this topology reads *not armed* instead. Both topologies fail safe on a clean wire break — GND-chafe is the discriminator. See `../firmware/src/wireless.*` for how this gates the wireless ground interface; it can never reach the deployment channel (`PIN_DEPLOY`) — wireless FIRE does not exist.
 
 ---
 
 ## Wireless ground-support interface
 
-New in this firmware revision: a WiFi access point + HTTP status/arm interface, intended for a ground-support device (e.g. a Raspberry Pi) to check on the rocket while it's on the pad — sensor readings, pad baseline, self-test/logger health, and a re-zero/"final arm" action — without touching the deployment channel. See `../firmware/src/wireless.*` for the implementation and the firmware's own plan notes for the full design rationale (SW2-gated radio power, confirmed-BOOST auto-kill, no wireless FIRE, `/config` as read-only display only).
+New in this firmware revision: a WiFi access point + HTTP status/arm interface, intended for a ground-support device (e.g. a Raspberry Pi) to check on the rocket while it's on the pad — sensor readings, pad baseline, self-test/logger health, and a re-zero/"final arm" action — without touching the deployment channel. See `../firmware/src/wireless.*` for the implementation and the firmware's own plan notes for the full design rationale (radio up from boot since SW2 was dropped 2026-10-19, `/arm` and confirmed-BOOST auto-kill, no wireless FIRE, `/config` as read-only display only). Since the microSD reader was dropped, it also serves the flight logs from internal flash: `GET /logs` lists them, `GET /log?n=7` downloads `FLIGHT007.CSV`. The AP is off after launch, so power-cycle after landing to download.
 
-**This reintroduces, in a now-routine form, the "SD write + WiFi burst" transient that the original `WiFi.mode(WIFI_OFF)` default was written to avoid** — the AP is up during every pad checkout while SW2 is closed, and a successful `/arm` does an SD-flush event-log write while the AP is still active. See the amended bulk-cap item in `avionics_bom.md`'s open items: **fit C1, or bench-verify the transient on a representative supply, before using this interface near a loaded rocket or an installed CO2 cartridge.**
+**This reintroduces, in a now-routine form, the "storage write + WiFi burst" transient that the original `WiFi.mode(WIFI_OFF)` default was written to avoid** (it was an SD write; since 2026-10-19 it is an internal-flash write) — the AP is up from every boot, and a successful `/arm` does an event-log flash write while the AP is still active. See the amended bulk-cap item in `avionics_bom.md`'s open items: **fit C1, or bench-verify the transient on a representative supply, before using this interface near a loaded rocket or an installed CO2 cartridge.**
 
 ---
 

@@ -1,5 +1,5 @@
 // Standalone bench bring-up for the buzzer module in isolation, before the
-// rest of the harness (sensors/SD/deployment) is wired up. Exercises the
+// rest of the harness (sensors/flash log) is wired up. Exercises the
 // real buzzer.cpp patterns, not a throwaway blink-style test.
 //
 // Build/flash/monitor:

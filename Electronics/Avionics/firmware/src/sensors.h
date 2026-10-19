@@ -42,6 +42,12 @@ void sensors_capturePadBaseline();
 // (zero-initialized on the very first failed read).
 SensorSample sensors_read();
 
+// Accel-only read into an existing sample: updates the accel_* fields and
+// accel_valid, leaves timestamp and every baro field untouched. For the
+// fast ascent log rows between sensors_read() ticks (see main.cpp), where a
+// baro read would block on its conversion. Returns accel_valid.
+bool sensors_readAccel(SensorSample &s);
+
 // The pad pressure reference set by the most recent
 // sensors_capturePadBaseline() call; 0 before the first capture.
 float sensors_padBaselinePressurePa();

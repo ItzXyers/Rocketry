@@ -6,8 +6,8 @@
 // integers. The ESP32 Arduino core's "legacy GPIO numbering" build option
 // changes what a raw integer like `9` means (GPIO9 == D6 in one mode, D9 in
 // the other) — using the symbolic macros throughout means this file is
-// correct regardless of that setting, instead of silently swapping the
-// buzzer and deployment channels if it's ever toggled.
+// correct regardless of that setting, instead of silently driving the
+// wrong pin if it's ever toggled.
 
 // ---------------------------------------------------------------------------
 // Pins — fixed by ../avionics_wiring.md (no-GPS variant)
@@ -26,11 +26,8 @@
 // (see platformio.ini) has a SCAN/ID command for re-checking this on new hardware.
 #define BMP388_I2C_ADDR 0x76
 
-// SPI — microSD reader, dedicated CS (not shared with any other SPI device).
-#define PIN_SPI_SCK D13
-#define PIN_SPI_MISO D12
-#define PIN_SPI_MOSI D11
-#define PIN_SD_CS D10
+// No microSD reader any more (dropped 2026-10-19): the log goes to the
+// Nano ESP32's internal flash (FFat partition, see logger.h). D10-D13 are free.
 
 // Buzzer driver: BC337-40 NPN base via R1 1k, R2 10k base pulldown on the board
 // (was a 2N7000 + 220R; Phoenix schematic rev E). HIGH = buzzer on.
@@ -39,47 +36,30 @@
 // D2/D3 are reserved for a possible future GPS (Serial1 RX/TX) — do not reuse.
 
 // ---------------------------------------------------------------------------
-// Pins — new for this firmware, NOT YET in the schematic (see plan notes)
+// Pins — battery sense; free pins
 // ---------------------------------------------------------------------------
 
-// Deployment (burn-wire) MOSFET gate. D6 = GPIO9 on the underlying ESP32-S3:
-// free of I2C/SPI/buzzer, not D2/D3 (reserved for GPS), not one of the four
-// ESP32-S3 strapping pins (GPIO0/3/45/46), not native-USB or UART0. Needs the
-// same gate-resistor + pulldown pattern as the buzzer, and — separately, a
-// hardware concern, not a firmware one — a higher-current logic-level MOSFET
-// than the 2N7000 (200mA max), since a nichrome burn-wire coil is expected to
-// draw hundreds of mA to a few amps. Backups if D6 proves awkward on the real
-// schematic: D4, D5, D7.
-#define PIN_DEPLOY D6
+// No deploy channel (removed 2026-10-19): the burn wire is gone and Phoenix
+// deploys on the motor ejection charge, so the board fires nothing. D6, the
+// old PIN_DEPLOY, is free.
 
-// Wireless-arm interlock (SW2) — separate from SW1 (whole-board power
-// cutoff, not firmware-readable). D7 = GPIO10: free of I2C/SPI/buzzer/
-// deploy, not D2/D3 (GPS-reserved), not a strapping pin, not native-USB/
-// UART0. External pulldown (R3, 10k), not INPUT_PULLUP — see
-// avionics_wiring.md for the fault-mode rationale (a chafed signal wire
-// shorting to the common GND bus must read as NOT armed, not armed).
-// SW2 is a MOMENTARY push button (3V3 -> button -> D7): wireless.cpp latches
-// it -- a press held WIFI_BUTTON_HOLD_MIN_MS..MAX_MS, then released, toggles
-// the interlock for this power cycle. A line stuck HIGH never releases, so it
-// can never enable the radio.
-#define PIN_ARM_INTERLOCK D7
+// SW1 (reed power switch) and SW2 (Wi-Fi interlock button on D7) were both
+// dropped 2026-10-19. SW1 was never firmware-readable; without SW2 the
+// ground-support AP comes up at boot (see wireless.h). D7 is free.
 
 // Battery voltage sense: BATT+ -> R11 10k -> A0 -> R12 10k -> GND. The 5k
 // source impedance is low enough for the ADC without a filter cap; the
-// divider draws ~0.2 mA, and only while Q3 is on. A0 =
+// divider draws ~0.2 mA whenever the battery is connected. A0 =
 // GPIO1 = ADC1_CH0: ADC1 keeps working while the Wi-Fi AP is up (ADC2 is
-// shared with the radio on the ESP32-S3). Not a strapping pin. On the Phoenix
-// bay the divider's top is SW_BATT, after Q3 (high-side P-FET), so it draws
-// nothing while the bay is off. The reading is the cell minus Q3's drop
-// (~10-40 mV at this board's current) -- BATT_CAL_GAIN absorbs the typical part.
+// shared with the radio on the ESP32-S3). Not a strapping pin.
+// BATT_CAL_GAIN absorbs resistor tolerance and any series drop.
 // See ../../avionics_bay_schematic_phoenix40.html.
 #define PIN_BATT_SENSE A0
 
 // ---------------------------------------------------------------------------
 // Tunables — STARTING DEFAULTS for bench tuning, not asserted specs.
-// Every one of these must be verified against real hardware, a real motor's
-// thrust curve, and (for the deploy timing especially) real bench
-// measurement of the actual coil/line/supply combination before ever flying.
+// Every one of these must be verified against real hardware and a real
+// motor's thrust curve before ever flying.
 // ---------------------------------------------------------------------------
 
 // -- Launch detection (ADXL375) --
@@ -97,28 +77,31 @@
 #define APOGEE_DROP_THRESHOLD_M 3.0f       // STARTING DEFAULT — must clear the real baro noise floor
 #define APOGEE_CONFIRM_SAMPLES 5           // STARTING DEFAULT — verify on bench, not a real spec
 
-// -- Apogee deploy dwell --
-#define APOGEE_DEPLOY_DWELL_MS 2000UL      // fixed dwell in APOGEE_DEPLOY before -> DESCENT; must exceed DEPLOY_ON_TIME_MS so deployment_update() has definitely serviced the on-time before we move on
 
 // -- Landed detection --
 #define LANDED_ALT_STABLE_BAND_M 1.0f      // STARTING DEFAULT — verify on bench, not a real spec
 #define LANDED_STABLE_DURATION_MS 10000UL  // STARTING DEFAULT — verify on bench, not a real spec
 
-// -- Deployment firing --
-// No empirical current/duration spec exists for the burn-wire mechanism yet.
-// These are placeholders only — bench-measure against the real coil/line
-// (dummy load first, see the plan's verification steps) before ever flying.
-#define DEPLOY_ON_TIME_MS 1500UL           // STARTING DEFAULT — no empirical spec exists yet
-#define DEPLOY_MAX_ON_TIME_MS 4500UL       // Hard safety ceiling. Must stay > DEPLOY_ON_TIME_MS with real margin.
-static_assert(DEPLOY_MAX_ON_TIME_MS > DEPLOY_ON_TIME_MS + 1000UL,
-              "DEPLOY_MAX_ON_TIME_MS must exceed DEPLOY_ON_TIME_MS with real margin");
 
-// -- Logging --
-#define LOG_BUFFER_RECORDS 32              // STARTING DEFAULT — RAM vs. flush-frequency tradeoff
-#define LOG_FLUSH_INTERVAL_MS 2000UL       // STARTING DEFAULT — data-loss window vs. write-transient frequency
+// -- Logging (internal flash, FFat partition ~9.4 MB; see logger.h) --
+// A CSV row is ~85-100 B, so 50 Hz is ~4.5 KB/s (~35 min to fill the
+// partition). Pad/landed time is therefore logged at LOG_PAD_DECIMATION-th
+// rate (~1.6 MB per pad-hour) and only flight states at full rate (~0.8 MB
+// for a 3 min flight) -- see main.cpp's shouldLogSample(). Ascent (BOOST/
+// COAST) additionally gets accel-only rows at ASCENT_ACCEL_INTERVAL_US
+// (200 Hz, ~19 KB/s): at most ~0.4 MB even for a full MAX_TIME_TO_APOGEE_MS.
+#define LOG_BUFFER_RECORDS 128             // STARTING DEFAULT — RAM (~8 KB) vs. flush frequency; 0.64 s of 200 Hz ascent per flush, so fewer fsyncs (each one a flash stall) during boost/coast
+#define LOG_FLUSH_INTERVAL_MS 2000UL       // STARTING DEFAULT — data-loss window vs. flash-write stall frequency
+#define LOG_PAD_DECIMATION 10              // pad/landed: every 10th sample = 5 Hz
+#define LOG_MIN_FREE_BYTES (5UL * 1024UL * 1024UL) // self-test fails below this: ~2.5 h of pad + a full flight. Clear old logs (DEL/FORMAT) between flight days
 
 // -- Sampling --
-#define SENSOR_SAMPLE_INTERVAL_MS 20UL     // STARTING DEFAULT — 50 Hz, tune vs. detection latency and log volume
+#define SENSOR_SAMPLE_INTERVAL_MS 20UL     // STARTING DEFAULT — 50 Hz flight-logic tick (baro + accel -> flight_state, velocity_estimator). ALTITUDE_FILTER_ALPHA and APOGEE_CONFIRM_SAMPLES count samples at THIS rate -- to log faster, change ASCENT_ACCEL_INTERVAL_US, not this
+#define ASCENT_ACCEL_INTERVAL_US 5000UL    // STARTING DEFAULT — 200 Hz accel-only log rows between ticks in BOOST/COAST (+ pad over launch threshold). Baro columns repeat the last tick's reading. Go faster only after the bench logger_maxFlushUs check -- every flush stall is a gap
+static_assert((SENSOR_SAMPLE_INTERVAL_MS * 1000UL) % ASCENT_ACCEL_INTERVAL_US == 0,
+              "ASCENT_ACCEL_INTERVAL_US must divide the flight-logic tick evenly");
+#define ADXL375_DATA_RATE ADXL3XX_DATARATE_200_HZ // matches ASCENT_ACCEL_INTERVAL_US (100 Hz bandwidth); chip default is 100 Hz ODR, never written before
+#define I2C_CLOCK_HZ 400000UL              // fast mode (both BMP388 and ADXL375 support it); was the 100 kHz default -- check for I2C read errors on the real harness
 #define PAD_BASELINE_AVERAGE_SAMPLES 50    // STARTING DEFAULT — averaged once on IDLE_ARMED entry
 
 // -- Velocity/altitude Kalman filter (BMP388 baro + ADXL375 self-calibrated axial accel) --
@@ -143,25 +126,19 @@ static_assert(DEPLOY_MAX_ON_TIME_MS > DEPLOY_ON_TIME_MS + 1000UL,
 #define BATT_CAL_GAIN 1.000f               // STARTING DEFAULT -- set to (multimeter volts / reported volts) at ~3.9 V on the real board; absorbs resistor tolerance + ADC gain error
 #define BATT_ADC_SAMPLES 8                 // averaged per reading (~0.1 ms total, non-blocking enough for loop())
 #define BATT_SAMPLE_INTERVAL_MS 500UL      // 2 Hz -- the cell voltage moves slowly
-#define BATT_FILTER_ALPHA 0.2f             // EMA on top of the averaging -- smooths SD-write / Wi-Fi TX sag
+#define BATT_FILTER_ALPHA 0.2f             // EMA on top of the averaging -- smooths flash-write / Wi-Fi TX sag
 #define BATT_PRESENT_MIN_V 2.5f            // below this the reading is "no battery" (divider missing, or USB-only bench power)
 #define BATT_LOW_V 3.70f                   // STARTING DEFAULT -- ~15 % on the generic curve; don't fly below this. Pad go/no-go only, never a flight-logic input
 
-// -- Bench-test deployment gate --
-#define DEPLOY_BENCH_ARM_TIMEOUT_MS 10000UL // window after ARM in which FIRE is accepted
 
 // -- Wireless ground interface (WiFi AP + HTTP, see wireless.*) --
-// AP powers up only while the SW2 button has latched the interlock on, and
-// only before real flight (confirmed BOOST latches it off for the rest of the
-// power cycle regardless of SW2 — see flight_state.cpp). Never touches
-// PIN_DEPLOY; wireless FIRE does not exist.
+// AP powers up at boot and stays up until a successful /arm or confirmed
+// BOOST latches it off for the rest of the power cycle (see
+// flight_state.cpp).
 #define WIFI_AP_SSID "FLIGHTCOMPUTER-XXXX"   // STARTING DEFAULT — set unique per board before flying near other boards
 #define WIFI_AP_PASSWORD "changeme12345"     // STARTING DEFAULT — WPA2, change before flying
 #define WIFI_AP_CHANNEL 6                    // STARTING DEFAULT — fixed channel, no scan needed for a single-purpose AP
 #define WIFI_AP_MAX_CONNECTIONS 1            // deliberately capped so a stray device can't also join
 #define WIFI_AP_HTTP_PORT 80
-#define WIFI_INTERLOCK_DEBOUNCE_MS 50UL      // contact-bounce filter on the SW2 button
-#define WIFI_BUTTON_HOLD_MIN_MS 1000UL       // shorter presses are ignored (bumps, handling, glitches)
-#define WIFI_BUTTON_HOLD_MAX_MS 5000UL       // longer = treated as a stuck/shorted line, ignored until released
 #define WIFI_ARM_SHUTDOWN_GRACE_MS 500UL     // STARTING DEFAULT — verify on bench this is enough for the Pi to see the full /arm response before the AP drops
-#define FIRMWARE_VERSION "0.2.0"             // bump manually per notable firmware change; surfaced read-only via GET /config
+#define FIRMWARE_VERSION "0.2.3"             // bump manually per notable firmware change; surfaced read-only via GET /config

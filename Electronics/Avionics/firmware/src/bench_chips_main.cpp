@@ -1,20 +1,17 @@
 // Standalone bench bring-up for every chip on the flight computer at once —
-// BMP388 barometer + ADXL375 accelerometer (I2C), microSD reader (SPI), the
-// buzzer, and the SW2 arm-interlock input. Interactive serial console.
+// BMP388 barometer + ADXL375 accelerometer (I2C), the internal-flash log, the
+// buzzer and the battery sense. Interactive serial console.
 //
-// Reuses the real sensors.cpp / logger.cpp / buzzer.cpp / deployment.cpp, so
+// Reuses the real sensors.cpp / logger.cpp / buzzer.cpp / battery.cpp, so
 // what passes here is the actual flight code path, not a throwaway probe.
-// The deployment channel is intentionally NOT exposed — test it with
-// env:nano_esp32's ARM/FIRE commands, which carry the one-shot latch + safety
-// cutoff.  The 5V-Arduino equivalent of this tool is ../chip_test/chip_test.ino.
+// The 5V-Arduino equivalent of this tool is ../chip_test/chip_test.ino.
 //
 // Build/flash/monitor:
 //   pio run -e chips_bench -t upload
 //   pio device monitor          (115200 baud)
 //
 // This leaves the bench binary on the board. Re-flash the flight firmware
-// (pio run -e nano_esp32 -t upload) and cold power-cycle before flying — see
-// the deploy-latch discipline in ../avionics_build_checklist.md section 5.
+// (pio run -e nano_esp32 -t upload) and power-cycle before flying.
 //
 // Commands (case-insensitive, one per line):
 //   SCAN                        I2C bus scan
@@ -25,9 +22,10 @@
 //   STREAM                      toggle continuous sampling (~5 Hz)
 //   PEEK <addr> <reg>           raw I2C register read  (hex: PEEK 76 00)
 //   POKE <addr> <reg> <val>     raw I2C register write (hex) — no guard rails
-//   SD                          mount card, open a FLIGHTnnn.CSV, write a test record
+//   FLASH                       mount internal flash, open a FLIGHTnnn.CSV, write a test record
+//   LOGS                        list the FLIGHTnnn.CSV files in internal flash
+//   FORMAT YES                  erase every log (also formats a brand-new board)
 //   BUZZER PASS|FAIL|BEACON|OFF play a buzzer pattern
-//   INTERLOCK                   read the SW2 arm-interlock input (D7)
 //   BATT                        battery voltage + raw sense-pin reading (A0)
 //   PINS                        print the pin map
 //   HELP                        this list
@@ -35,7 +33,7 @@
 #include "battery.h"
 #include "buzzer.h"
 #include "config.h"
-#include "deployment.h"
+
 #include "logger.h"
 #include "sensors.h"
 
@@ -160,7 +158,7 @@ void printSample(const SensorSample &s) {
   Serial.println(F("g"));
 }
 
-void cmdSd() {
+void cmdFlash() {
   bool ok = logger_init(); // prints its own [logger] lines
   Serial.print(F("[bench] logger_init "));
   Serial.println(ok ? F("OK") : F("FAIL"));
@@ -168,8 +166,10 @@ void cmdSd() {
   LogRecord r;                 // struct default-inits all fields to 0/false
   r.timestamp_ms = millis();
   logger_logEvent("benchtest", r); // writes + flushes immediately
-  Serial.println(F("[bench] wrote one 'benchtest' record to a new FLIGHTnnn.CSV. "
-                   "Run SD once per boot — each call opens (and leaks) another file."));
+  Serial.print(F("[bench] wrote one 'benchtest' record, flush took "));
+  Serial.print(logger_maxFlushUs());
+  Serial.println(F(" us. Run FLASH once per boot — each call opens (and leaks) another file; "
+                   "DEL the bench files from the flight firmware's console afterwards."));
 }
 
 void cmdBuzzer(const String &arg) {
@@ -188,15 +188,6 @@ void cmdBuzzer(const String &arg) {
   } else {
     Serial.println(F("[bench] usage: BUZZER PASS|FAIL|BEACON|OFF"));
   }
-}
-
-void cmdInterlock() {
-  // External 10k pulldown on the board (R3), button closes to 3V3 — so
-  // PRESSED reads HIGH, and a broken/chafed wire reads RELEASED. Raw level
-  // only: the press-and-hold latch lives in wireless.cpp (flight firmware).
-  int v = digitalRead(PIN_ARM_INTERLOCK);
-  Serial.print(F("[bench] SW2 button (D7) = "));
-  Serial.println(v == HIGH ? F("PRESSED") : F("RELEASED"));
 }
 
 void cmdBatt() {
@@ -219,15 +210,9 @@ void cmdPins() {
   Serial.println(F("[bench] pin map (Arduino label = ESP32-S3 GPIO):"));
   Serial.print(F("[bench]   I2C   SDA=A4("));   Serial.print(PIN_I2C_SDA);
   Serial.print(F(")  SCL=A5("));                Serial.print(PIN_I2C_SCL);   Serial.println(')');
-  Serial.print(F("[bench]   SPI   SCK=D13("));  Serial.print(PIN_SPI_SCK);
-  Serial.print(F(")  MISO=D12("));             Serial.print(PIN_SPI_MISO);
-  Serial.print(F(")  MOSI=D11("));             Serial.print(PIN_SPI_MOSI);
-  Serial.print(F(")  SD_CS=D10("));            Serial.print(PIN_SD_CS);      Serial.println(')');
   Serial.print(F("[bench]   BUZZER=D9("));      Serial.print(PIN_BUZZER);     Serial.println(')');
-  Serial.print(F("[bench]   ARM_INTERLOCK=D7(")); Serial.print(PIN_ARM_INTERLOCK); Serial.println(')');
   Serial.print(F("[bench]   BATT_SENSE=A0("));  Serial.print(PIN_BATT_SENSE); Serial.println(')');
-  Serial.print(F("[bench]   DEPLOY=D6("));      Serial.print(PIN_DEPLOY);
-  Serial.println(F(")  — held LOW, not driven by this tool"));
+
   Serial.print(F("[bench]   BMP388 addr (flight, pinned) = "));
   printHex8(BMP388_I2C_ADDR);
   Serial.println();
@@ -243,12 +228,13 @@ void cmdHelp() {
   Serial.println(F("[bench]   STREAM                      toggle continuous sampling (~5 Hz)"));
   Serial.println(F("[bench]   PEEK <addr> <reg>           raw I2C read  (hex, e.g. PEEK 76 00)"));
   Serial.println(F("[bench]   POKE <addr> <reg> <val>     raw I2C write (hex) — no guard rails"));
-  Serial.println(F("[bench]   SD                          mount card + write a test record"));
+  Serial.println(F("[bench]   FLASH                       mount internal flash + write a test record"));
+  Serial.println(F("[bench]   LOGS                        list flight logs in internal flash"));
+  Serial.println(F("[bench]   FORMAT YES                  erase every log (formats a new board)"));
   Serial.println(F("[bench]   BUZZER PASS|FAIL|BEACON|OFF  play a buzzer pattern"));
-  Serial.println(F("[bench]   INTERLOCK                   read SW2 arm-interlock (D7)"));
   Serial.println(F("[bench]   BATT                        battery voltage (A0 divider)"));
   Serial.println(F("[bench]   PINS                        print the pin map"));
-  Serial.println(F("[bench] deploy channel is not exposed here — use env:nano_esp32 ARM/FIRE"));
+
 }
 
 // --- command dispatch -------------------------------------------------
@@ -332,12 +318,19 @@ void handleCommand(String line) {
       printHex8(val);
       Serial.println(ok ? F("  ack") : F("  no ack"));
     }
-  } else if (cmd == "SD") {
-    cmdSd();
+  } else if (cmd == "FLASH") {
+    cmdFlash();
+  } else if (cmd == "LOGS") {
+    logger_list(Serial);
+  } else if (cmd == "FORMAT") {
+    if (ntok >= 2 && tok[1] == "YES") {
+      bool ok = logger_format(); // re-opens a fresh FLIGHT001.CSV, like FLASH
+      Serial.println(ok ? F("[bench] format OK") : F("[bench] format FAILED"));
+    } else {
+      Serial.println(F("[bench] FORMAT erases EVERY flight log. Send 'FORMAT YES' to confirm."));
+    }
   } else if (cmd == "BUZZER") {
     cmdBuzzer(ntok >= 2 ? tok[1] : String());
-  } else if (cmd == "INTERLOCK") {
-    cmdInterlock();
   } else if (cmd == "BATT") {
     cmdBatt();
   } else if (cmd == "PINS") {
@@ -369,14 +362,9 @@ void pollSerialCommands() {
 } // namespace
 
 void setup() {
-  // Gate-safety first, before Serial — this binary never fires the deploy
-  // channel, but if it is flashed to a board with Q2 wired, the gate must
-  // not sit floating during bring-up. Same ordering reasoning as main.cpp.
-  deployment_init();
+  // Buzzer pin LOW first, before Serial — same ordering as main.cpp.
   buzzer_init();
 
-  // External pulldown on the board (R3); do NOT use INPUT_PULLUP here.
-  pinMode(PIN_ARM_INTERLOCK, INPUT);
   battery_init();
 
   Serial.begin(115200);
@@ -395,7 +383,7 @@ void loop() {
 
   buzzer_update();
   battery_update();
-  deployment_update(); // no-op here (nothing fires this binary); mirrors main.cpp's loop contract
+
 
   if (g_streaming && (millis() - g_lastStreamAt >= BENCH_STREAM_INTERVAL_MS)) {
     g_lastStreamAt = millis();

@@ -7,7 +7,7 @@
 // the radio on the ESP32-S3). See ../../avionics_bay_schematic_phoenix40.html.
 //
 // Read-only telemetry: logged, shown on /status and the serial console,
-// never an input to flight_state's detectors or to deployment.
+// never an input to flight_state's detectors.
 
 // Takes a first reading so the value is valid from boot. Call once from
 // setup(), before anything logs.

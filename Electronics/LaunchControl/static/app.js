@@ -28,8 +28,7 @@ async function pollFc() {
     document.getElementById("fc-state").textContent = d.flight_state ?? "--";
     document.getElementById("fc-armed").textContent =
       d.wireless_armed === undefined ? "--" : (d.wireless_armed ? "yes" : "no");
-    document.getElementById("fc-deployed").textContent =
-      d.deploy_has_fired === undefined ? "--" : (d.deploy_has_fired ? "YES" : "no");
+
     document.getElementById("fc-sample-age").textContent =
       d.sample_age_ms === undefined ? "--" : `${d.sample_age_ms} ms`;
     const batt = document.getElementById("fc-batt");

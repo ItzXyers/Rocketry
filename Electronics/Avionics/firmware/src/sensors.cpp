@@ -30,16 +30,31 @@ float pressureToAltitudeAglM(float pressurePa, float referencePressurePa) {
 
 bool sensors_init() {
   Wire.begin(PIN_I2C_SDA, PIN_I2C_SCL);
+  Wire.setClock(I2C_CLOCK_HZ);
 
   g_baroOk = bmp.begin_I2C(BMP388_I2C_ADDR, &Wire);
   if (g_baroOk) {
-    bmp.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
+    // The conversion must fit inside SENSOR_SAMPLE_INTERVAL_MS. Datasheet:
+    // t = 234 + (392 + 2020*osr_p) + (163 + 2020*osr_t) us, so temp x8/press
+    // x4 was ~25 ms (> the 20 ms tick) and temp x1/press x4 is ~11 ms.
+    // Temperature only feeds compensation; x1 is Bosch's recommendation.
+    // INFERRED from the library source, NOT yet bench-verified (2026-10-19):
+    // performReading() starts a FORCED conversion and reads back the data
+    // registers straight away (= the previous conversion's result); if the
+    // previous one is still running, bmp3_set_op_mode() puts the chip to
+    // sleep (aborting it) and blocks 5 ms. At the old 25 ms that would happen
+    // every tick -- frozen/stale pressure_pa. Bench check: at rest, tick
+    // rows' pressure_pa should change by noise every 20 ms.
+    bmp.setTemperatureOversampling(BMP3_NO_OVERSAMPLING);
     bmp.setPressureOversampling(BMP3_OVERSAMPLING_4X);
     bmp.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
-    bmp.setOutputDataRate(BMP3_ODR_50_HZ);
+    bmp.setOutputDataRate(BMP3_ODR_50_HZ); // unused in forced mode; kept for normal mode
   }
 
   g_accelOk = accel.begin();
+  if (g_accelOk) {
+    accel.setDataRate(ADXL375_DATA_RATE);
+  }
 
   return g_baroOk && g_accelOk;
 }
@@ -106,6 +121,11 @@ SensorSample sensors_read() {
     s.altitude_agl_m = pressureToAltitudeAglM(s.pressure_pa, reference);
   }
 
+  sensors_readAccel(s);
+  return s;
+}
+
+bool sensors_readAccel(SensorSample &s) {
   sensors_event_t event;
   s.accel_valid = g_accelOk && accel.getEvent(&event);
   if (s.accel_valid) {
@@ -115,8 +135,7 @@ SensorSample sensors_read() {
     s.accel_mag_g = sqrtf(s.accel_x_g * s.accel_x_g + s.accel_y_g * s.accel_y_g +
                            s.accel_z_g * s.accel_z_g);
   }
-
-  return s;
+  return s.accel_valid;
 }
 
 float sensors_padBaselinePressurePa() { return g_padPressurePa; }

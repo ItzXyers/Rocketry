@@ -11,7 +11,7 @@ recovery ejection module.
 
 ### 1. Flight computer avionics
 ESP32-based flight computer (Arduino Nano ESP32), barometer + high-g
-accelerometer for flight data, microSD logging, GPS recovery locator, and a
+accelerometer for flight data, logging to the Nano's internal flash, GPS recovery locator, and a
 buzzer beacon, on a 1S LiPo with USB-C charging.
 
 - **Electrical BOM, sourcing, and power budget:** [`avionics_bom.md`](Avionics/avionics_bom.md)
