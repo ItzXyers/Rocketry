@@ -260,6 +260,7 @@ void loop() {
     g_lastAccelAtUs = micros(); // fast rows re-phase to each tick
     SensorSample sample = sensors_read();
     g_latest = sample;
+    logger_setHold(fastAscentLogging(g_latest)); // no flash stalls while the fast rows run
     velocity_estimator_update(sample); // telemetry-only fused estimate; feeds nothing back into flight_state's detectors
     flight_state_update(sample); // may log a transition
     if (shouldLogSample(sample)) {
@@ -270,6 +271,7 @@ void loop() {
     g_lastAccelAtUs = micros();
     g_latest.timestamp_ms = millis();
     sensors_readAccel(g_latest); // baro columns repeat the last tick's reading
+    logger_setHold(fastAscentLogging(g_latest));
     logger_log(buildRoutineRecord(g_latest));
   }
 

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <FFat.h>
+#include <new>
 #include <stdio.h>
 #include <string.h>
 
@@ -15,8 +16,67 @@ bool g_full = false;
 uint16_t g_fileNumber = 0;
 uint32_t g_maxFlushUs = 0;
 
-LogRecord g_buffer[LOG_BUFFER_RECORDS];
+// FIFO ring. g_buffer points at the PSRAM hold buffer (LOG_HOLD_RECORDS)
+// once logger_init() has allocated it, else at the internal-RAM fallback.
+LogRecord g_fallbackBuffer[LOG_BUFFER_RECORDS];
+LogRecord *g_buffer = g_fallbackBuffer;
+uint16_t g_capacity = LOG_BUFFER_RECORDS;
+uint16_t g_head = 0; // oldest buffered record
 uint16_t g_bufferCount = 0;
+bool g_hold = false;
+bool g_holdOverflowed = false;
+
+bool writeRecord(const LogRecord &r);
+
+void allocateHoldBuffer() {
+  if (g_buffer != g_fallbackBuffer) {
+    return; // already allocated (logger_format() re-runs logger_init())
+  }
+  void *p = ps_malloc(sizeof(LogRecord) * LOG_HOLD_RECORDS);
+  if (p == nullptr) {
+    Serial.println(F("[logger] WARNING: no PSRAM -- ascent hold disabled, "
+                      "flash flushes will leave gaps in the 200 Hz ascent data"));
+    return;
+  }
+  g_buffer = static_cast<LogRecord *>(p);
+  for (uint16_t i = 0; i < LOG_HOLD_RECORDS; i++) {
+    new (&g_buffer[i]) LogRecord();
+  }
+  g_capacity = LOG_HOLD_RECORDS;
+}
+
+// Writes the oldest <= LOG_BUFFER_RECORDS records and syncs, ignoring the
+// hold. Chunked so the post-apogee backlog drains as a series of short
+// stalls interleaved with descent samples, not one multi-second one.
+void writeChunk() {
+  if (!g_ready || g_full || g_bufferCount == 0) {
+    return;
+  }
+
+  uint32_t startUs = micros();
+  uint16_t n = g_bufferCount < LOG_BUFFER_RECORDS ? g_bufferCount : LOG_BUFFER_RECORDS;
+  for (uint16_t i = 0; i < n; i++) {
+    if (!writeRecord(g_buffer[g_head])) {
+      g_full = true;
+      Serial.println(F("[logger] flash write failed (partition full?) -- logging stopped"));
+      break;
+    }
+    g_head = (g_head + 1) % g_capacity;
+    g_bufferCount--;
+  }
+  g_file.flush(); // fflush + fsync: what's written survives a brownout/reset
+  uint32_t tookUs = micros() - startUs;
+  if (tookUs > g_maxFlushUs) {
+    g_maxFlushUs = tookUs;
+  }
+}
+
+// Ground-only: everything buffered, hold or not.
+void drainAll() {
+  while (g_ready && !g_full && g_bufferCount > 0) {
+    writeChunk();
+  }
+}
 
 void flightPath(char *path, size_t size, uint16_t n) {
   snprintf(path, size, "/FLIGHT%03u.CSV", n);
@@ -111,9 +171,13 @@ bool logger_mount() {
 bool logger_init() {
   g_ready = false;
   g_full = false;
+  g_head = 0;
   g_bufferCount = 0;
+  g_hold = false;
+  g_holdOverflowed = false;
   g_fileNumber = 0;
 
+  allocateHoldBuffer();
   if (!logger_mount()) {
     return false;
   }
@@ -143,7 +207,9 @@ bool logger_init() {
   if (g_fileNumber < 100) Serial.print('0');
   if (g_fileNumber < 10) Serial.print('0');
   Serial.print(g_fileNumber);
-  Serial.println(F(".CSV"));
+  Serial.print(F(".CSV, ascent hold "));
+  Serial.print(g_capacity);
+  Serial.println(F(" records"));
   return true;
 }
 
@@ -151,14 +217,25 @@ void logger_log(const LogRecord &record) {
   if (!g_ready || g_full) {
     return;
   }
-  if (g_bufferCount >= LOG_BUFFER_RECORDS) {
-    logger_flush();
+  // Not holding: flush a chunk whenever LOG_BUFFER_RECORDS are waiting (so
+  // a post-apogee backlog drains one chunk per logged sample). Holding:
+  // only when the whole hold buffer is full -- a gap, but nothing dropped.
+  uint16_t limit = g_hold ? g_capacity : LOG_BUFFER_RECORDS;
+  if (g_bufferCount >= limit) {
+    if (g_hold && !g_holdOverflowed) {
+      g_holdOverflowed = true;
+      Serial.println(F("[logger] ascent hold buffer full -- flushing in flight"));
+    }
+    writeChunk();
     if (g_full) {
       return; // the flush hit a full partition; logging has stopped
     }
   }
-  g_buffer[g_bufferCount++] = record;
+  g_buffer[(g_head + g_bufferCount) % g_capacity] = record;
+  g_bufferCount++;
 }
+
+void logger_setHold(bool hold) { g_hold = hold; }
 
 void logger_logEvent(const char *eventTag, const LogRecord &record) {
   LogRecord tagged = record;
@@ -169,24 +246,10 @@ void logger_logEvent(const char *eventTag, const LogRecord &record) {
 }
 
 void logger_flush() {
-  if (!g_ready || g_full || g_bufferCount == 0) {
-    return;
+  if (g_hold) {
+    return; // ascent: no flash stalls, see logger_setHold()
   }
-
-  uint32_t startUs = micros();
-  for (uint16_t i = 0; i < g_bufferCount; i++) {
-    if (!writeRecord(g_buffer[i])) {
-      g_full = true;
-      Serial.println(F("[logger] flash write failed (partition full?) -- logging stopped"));
-      break;
-    }
-  }
-  g_file.flush(); // fflush + fsync: what's written survives a brownout/reset
-  g_bufferCount = 0;
-  uint32_t tookUs = micros() - startUs;
-  if (tookUs > g_maxFlushUs) {
-    g_maxFlushUs = tookUs;
-  }
+  writeChunk();
 }
 
 bool logger_isReady() { return g_ready; }
@@ -206,7 +269,7 @@ void logger_list(Print &out) {
     out.println(F("[logger] flash not mounted"));
     return;
   }
-  logger_flush(); // so this boot's file shows its real size
+  drainAll(); // so this boot's file shows its real size
   File root = FFat.open("/");
   uint16_t count = 0;
   for (File f = root.openNextFile(); f; f = root.openNextFile()) {
@@ -237,7 +300,7 @@ fs::File logger_openForRead(uint16_t n) {
     return File();
   }
   if (n == g_fileNumber) {
-    logger_flush();
+    drainAll();
   }
   char path[24];
   flightPath(path, sizeof(path), n);

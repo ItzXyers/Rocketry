@@ -55,14 +55,25 @@ void logger_log(const LogRecord &record);
 // Tags the record with a short event string and writes it via logger_log(),
 // then flushes immediately — for discrete events (state transitions, the
 // self-test result) that must survive a brownout/reset
-// even if the periodic flush hasn't run yet.
+// even if the periodic flush hasn't run yet. Exception: while the ascent
+// hold is on (logger_setHold), the event stays in RAM like everything else.
 void logger_logEvent(const char *eventTag, const LogRecord &record);
 
-// Writes any buffered records to the open file and syncs it. Called from
-// logger_log() when the buffer fills and from main.cpp on
-// LOG_FLUSH_INTERVAL_MS. Internal-flash writes stall the CPU (sector erases); the worst stall seen
-// so far is reported by logger_maxFlushUs() -- check it on the bench.
+// Writes the oldest <= LOG_BUFFER_RECORDS buffered records to the open file
+// and syncs it. Called from logger_log() when LOG_BUFFER_RECORDS are waiting
+// and from main.cpp on LOG_FLUSH_INTERVAL_MS. No-op while the ascent hold is
+// on. Internal-flash writes stall the CPU (sector erases); the worst stall
+// seen so far is reported by logger_maxFlushUs() -- check it on the bench.
 void logger_flush();
+
+// Ascent hold: while on, nothing is written to flash (no stalls, so no gaps
+// in the 200 Hz ascent rows) and records accumulate in the PSRAM buffer
+// (LOG_HOLD_RECORDS). When it goes off, the backlog drains one chunk per
+// logged sample. Only if the hold buffer fills does a flush happen anyway.
+// TRADE-OFF (user-approved 2026-10-19): a reset/brownout while holding loses
+// everything since the hold started -- the whole ascent. Without PSRAM the
+// buffer is LOG_BUFFER_RECORDS and holding just means flushing when full.
+void logger_setHold(bool hold);
 
 // True once logger_init() has succeeded and the log file is open.
 bool logger_isReady();

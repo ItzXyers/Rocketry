@@ -90,7 +90,8 @@
 // for a 3 min flight) -- see main.cpp's shouldLogSample(). Ascent (BOOST/
 // COAST) additionally gets accel-only rows at ASCENT_ACCEL_INTERVAL_US
 // (200 Hz, ~19 KB/s): at most ~0.4 MB even for a full MAX_TIME_TO_APOGEE_MS.
-#define LOG_BUFFER_RECORDS 128             // STARTING DEFAULT — RAM (~8 KB) vs. flush frequency; 0.64 s of 200 Hz ascent per flush, so fewer fsyncs (each one a flash stall) during boost/coast
+#define LOG_BUFFER_RECORDS 128             // STARTING DEFAULT — records per flush chunk (and the internal-RAM fallback buffer, ~9 KB). Bench: one chunk-sized flush stalled up to 218 ms (2026-10-19)
+#define LOG_HOLD_RECORDS 8000              // PSRAM ascent hold (~0.55 MB of the board's 8 MB): 200 Hz x MAX_TIME_TO_APOGEE_MS (20 s) = 4000, x2 margin. Nothing reaches flash during BOOST/COAST -- see logger_setHold()
 #define LOG_FLUSH_INTERVAL_MS 2000UL       // STARTING DEFAULT — data-loss window vs. flash-write stall frequency
 #define LOG_PAD_DECIMATION 10              // pad/landed: every 10th sample = 5 Hz
 #define LOG_MIN_FREE_BYTES (5UL * 1024UL * 1024UL) // self-test fails below this: ~2.5 h of pad + a full flight. Clear old logs (DEL/FORMAT) between flight days
@@ -100,6 +101,8 @@
 #define ASCENT_ACCEL_INTERVAL_US 5000UL    // STARTING DEFAULT — 200 Hz accel-only log rows between ticks in BOOST/COAST (+ pad over launch threshold). Baro columns repeat the last tick's reading. Go faster only after the bench logger_maxFlushUs check -- every flush stall is a gap
 static_assert((SENSOR_SAMPLE_INTERVAL_MS * 1000UL) % ASCENT_ACCEL_INTERVAL_US == 0,
               "ASCENT_ACCEL_INTERVAL_US must divide the flight-logic tick evenly");
+static_assert(LOG_HOLD_RECORDS >= 2UL * MAX_TIME_TO_APOGEE_MS * 1000UL / ASCENT_ACCEL_INTERVAL_US,
+              "LOG_HOLD_RECORDS must hold a full ascent at the fast rate, with margin");
 #define ADXL375_DATA_RATE ADXL3XX_DATARATE_200_HZ // matches ASCENT_ACCEL_INTERVAL_US (100 Hz bandwidth); chip default is 100 Hz ODR, never written before
 #define I2C_CLOCK_HZ 400000UL              // fast mode (both BMP388 and ADXL375 support it); was the 100 kHz default -- check for I2C read errors on the real harness
 #define PAD_BASELINE_AVERAGE_SAMPLES 50    // STARTING DEFAULT — averaged once on IDLE_ARMED entry
