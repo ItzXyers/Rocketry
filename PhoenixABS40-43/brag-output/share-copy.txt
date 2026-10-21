@@ -1,0 +1,1 @@
+Phoenix 40-43 is a fully 3D-printed ABS rocket, and the Klima D9-5's own ejection charge kicks its tail off: no servo, no nichrome, and the nose never comes off. The printed shear pins came out as blobs, so the joint is now a snap latch, and the electronics sled is on v19. 212 m in OpenRocket; flight-proven: not yet.

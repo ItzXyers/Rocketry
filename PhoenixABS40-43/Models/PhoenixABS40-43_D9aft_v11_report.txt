@@ -1,0 +1,48 @@
+== Phoenix ABS 40-43 -- D9aft_v11: v9 snap latch, L24 latches OPPOSED at 60/240 deg + clocking key (on v8 parts) ==
+Inputs (read-only): PhoenixABS40-43_D9aft_v8_AftTube.step, PhoenixABS40-43_D9aft_v8_AftFinCanSlotted.step; latch = coupon v2 shifted to Zf 51.4.
+
+PASS v1/v8 constants confirmed on the v8 parts: 9/9 probes
+PASS AftTube v9 valid, 1 solid(s)
+PASS AftFinCanSlotted v9 valid, 1 solid(s)
+PASS fin can v9 coupler zone valid, 1 solid(s)
+PASS AftTube v9 probes 18/18
+PASS latch footprint Zf 58.4..89.3 inside the coupler (51.4..91.4): every slot is backed by the coupler wall
+PASS AftTube v9 vs v8: +35.6 / -466.8 mm3, all within Zf 51.40..89.30 (latch zone + pin slots) and nothing added beyond r 21.50 (OD 21.5): launch lug, bore, joint UNTOUCHED
+PASS fin can v9 (REAL part) probes 9/9
+PASS windows clear of the staple lug (overlap 0.0000 mm3) and the thrust ring (window aft face Zf 60.05 > ring top 58.9 + 0.5)
+PASS fin can v9 vs v8 (coupler zone): +56.33 / -46.65 mm3, all within Zf 51.40..64.03 (pin slots + windows + key tab)
+PASS seated: tube x fin can 0.0000 mm3; pulled aft 0.6 -> bump/window 4.343 mm3 (tube w/o bumps 0.0000) = CATCHES
+PASS RELEASE = separation sweep 0..44 mm with the tongues deflected 1.05 mm: clear 
+PASS negative control: undeflected bumps block the slide (21.02 mm3)
+PASS chute bay forward of the coupler is a clean d40 bore (AftTube inside it 0.0000 mm3)
+PASS d14 gas column clear through the fin can (0.0000 mm3)
+
+LATCH FORCE (per pair): model 12.1 N; coupon v1 L24 MEASURED 873 g = 8.6 N (one pull, x0.71 of the model)
+PASS hold 8.6 N vs the 4.2 N budget (all loads additive) = 2.0x; the latch slots vent the bay, so the 2.6 N sealed-bay term mostly goes -> ~5.4x
+PASS release 8.6 N + ~3 N slide friction <= 24 N budget; ideal black powder for that on the 188 cm3 bay ~ 8 mg (Klima D9 charge unpublished)
+PASS tongue peak strain 0.36 % <= 1 % (reusable, printed ABS, along the perimeters)
+NOTE gas assist: bay pressure reaches the tongues through the windows / slip gap and pushes them OUT of the catch.
+PASS AftTube v9 printed forward end down: 43.0 x 47.5 x 173.5 mm; down-facing area 75.0 mm2 vs v8 7.9 (+67.1; the 2 aft-gap bridges are ~74)
+PASS fin can v9 printed boss down: coupler-zone down-facing area 799.1 vs v8 805.8 mm2 (windows have 45 deg ceilings: no new overhang)
+
+MASS vs v8: AftTube -0.45 g, fin can +0.01 g, 2 pins -0.02 g -> -0.46 g, all at the aft end: CG / stability as v8
+
+
+V11 OPPOSED LATCHES + KEY (tab 7.0 wide x 5.23 tall at 30 deg on the shoulder; notch 5.53 deep, +0.2 each side)
+PASS latches precisely opposite: 60/240 deg, separation 180.000 deg
+PASS TAB_H 5.23 derived: window fwd face Zf 64.23 - bump aft end Zf 60.00 + 1.0 margin; notch 5.53 leaves 1.47 mm of the 7.0 aft band
+PASS key at 30 deg (+-10.2) clear of tongues/end slots, windows, staple lug, launch lug, fin slots by >= 5 deg
+PASS fin slots stop at the shoulder: v8 coupler wall solid at r 18.8/19.15, Zf 51.9..90.9, at 0/120/240 (240 window cuts clean wall)
+PASS key probes 6/6
+PASS positive control, RIGHT clocking: bumps x windows with the can pulled aft 0.6 = 23.351 mm3 (catches)
+PASS WRONG clocking (180): tab x tube seated = 50.69 mm3 -> the tab lands on the tube aft face, can stands 5.23 proud
+PASS WRONG clocking: can can't seat past TAB_H-0.1 (tab x tube 0.74 mm3); bumps x windows over stand-off 4.93..5.73 = 0 everywhere -> NO catch possible
+PASS other clockings 120/240: bumps x windows seated / pulled 0.6 = [0.0, 0.0, 0.0, 0.0] (bumps ride the solid coupler wall: no click)
+PASS staple lug at 300 (6.5 x 6.5 opening, matched to the FwdTube eyelet) UNCHANGED vs v8: symmetric difference 0.0000 mm3 -> v8 line-past-staple sweep still holds
+PASS MASS vs v9 (the v10 flight parts): AftTube -0.063 g, fin can +0.054 g -> -0.010 g, all in the joint zone Zf 51..90: v10 CG (228.0 from the tip) and stability margin stand
+NOTE opposed latches = the measured coupon layout (bumps 0/180, 873 g first pull): no 120 deg slip-fit engagement loss; the latch load is balanced across the joint, the coupler is not cocked toward one side.
+
+ASSEMBLY: pack, push the fin can in, turn it until the KEY TAB (30 deg, between two fins) drops into the tube notch, then push: 2 CLICKS.
+  A ~5 mm gap at the joint = wrong clocking (tab on the tube face): turn 180, do not fly like that. No click = do not fly.
+  Do NOT tape over the tongues (they spring outward to release). Print the AftTube with dried ABS, wall line width 0.40.
+RESULT v11: ALL PASS (0 FAIL)  [56 s]

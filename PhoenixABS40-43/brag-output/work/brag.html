@@ -1,0 +1,321 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+:root{--bg:#121214;--ink:#f3efe7;--muted:#9c978d;--tan:#d4b991;--orange:#f26a1e}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:var(--bg);font-family:'Bahnschrift',sans-serif;color:var(--ink)}
+#grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:60px 60px;background-position:-1px -1px}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,transparent 40%,rgba(0,0,0,.65) 100%)}
+canvas#gl{position:absolute;inset:0}
+.t{position:absolute;opacity:0;will-change:transform,opacity;white-space:nowrap}
+.big{font-weight:700;font-size:92px;letter-spacing:-1px;line-height:1.02}
+.mid{font-weight:600;font-size:58px;line-height:1.1}
+.sub{font-weight:400;font-size:38px;color:var(--muted);letter-spacing:.5px}
+.mono{font-family:Consolas,monospace;font-size:24px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.o{color:var(--orange)}
+.lab{position:absolute;opacity:0;font-family:Consolas,monospace;font-size:24px;letter-spacing:1px;color:var(--ink);white-space:nowrap}
+.lab i{font-style:normal;color:var(--orange)}
+svg{position:absolute;inset:0;overflow:visible}
+#dip{position:absolute;inset:0;background:var(--bg);opacity:0}
+#chip{position:absolute;left:96px;top:84px;opacity:0}
+</style></head><body>
+<div id="grid"></div>
+<canvas id="gl" width="1920" height="1080"></canvas>
+<div id="vig"></div>
+<svg id="svg" width="1920" height="1080"></svg>
+
+<!-- S1 hook -->
+<div class="t big" id="h1" style="left:120px;top:150px">This rocket throws<br>its own <span class="o">tail</span> off.</div>
+<!-- S2 reveal -->
+<div class="t big" id="r1" style="left:0;width:1920px;text-align:center;top:96px">Phoenix 40‑43</div>
+<div class="t sub" id="r2" style="left:0;width:1920px;text-align:center;top:205px">Fully 3D‑printed in ABS &nbsp;·&nbsp; flies a Klima D9‑5</div>
+<!-- S3 deploy -->
+<div class="t mid" id="d1" style="left:120px;top:96px">No servo. No nichrome.</div>
+<div class="t sub" id="d2" style="left:120px;top:172px;color:var(--ink)">The motor’s own ejection charge pushes the fin can off.</div>
+<div class="t mono" id="d3" style="left:120px;top:968px">OpenRocket sim · Klima D9‑5 · 1.5 m rod</div>
+<!-- S4 latch -->
+<div class="t mid" id="l1" style="left:0;width:1920px;text-align:center;top:110px">The printed shear pins came out as blobs.</div>
+<div class="t big o" id="l2" style="left:0;width:1920px;text-align:center;top:840px">So now it clicks.</div>
+<!-- S5 sled -->
+<div class="t mono" id="s0" style="left:1060px;top:330px">Electronics sled</div>
+<div class="t" id="s1" style="left:1052px;top:360px;font-weight:700;font-size:220px;line-height:1;letter-spacing:-4px">v<span id="ver">1</span></div>
+<div class="t sub" id="s2" style="left:1060px;top:610px;color:var(--ink)">Sealed off from the blast.</div>
+<div class="t mono" id="s3" style="left:1060px;top:668px">Nose stays on · e‑bay never sees the charge</div>
+<!-- S6 outro -->
+<div class="t big" id="o1" style="left:0;width:1920px;text-align:center;top:120px;font-size:120px">Phoenix 40‑43</div>
+<div class="t mono" id="o2" style="left:0;width:1920px;text-align:center;top:262px;font-size:28px">⌀43 mm &nbsp;·&nbsp; all ABS &nbsp;·&nbsp; Klima D9‑5</div>
+<div class="t mid" id="o3" style="left:0;width:1920px;text-align:center;top:850px">Flight‑proven: <span class="o">not yet.</span></div>
+
+<div id="labs"></div>
+<div id="dip"></div>
+
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {STLLoader} from 'three/addons/loaders/STLLoader.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+
+const W=1920,H=1080,$=id=>document.getElementById(id);
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const eo=x=>1-Math.pow(1-x,3);
+const ei=x=>x*x*x;
+const lerp=(a,b,x)=>a+(b-a)*x;
+
+// ---------- renderer ----------
+const R=new THREE.WebGLRenderer({canvas:$('gl'),antialias:true,alpha:true,preserveDrawingBuffer:true});
+R.setPixelRatio(1);R.setSize(W,H,false);R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.05;
+R.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene();
+const pm=new THREE.PMREMGenerator(R);scene.environment=pm.fromScene(new RoomEnvironment(),0.04).texture;
+scene.add(new THREE.HemisphereLight(0xfff4e6,0x1a1a20,0.6));
+const key=new THREE.DirectionalLight(0xfff1dd,2.2);key.position.set(300,500,600);scene.add(key);
+const rim=new THREE.DirectionalLight(0xff9a5a,1.6);rim.position.set(-500,200,-400);scene.add(rim);
+const cam=new THREE.PerspectiveCamera(30,W/H,120,3000);
+
+// ---------- parts ----------
+const mat=(c,r=.5,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m,envMapIntensity:.6});
+const M={tan:mat(0xd4b991,.55),char:mat(0x2e2e30,.45),white:mat(0xf4f2ee,.6),orange:mat(0xf26a1e,.5),sled:mat(0xcdc6b9,.72)};
+const L=new STLLoader();
+async function part(name,m){const g=await L.loadAsync('assets/PhoenixABS40-43_'+name+'.stl');g.computeVertexNormals();return new THREE.Mesh(g,m)}
+
+const outer=new THREE.Group(), spin=new THREE.Group(); outer.add(spin); scene.add(outer);
+const CEN=194; // axial centre of the stack (mm)
+const G={};  // per-part groups positioned along local Z (rocket axis)
+function slot(n){const g=new THREE.Group();spin.add(g);G[n]=g;return g}
+
+const nose=await part('nose_VonKarmanScrew_v6',M.char);
+const fwd=await part('D9aft_v8_FwdTube',M.tan);
+const sled=await part('avbay_sled_ASSEMBLY_v19',M.sled);
+const aft=await part('D9aft_v11_AftTube',M.tan);
+const can=await part('D9aft_v11_AftFinCanSlotted',M.orange);
+const cap=await part('MotorRetainerCap_v1',M.char);
+const finGeo=(await part('D9aft_v4_Fin',M.white)).geometry;
+
+slot('nose').add(nose);       nose.position.z=316.5-CEN;
+slot('fwd').add(fwd);         fwd.position.z=223.4-CEN;
+slot('sled').add(sled);       sled.position.z=267.8-CEN;
+const aftW=new THREE.Group(); aftW.add(aft); aft.rotation.x=Math.PI; aftW.rotation.z=Math.PI/6; aftW.position.z=238.4-CEN; slot('aft').add(aftW);
+const tail=slot('tail');      // fin can + fins + cap move together
+can.position.z=-CEN; tail.add(can);
+cap.position.z=-3.5-CEN; tail.add(cap);
+const fins=[];
+for(let k=0;k<3;k++){
+  const th=k*2*Math.PI/3, f=new THREE.Mesh(finGeo,M.white);
+  // fin local: x radial (root at -23.65 → r 21.5), y chord (+y aft), z thickness 0..2
+  const m4=new THREE.Matrix4().set(
+    Math.cos(th),0,-Math.sin(th),0,
+    Math.sin(th),0, Math.cos(th),0,
+    0,-1,0,0, 0,0,0,1);
+  const pre=new THREE.Matrix4().makeTranslation(45.15,0,-1);
+  f.matrixAutoUpdate=false;
+  const holder=new THREE.Group(); holder.add(f); tail.add(holder);
+  f.matrix.copy(m4).multiply(pre);
+  holder.position.z=39.5-CEN; fins.push({holder,th});
+}
+// orientation: rocket axis (local Z) → world +X  (nose right)
+spin.rotation.order='ZYX'; outer.rotation.order='ZYX';
+
+// harness line + canopy (shown during deploy)
+const lineMat=new THREE.LineBasicMaterial({color:0xf3efe7,transparent:true,opacity:.8});
+const lineGeo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]);
+const harness=new THREE.Line(lineGeo,lineMat); scene.add(harness);
+const canopy=new THREE.Group();
+const dome=new THREE.Mesh(new THREE.SphereGeometry(1,40,16,0,Math.PI*2,0,Math.PI*0.42),new THREE.MeshStandardMaterial({color:0xf26a1e,roughness:.8,side:THREE.DoubleSide}));
+canopy.add(dome);
+const shroud=[];for(let k=0;k<8;k++){const a=k/8*Math.PI*2,r=Math.sin(Math.PI*.42),y=Math.cos(Math.PI*.42);
+  shroud.push(new THREE.Vector3(r*Math.cos(a),y,r*Math.sin(a)),new THREE.Vector3(0,-1.6,0));}
+canopy.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(shroud),lineMat));
+scene.add(canopy);
+
+// smoke puff: deterministic sprites
+const smokeTex=(()=>{const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');
+  const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.5,'rgba(255,255,255,.35)');g.addColorStop(1,'rgba(255,255,255,0)');
+  x.fillStyle=g;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)})();
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const puffs=[];for(let i=0;i<46;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:smokeTex,transparent:true,depthWrite:false,color:i%5===0?0xffb27a:0xcfcac2}));
+  puffs.push({s,d:new THREE.Vector3(rnd()*2-1,rnd()*2-1,rnd()*2-1).normalize(),sp:.4+rnd()*.8,sz:.5+rnd()*.9,dl:rnd()*.12});scene.add(s)}
+const flash=new THREE.Sprite(new THREE.SpriteMaterial({map:smokeTex,transparent:true,depthWrite:false,color:0xffa050,blending:THREE.AdditiveBlending}));scene.add(flash);
+
+// latch click glows
+const glows=[0,1].map(()=>{const s=new THREE.Sprite(new THREE.SpriteMaterial({map:smokeTex,transparent:true,depthWrite:false,depthTest:false,color:0xff7a2a,blending:THREE.AdditiveBlending}));scene.add(s);return s});
+
+// ---------- helpers ----------
+function show(id,t,a,b,fi=.35,fo=.25,dy=24){const e=$(id);const k=Math.min(eo(seg(t,a,a+fi)),1-seg(t,b-fo,b));
+  e.style.opacity=k;e.style.transform=`translateY(${(1-eo(seg(t,a,a+fi)))*dy}px)`;}
+const proj=v=>{const p=v.clone().project(cam);return[(p.x+1)/2*W,(1-p.y)/2*H]};
+const wpos=(g,z,r=0,a=0)=>g.localToWorld(new THREE.Vector3(r*Math.cos(a),r*Math.sin(a),z-CEN));
+
+function resetRocket(){for(const k in G){G[k].position.set(0,0,0);G[k].rotation.set(0,0,0)}
+  for(const f of fins)f.holder.position.set(0,0,39.5-CEN);
+  spin.rotation.set(0,0,0);outer.position.set(0,0,0);outer.rotation.set(0,Math.PI/2,0);outer.scale.setScalar(1);
+  for(const k in G)G[k].visible=true; harness.visible=false;canopy.visible=false;flash.visible=false;
+  for(const p of puffs)p.s.visible=false; for(const g of glows)g.visible=false;}
+
+function puff(t0,t,origin,scale){const k=t-t0;
+  flash.visible=k>0&&k<.35;if(flash.visible){flash.position.copy(origin);const s=scale*(1.2+k*6);flash.scale.set(s*1.6,s,1);flash.material.opacity=(1-k/.35)*.9}
+  for(const p of puffs){const kk=k-p.dl;p.s.visible=kk>0&&kk<1.6;if(!p.s.visible)continue;
+    const r=scale*(.3+eo(clamp(kk/1.2))*p.sp*2.2);
+    p.s.position.copy(origin).addScaledVector(p.d,r).add(new THREE.Vector3(-scale*eo(clamp(kk/1.2))*1.6,scale*kk*.25,0));
+    const sz=scale*p.sz*(.6+kk*1.4);p.s.scale.set(sz,sz,1);p.s.material.opacity=.55*(1-clamp(kk/1.6))}}
+
+// labels
+const labsEl=$('labs');const labEls={};
+function lab(id,txt){if(!labEls[id]){const d=document.createElement('div');d.className='lab';d.innerHTML=txt;labsEl.appendChild(d);labEls[id]=d}return labEls[id]}
+const svg=$('svg');
+function svgClear(){svg.innerHTML=''}
+function svgAdd(tag,attrs){const e=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const k in attrs)e.setAttribute(k,attrs[k]);svg.appendChild(e);return e}
+
+// sim data
+const sim=await (await fetch('assets/sim.json')).json();
+const EJ=sim.ev.ejectioncharge, AP=sim.ev.apogee, HMAX=Math.max(...sim.h);
+const simAt=tt=>{let i=sim.t.findIndex(x=>x>=tt);if(i<=0)return sim.h[Math.max(i,0)];const a=sim.t[i-1],b=sim.t[i];return lerp(sim.h[i-1],sim.h[i],(tt-a)/(b-a))};
+
+// ---------- scenes ----------
+const S=[3.0,7.0,11.5,15.0,18.0,21.0];
+function dip(t){let o=0;for(const b of S.slice(0,-1)){o=Math.max(o,1-Math.abs(t-b)/.22)}$('dip').style.opacity=clamp(o)}
+
+function hook(t){ // 0–3
+  const spinA=-0.5+t*.35;
+  outer.position.set(lerp(40,0,eo(seg(t,0,1.2))),-60,0);
+  spin.rotation.z=spinA;
+  outer.rotation.set(0.0,Math.PI/2,0.18);
+  cam.position.set(60,40,760);cam.lookAt(-10,-40,0);
+  const K=1.45, k=t-K;
+  if(k>0){const d=eo(clamp(k/1.1));
+    G.tail.position.z=-d*150-Math.max(0,k-1.1)*20; G.tail.rotation.x=d*.12;
+    harness.visible=true;
+    const a=wpos(G.aft,64.9+8,0), b=wpos(G.tail,104.9-6,0);
+    lineGeo.setFromPoints([a,b]);
+    puff(K,t,wpos(G.aft,64.9,0).add(new THREE.Vector3(-6,0,0)),40);
+  }else{G.tail.position.z=-eo(seg(t,1.2,K))*0}
+  show('h1',t,.25,3.0);
+}
+
+const exploded={nose:70,fwd:28,sled:0,aft:-22,tail:-95};
+function reveal(t){ // 3–7
+  const u=t-3, e=eio(seg(u,.15,1.6));
+  for(const k in exploded)G[k].position.z=exploded[k]*e;
+  const sp=.9+u*.22; spin.rotation.z=sp;
+  // sled slides out of the e-bay and drops below the tube (in screen space, so undo the spin)
+  const se=eio(seg(u,.55,1.9));
+  G.sled.position.set(-Math.sin(sp)*62*se,-Math.cos(sp)*62*se,exploded.fwd*e-6*se);
+  for(const f of fins)f.holder.position.set(Math.cos(f.th)*14*e,Math.sin(f.th)*14*e,39.5-CEN);
+  outer.rotation.set(0,Math.PI/2,0.05);outer.position.set(0,-45,0);
+  const c=eio(seg(u,0,4));
+  cam.position.set(lerp(-90,30,c),lerp(130,80,c),lerp(720,670,c));cam.lookAt(0,-30,0);
+  show('r1',t,3.25,7.0);show('r2',t,3.55,7.0);
+  // callouts on one baseline under the rocket
+  cam.updateMatrixWorld();outer.updateMatrixWorld(true);
+  svgClear();
+  const items=[['f','Fin can + D9‑5',G.tail,40],['c','Chute bay',G.aft,150],['s','E‑bay sled <i>v19</i>',G.sled,283],['n','Nose',G.nose,350]];
+  const LY=800;
+  items.forEach(([id,txt,g,z],i)=>{const k=eo(seg(u,1.5+i*.15,1.95+i*.15))*(1-seg(t,6.75,7.0));
+    const [x,y0]=proj(wpos(g,z,0)); const y=y0+(id==='s'?40:34);
+    const el=lab(id,txt);el.style.opacity=k;el.style.left=(x-el.offsetWidth/2)+'px';el.style.top=(LY+10)+'px';
+    if(k>0){svgAdd('line',{x1:x,y1:y,x2:x,y2:lerp(y,LY,k),stroke:'#f26a1e','stroke-width':2,opacity:k});
+      svgAdd('circle',{cx:x,cy:y,r:5,fill:'#f26a1e',opacity:k});}
+  });
+}
+
+function deploy(t){ // 7–11.5
+  const u=t-7;
+  // chart on the left
+  const X0=150,X1=1050,Y0=880,Y1=330, TT=7.9;
+  const simT=clamp(u/3.0)*TT;              // 7.9 s of sim in 3 s
+  const px=tt=>lerp(X0,X1,tt/TT), py=h=>lerp(Y0,Y1,h/230);
+  svgClear();
+  const a=eo(seg(u,0,.4));
+  svgAdd('line',{x1:X0,y1:Y0,x2:X1+30,y2:Y0,stroke:'#55524c','stroke-width':2,opacity:a});
+  for(const h of[100,200]){svgAdd('line',{x1:X0,y1:py(h),x2:X1+30,y2:py(h),stroke:'#2c2b29','stroke-width':1.5,'stroke-dasharray':'6 8',opacity:a});
+    const tx=svgAdd('text',{x:X0-18,y:py(h)+8,'text-anchor':'end',fill:'#77736b','font-family':'Consolas','font-size':24,opacity:a});tx.textContent=h+' m';}
+  let d='';for(let i=0;i<sim.t.length;i++){if(sim.t[i]>simT)break;d+=(d?'L':'M')+px(sim.t[i]).toFixed(1)+','+py(sim.h[i]).toFixed(1)}
+  const hNow=simAt(simT);d+='L'+px(simT)+','+py(hNow);
+  svgAdd('path',{d,fill:'none',stroke:'#d4b991','stroke-width':5,'stroke-linecap':'round','stroke-linejoin':'round'});
+  svgAdd('circle',{cx:px(simT),cy:py(hNow),r:10,fill:'#f26a1e'});
+  const val=svgAdd('text',{x:px(simT)+22,y:py(hNow)-18,fill:'#f3efe7','font-family':'Bahnschrift','font-weight':700,'font-size':54});
+  val.textContent=Math.round(simT>=AP?HMAX:hNow)+' m';
+  const ej=seg(simT,EJ-.01,EJ);
+  if(simT>=EJ){const ex=px(EJ);const k=eo(seg(u,EJ/TT*3,EJ/TT*3+.3));
+    svgAdd('line',{x1:ex,y1:py(simAt(EJ))+30,x2:ex,y2:Y0,stroke:'#f26a1e','stroke-width':2,'stroke-dasharray':'4 6',opacity:k});
+    const l=svgAdd('text',{x:ex-14,y:Y0-24,'text-anchor':'end',fill:'#f26a1e','font-family':'Consolas','font-size':26,opacity:k});l.textContent='EJECTION 7.24 s';
+    const l2=svgAdd('text',{x:ex-14,y:Y0-60,'text-anchor':'end',fill:'#9c978d','font-family':'Consolas','font-size':26,opacity:k});l2.textContent='APOGEE 7.31 s';
+  }
+  // rocket on the right, vertical, rides up then splits
+  const tEj=7+EJ/TT*3; const k=t-tEj;
+  outer.rotation.set(0,0,0); outer.rotation.x=-Math.PI/2; // local Z → world +Y (nose up)
+  outer.scale.setScalar(.7);
+  const climb=eo(seg(u,0,EJ/TT*3));
+  outer.position.set(330,lerp(-440,70,climb),0);
+  spin.rotation.z=u*.6;
+  cam.position.set(0,0,1000);cam.lookAt(0,0,0);
+  if(k>0){const dd=eo(clamp(k/1.0));
+    G.tail.position.z=-dd*150; G.tail.rotation.y=dd*.35;
+    outer.position.y+= -k*12;
+    harness.visible=true;
+    outer.updateMatrixWorld(true);
+    const top=wpos(G.aft,64.9+6,0), bot=wpos(G.tail,104.9-4,0);
+    // canopy blooms between
+    const ck=eo(seg(k,.25,1.2));canopy.visible=ck>0;
+    const cp=top.clone().add(new THREE.Vector3(-70*ck,30+60*ck,0));
+    if(canopy.visible){canopy.position.copy(cp);canopy.scale.setScalar(6+52*ck);canopy.scale.y*=.7+.3*ck;canopy.rotation.z=.25}
+    lineGeo.setFromPoints(canopy.visible?[bot,cp.clone().add(new THREE.Vector3(0,-canopy.scale.x*1.6*canopy.scale.y/canopy.scale.x,0)),top]:[bot,top]);
+    puff(tEj,t,wpos(G.aft,64.9,0),26);
+  }
+  show('d1',t,7.2,11.5);show('d2',t,7.55,11.5);show('d3',t,7.4,11.5);
+}
+
+function latch(t){ // 11.5–15
+  const u=t-11.5;
+  for(const k in G)G[k].visible=(k==='aft'||k==='tail');
+  outer.rotation.set(0,Math.PI/2,0);outer.position.set(150,0,0);
+  const ins=eio(seg(u,.3,1.45));            // slide in
+  G.tail.position.z=lerp(-70,-6,ins) + 6*eio(seg(u,1.45,1.55)); // last bit of travel = the clicks
+  spin.rotation.z=2.62+u*.05; // 60° window faces the camera, no fin points up into the headline
+  cam.position.set(lerp(-60,-30,u/3.5),70,lerp(470,440,u/3.5));cam.lookAt(-10,-25,0);
+  outer.updateMatrixWorld(true);cam.updateMatrixWorld();
+  CLK.forEach((tc,i)=>{const g=glows[i];const kk=u-tc;g.visible=kk>0&&kk<.6;if(!g.visible)return;
+    const a=(i?240:60)*Math.PI/180; g.position.copy(wpos(G.tail,75,21.8,a));const s=(i?22:34)+kk*70;g.scale.set(s,s,1);g.material.opacity=(1-kk/.6)*(i?.55:1)});
+  show('l1',t,11.7,15.0);show('l2',t,13.05,15.0,.25);
+  svgClear();
+  CLK.forEach((tc,i)=>{const k=eo(seg(u,tc,tc+.12))*(1-seg(u,tc+1.0,tc+1.3));if(k<=0)return;
+    const a=(i?240:60)*Math.PI/180;const [x,y]=proj(wpos(G.tail,75,21.8,a));
+    const [gx,gy]=proj(wpos(G.tail,75,21.8,60*Math.PI/180));const tx=svgAdd('text',{x:gx+(i?190:50),y:gy+190+(1-k)*10,'text-anchor':'middle',fill:'#f26a1e','font-family':'Consolas','font-size':38,opacity:k});tx.textContent='click';});
+}
+const CLK=[1.5,1.88];
+
+function sledScene(t){ // 15–18
+  const u=t-15;
+  for(const k in G)G[k].visible=(k==='sled');
+  outer.rotation.set(-Math.PI/2,0,0.12);outer.position.set(-72,-4,0);
+  G.sled.position.set(0,0,0);
+  spin.rotation.z=5.5+u*.5;
+  cam.position.set(0,80,lerp(330,305,u/3));cam.lookAt(0,-6,0);
+  // the sled sits at z≈267.8-CEN+12 centre; shift so its centre is on the pivot
+  G.sled.position.z=-(267.8-CEN+12);
+  const n=Math.round(1+18*eio(seg(u,.35,1.35)));$('ver').textContent=n;
+  show('s0',t,15.2,18.0);show('s1',t,15.25,18.0);show('s2',t,15.4,18.0);
+}
+
+function outro(t){ // 18–21
+  const u=t-18;
+  outer.rotation.set(0,Math.PI/2,0.1);outer.position.set(0,-30,0);
+  spin.rotation.z=.4+u*.3;
+  cam.position.set(0,60,lerp(900,800,eo(seg(u,0,3))));cam.lookAt(0,-30,0);
+  show('o1',t,18.2,21.6);show('o2',t,18.4,21.6);show('o3',t,19.2,21.6);
+}
+
+const ids=['h1','r1','r2','d1','d2','d3','l1','l2','s0','s1','s2','s3','o1','o2','o3'];
+window.renderAt=t=>{
+  resetRocket();svgClear();for(const id of ids)$(id).style.opacity=0;for(const k in labEls)labEls[k].style.opacity=0;
+  cap.visible=true;
+  if(t<S[0])hook(t);else if(t<S[1])reveal(t);else if(t<S[2])deploy(t);else if(t<S[3])latch(t);else if(t<S[4])sledScene(t);else outro(t);
+  dip(t);
+  R.render(scene,cam);
+};
+await document.fonts.ready;
+window.renderAt(0);
+window.dbg=()=>({n:G.sled.children.length,c:G.sled.children[0].geometry.attributes.position.count,vis:G.sled.visible,bb:new THREE.Box3().setFromObject(G.sled)});
+window.sledAng=a=>{resetRocket();svgClear();for(const id of ids)$(id).style.opacity=0;for(const k in labEls)labEls[k].style.opacity=0;sledScene(16.8);spin.rotation.z=a;R.render(scene,cam)};
+window.ready=true;
+</script></body></html>

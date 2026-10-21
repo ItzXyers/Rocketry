@@ -1,0 +1,210 @@
+==============================================================================
+Phoenix ABS 40-43 -- avionics bay ELECTRONICS SLED  v12   (soldered harness, one-side press-in, side panels)
+==============================================================================
+SUMMARY: 0 FAIL / clash lines, 1 WARN lines
+  WARN  piezo M2 (y -5.75, Z -6.85): thread 4.6 mm PASS; bar under the hole 100 % PASS; M2 head to can -0.11 WARN (as v10: file a flat on that pan head)
+  ASSUMED dims (not measured):
+    - Q1 TO-92 position on the piezo back: anywhere in the old joint footprint (y -3.5..11, Z -18.6..-5.6), 4.4 deep
+    - C1 470 uF 16 V: d10 x 12.5 body + 1.5 bent leads (d8 x 11.5 is also common -> more room)
+    - S7V8F5 17 x 11 x 3 + 0.5 joints, lying on the Nano's parts (Kapton between) -- anywhere in the column
+    - JST-PH on the Nano: +y (left of the USB-C looking at the port, parts side up), y 3.0..9.0, last 7.5 mm
+    - ESP32 PCB 18.0 wide: the crush ribs sit at exactly 18.0 -- file / heat-set them if it is too tight
+    - Qwiic plug 2.95 deep x 4.25 long x 5.4 wide; cables bend 1.5 past the plug
+    - Nano USB-C <= 0.3 past the PCB end; Nano parts 3.4 tall, 0.6 edge bands free; back joints 0.5
+    - ADXL375 Qwiic plug centred on its 'top' (short) end, 8 wide; ADXL back flat enough to glue
+    - BMP388 back flat enough to tape; plugs centred on both short ends (user, v10)
+
+
+[1] build + heal
+  removeSplitter after fuse: kept
+  connectivity: 1 solid(s)  12676.5
+  heal Sled           faces 165 -> 147, solids 1,    12676.5 mm3
+  valid solid after heal: True
+
+[2] pack -- component list  (dx.dy.dz  Zmin  Zmax  Rmax)
+  Nano_ESP32        5.0.18.0.45.0    -0.3   44.7   15.48
+  Nano_joints       0.5.16.9.37.3     3.6   40.8   15.60
+  JST_power        24.0. 6.0. 7.5    37.2   44.7   15.81
+  C1_470uF         14.0.10.0.10.0   -21.4  -11.4   14.86
+  S7V8F5            3.5.11.0.17.0     5.0   22.0    9.06
+  Piezo_Q1         16.0.21.5.15.9   -20.5   -4.6   19.35
+  ADXL375          18.0. 5.0.27.0     2.0   29.0   18.88
+  BMP388           22.0. 4.5.48.5   -10.2   38.2   19.09
+  Qwiic_ADXL_BMP    5.4.32.8.10.8    29.0   39.8   16.82
+  Qwiic_BMP_Nano   10.3.12.1.13.5   -11.8    1.7   16.37
+  Battery           8.5.20.0.40.5    -4.2   36.3   19.12
+  Sled             38.6.38.6.70.2   -22.8   47.4   19.39   <- the sled
+
+[0] CONTAINMENT  (Rmax vs 19.5 moving / 20.0 ID)
+  Nano_ESP32      Rmax  15.48  toID  4.52   PASS
+  Nano_joints     Rmax  15.60  toID  4.40   PASS
+  JST_power       Rmax  15.81  toID  4.19   PASS
+  C1_470uF        Rmax  14.86  toID  5.14   PASS
+  S7V8F5          Rmax   9.06  toID 10.94   PASS
+  Piezo_Q1        Rmax  19.35  toID  0.65   PASS
+  ADXL375         Rmax  18.88  toID  1.12   PASS
+  BMP388          Rmax  19.09  toID  0.91   PASS
+  Qwiic_ADXL_BMP  Rmax  16.82  toID  3.18   PASS
+  Qwiic_BMP_Nano  Rmax  16.37  toID  3.63   PASS
+  Battery         Rmax  19.12  toID  0.88   PASS
+  Sled            Rmax  19.39  toID  0.61   PASS
+  component tops Z .. 44.7 vs EbayCap face 45.4   PASS
+  above EbayCap face: 71.3 mm3, outside the spine key 0.00   PASS
+  EbayCap W M2 boss (-15.3, 0) seated at Z 45.4: 100 % of the head footprint backed   PASS
+  EbayCap E M2 boss (10.1, 0): DELETED -- leave the cap's east screw OUT, tape the hole (W screw + spine key hold it)
+
+[F] PRESS-IN -- every part along +x in ASSEMBLY ORDER, deepest first (sled in hand, out of the tube).
+    Each part moves along its path, then +x until it is clear of the bore; it must not touch the sled or any
+    part already in (touching = 0 mm3 is allowed: the ESP32 crush ribs are a zero-clearance press fit).
+  Nano_ESP32      (+1,+0,+0) out                     clear   PASS
+  C1_470uF        (+0,+0,+1) 3.2 then (+0,+1,+0) 5.5 then (+1,+0,+0) out clear   PASS
+  S7V8F5          (+1,+0,+0) out                     clear   PASS
+  Piezo_Q1        (+1,+0,+0) out                     clear   PASS
+  ADXL375         (+1,+0,+0) out                     clear   PASS
+  BMP388          (+1,+0,+0) out                     clear   PASS
+  Battery         (+1,+0,+0) out                     clear   PASS
+  Qwiic cables: unplugged while the boards go in, then threaded through the wall windows (a plug is 5.4 x 4.25,
+  the windows are >= 10 x 7) and plugged; their lanes are checked static in [X] / [I].  Battery JST: plugged LAST.
+  Qwiic_ADXL_BMP  laid in after the boards: overlaps nothing   PASS
+  Qwiic_BMP_Nano  laid in after the boards: overlaps nothing   PASS
+
+[R] ESP32 RAILS
+  N rail: wall face over 45.0 of the board's 45.0 mm length (0.4 clear), 5 crush ribs touching the PCB edge (8.0 mm2)   PASS
+  S rail: wall face over 45.0 of the board's 45.0 mm length (0.4 clear), 5 crush ribs touching the PCB edge (8.0 mm2)   PASS
+  aft end on the rib heels 12.8 mm2 (0.1 gap); back on 2 full-length ribs 360 mm2; fwd end 0.7 under the cap face   PASS
+  joints on the back -> sled 0.62 mm (between the ribs)   PASS
+
+[A] ADXL375 GLUED ON THE N WALL (printed sled only)
+  glue face y 11.4: 81 / 81 grid points (x -9..9, Z 2..28) have wall right behind the PCB; wall there 1.0..2.0 mm thick   PASS
+  the wall: 2.0 mm (x < 7.4) / 1.0 mm (battery guide), floor -> cap face, tied to the spine, floor disc and cap
+  pose: long axis = rocket Z, board normal = +y (as v10), plug FORWARD (v10 aft) -> firmware axis map
+  BMP388 on the S wall: 90 / 90 grid points of its back have wall behind them (the aft window takes a corner)   PASS
+
+[I] FIT -- RAW = the as-drawn sled inside each part's keep-out BEFORE the trim; post-cut must be 0.
+  Nano_ESP32      RAW     0.0 mm3   post-cut 0.0   
+  Nano_joints     RAW     0.0 mm3   post-cut 0.0   
+  JST_power       RAW     0.0 mm3   post-cut 0.0   
+  C1_470uF        RAW     0.0 mm3   post-cut 0.0   
+  S7V8F5          RAW     0.0 mm3   post-cut 0.0   
+  Piezo_Q1        RAW     0.0 mm3   post-cut 0.0   
+  ADXL375         RAW     0.0 mm3   post-cut 0.0   
+  BMP388          RAW     0.0 mm3   post-cut 0.0   
+  Qwiic_ADXL_BMP  RAW     0.0 mm3   post-cut 0.0   
+  Qwiic_BMP_Nano  RAW     0.0 mm3   post-cut 0.0   
+  Battery         RAW     0.0 mm3   post-cut 0.0   
+    designed: JST_power on Nano_ESP32
+  part-vs-part clashes: 0   PASS
+  gaps between neighbours (want >= 0.4):
+    Nano_ESP32      - S7V8F5           0.40   PASS
+    S7V8F5          - Battery         11.50   PASS
+    Battery         - Piezo_Q1         0.40   PASS
+    JST_power       - Battery          0.90   PASS
+    JST_power       - Qwiic_ADXL_BMP   0.90   PASS
+    ADXL375         - Battery          1.60   PASS
+    BMP388          - Battery          1.60   PASS
+    C1_470uF        - Qwiic_BMP_Nano   0.42   PASS
+    Piezo_Q1        - Qwiic_BMP_Nano   0.78   PASS
+    BMP388          - Piezo_Q1         3.60   PASS
+    ADXL375         - Piezo_Q1         6.63   PASS
+
+[S] SCREW ACCESS (d3.0 driver from the head along +x; sees the sled + every part in before that screw)
+  piezo M2 d2.5 y-6.0  clear   PASS
+  piezo M2 d3.0 y-5.8  clear   PASS
+  NEGATIVE CONTROL: same driver pointed INTO the sled (-x) hits it 36.1 mm3 (must be > 0)   PASS
+
+[H] HOLES + SEATS
+  piezo M2 (y -6.00, Z -17.85): thread 4.6 mm PASS; bar under the hole 100 % PASS; M2 head to can 0.41 PASS
+  piezo M2 (y -5.75, Z -6.85): thread 4.6 mm PASS; bar under the hole 100 % PASS; M2 head to can -0.11 WARN (as v10: file a flat on that pan head)
+  EbayCap W M2 x10: boss beside the pilot from the cap face down 8.1 mm (tip at Z 40.3 needs >= 5.1)   PASS
+
+[P] PIEZO FRAME + Q1 (TO-92 flat on the back)
+  Q1 zone x 2.4..6.8 y -3.5..11.0 Z -18.6..-5.6 (829 mm3): sled inside 0.00 mm3   PASS
+  board back bears on the frame: 78.0 mm2 (hole-end bar + bottom rail band); 2 x M2 clamp the hole end   PASS
+  sled in front of the board: 0.00 mm3   PASS
+  pin bay x 6.8..12.0 y 11.0..18.0: sled inside 0.00 mm3   PASS
+
+[X] HARNESS ROOM
+  chimney: JST y 3.0..9.0 Z 37.2..44.7, top x 13.0; column from the PCB to the bore clear of everything   PASS
+  open column over the ESP32 (x -7.6..7.4, |y| < 9.4, Z -0.3..44.7): 11193 mm3 free after S7V8F5 + cables; the pad rows
+    (|y| 7.62) have nothing printed over them up to the battery: wires go straight up off the pads   PASS
+  piezo / Q1 lead exit: d2 probe pin bay (8.0, 12.6, -14) -> west under the N wall -> aft deck (1.3, 5.0): clear   PASS
+  Qwiic ADXL fwd -> BMP fwd  lane x -2.7..2.7 y -16.1..16.6 Z 29.0..39.8; sled in it 0.00 mm3   PASS
+  Qwiic BMP aft -> ESP32     lane x -7.6..2.7 y -16.1..-4.0 Z -11.8..1.7; sled in it 0.00 mm3   PASS
+
+[T] BMP388 vs ESP32 (heat): BMP on the S wall's outside, 2.6 mm from the ESP32's edge, sensor facing the bore
+
+[B] BATTERY
+  aft face (Z -4.2): -y end wall top 10.2 mm2 + piezo PCB top edge 10.8 mm2, both 0.4 below   PASS
+  fwd face (Z 36.3): stops off both walls 9.9 mm2 at 0.4 (N stops at |y| 9.4: the JST is at y <= 9.0)   PASS
+  sides: guide walls at |y| 10.4 (0.4 clear), N 246 mm2 / S 344 mm2 of guide face   PASS
+  bottom: rests on the wall steps at x 7.4 (0.4; 1 mm foam), outboard face -> ID 3.7 at y 0, corners R 19.12; Kapton wrap
+  pulls straight out along +x for charging: [5.0, 10.0, 15.0] mm tested clear   PASS
+
+[D9] FIT TO THE D9aft E-BAY (proxy + the REAL v10 FwdTube / EbayCap; D9aft v11 changed only AftTube + fin can)
+  FwdTube (proxy)  vs sled + every component: contact only   PASS
+  FwdTube v10      vs sled + every component: contact only   PASS
+  EbayCap v10      vs sled + every component: contact only   PASS
+  NEGATIVE CONTROL (real FwdTube v10): sled dropped 0.5 mm -> 208.3 mm3 (must be > 0)   PASS
+  lift-out through the thread crests: largest R 19.39 vs crest 19.65 -> 0.26 radial   PASS
+  seat: sled Zmin -22.80 vs seat -22.80; bearing on the seat annulus 379 mm2   PASS
+  static port d1.5 at Z 30.0: 3 mm behind it clear of everything   PASS
+  sound  port d3.0 at Z -12.1: 3 mm behind it clear of everything   PASS
+  piezo can face centre (y 0.00, Z -12.10) on the sound port (0, -12.1)   PASS
+
+[M] MASS
+  sled (ABS, solid-equiv)  12676.5 mm3    13.3 g   (v10 17.4 g -> -4.1 g; v11 14.1 g)
+  fasteners: 2 x M2x6 (piezo), 1 x M2x10 (EbayCap W only); ADXL glued, BMP taped/glued, battery Kapton
+  CG (ESTIMATE vs the D9aft v10 rollup: 262.6 g, CG 228.0 from the tip, gate <= 226; e-bay at ~tip 115):
+    sled +0.7 g, reed/microSD/card -3.5 g -> e-bay -2.8 g -> CG +1.2 mm -> ~229.2: ~5 g EbayCap ballast to reach 226
+    (+ the real solder / wire / heat shrink, never weighed).  WEIGH the built e-bay + line, re-run OpenRocket before flying.
+
+[V] STORAGE -- free volume inside R 19.5, deck floor to cap face, minus sled, parts and cable lanes
+  v12 total free 46155 mm3
+    column over the ESP32 (S7V8F5 in it)      11193 mm3   (wires, resistors, slack)
+    aft deck inside the walls (C1 in it)       6168 mm3   (d10 can, resistors)
+    outside the N wall (ADXL side)             9415 mm3   (around the ADXL)
+    outside the S wall (BMP side)              8266 mm3   (around the BMP)
+    behind the ESP32 (spine side)              1857 mm3   (flat wire <= 3 mm)
+    fwd end round the chimney                  3571 mm3   (battery lead slack)
+    over the battery (bore side)               1882 mm3   (foam)
+  (v11: 46247 mm3 total; v10 as built 40941)
+
+[K] SLENDER MEMBERS (slices every 0.5 mm in Z; islands < 8 mm2 or area/longest side < 1.0, >= 6 slices)
+  0 slender groups
+
+[O] OVERHANGS  (print +Z up, aft end on the bed; faces steeper than 46 deg from vertical, bed excluded;
+    'flat' = the part of it within 14 deg of horizontal, i.e. true bridge / cantilever / pendant)
+  area    8.7 mm2 (flat    8.7, reach  1.4 mm)  Z   36.7..  36.7  x    8.2..  14.4  y  -10.4..  -9.0
+  area    6.2 mm2 (flat    6.2, reach  1.0 mm)  Z   36.7..  36.7  x    8.2..  14.4  y    9.4..  10.4
+  area    5.5 mm2 (flat    2.2, reach  0.6 mm)  Z  -17.3.. -17.0  x    2.2..   6.8  y   -6.5..  -5.5
+  area    5.5 mm2 (flat    2.2, reach  0.6 mm)  Z   -6.3..  -6.1  x    2.2..   6.8  y   -6.3..  -5.2
+  4 regions >= 2 mm2 (total 26 mm2, flat 19 mm2); 14 small ones (hole crowns etc.) not listed
+  'reach' = worst horizontal distance from a flat downward face to material 0.3 mm under it (first layer in air);
+  largest reaches: 1.4, 1.0, 0.6, 0.6 mm
+  v11: 6 regions, 41 mm2, reach 1.6;  v10: 31 regions, 389 mm2, reach 7.8;  v9 (spaghetti): 1230 mm2, reach 10.3
+
+[N] ASSEMBLY (all from +x, sled in hand)
+  1 ESP32, parts up, USB-C + JST to the cap end: press it down between the rails (crush ribs = snug) onto the
+    back ribs, aft end on the heels.  Its wires go straight up off the pads into the open column.
+  2 C1 (+ resistors) into the aft deck through the piezo frame window; S7V8F5 flat on the ESP32's parts (Kapton).
+  3 piezo (can out), 2 x M2x6 -- TO-92 in the frame window; leads out of the pin bay under the N wall into the deck.
+  4 ADXL375: GLUE (CA / epoxy) its back flat on the N wall's outer face, plug forward, x -9..9, Z 2..28.
+  5 BMP388: tape / glue its back on the S wall's outer face, parts out; Qwiic aft through the S aft window,
+    fwd plug <- ADXL cable through the N fwd window, across the column, through the S fwd window.
+  6 battery between the wall guides on 1 mm foam, Kapton wrap; plug its lead into the ESP32's JST (= ON).
+  7 EbayCap: W M2x10 only (east hole taped).
+  ASSUMED (measure / photo before printing):
+    - Q1 TO-92 position on the piezo back: anywhere in the old joint footprint (y -3.5..11, Z -18.6..-5.6), 4.4 deep
+    - C1 470 uF 16 V: d10 x 12.5 body + 1.5 bent leads (d8 x 11.5 is also common -> more room)
+    - S7V8F5 17 x 11 x 3 + 0.5 joints, lying on the Nano's parts (Kapton between) -- anywhere in the column
+    - JST-PH on the Nano: +y (left of the USB-C looking at the port, parts side up), y 3.0..9.0, last 7.5 mm
+    - ESP32 PCB 18.0 wide: the crush ribs sit at exactly 18.0 -- file / heat-set them if it is too tight
+    - Qwiic plug 2.95 deep x 4.25 long x 5.4 wide; cables bend 1.5 past the plug
+    - Nano USB-C <= 0.3 past the PCB end; Nano parts 3.4 tall, 0.6 edge bands free; back joints 0.5
+    - ADXL375 Qwiic plug centred on its 'top' (short) end, 8 wide; ADXL back flat enough to glue
+    - BMP388 back flat enough to tape; plugs centred on both short ends (user, v10)
+
+[E] EXPORT
+  PhoenixABS40-43_avbay_ElectronicsSled_v12 .step + .stl
+  FCStd -> Avionics/PhoenixABS40-43_avbay_sled_v12.FCStd
+  sled_ASSEMBLY_v12.stl
