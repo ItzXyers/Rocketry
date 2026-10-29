@@ -1,0 +1,158 @@
+PhoenixABS40-43 -- LAUNCH PAD v2   build report
+==============================================================================
+v1 hub + legs unchanged; printed deflector replaced by a BOUGHT d155 x 2.0 alu
+plate; the rocket HANGS on its lug on a printed StopPost, which also holds the
+fuse.  Frame: Z=0 ground, origin on the rod axis, body axis at x=+25.95.
+
+[1] bodies
+  StopPost     84.2 g ABS  bbox  39.0 x  36.0 x 217.5  watertight
+  BlastPlate  100.1 g alu  d155 x 2.0, one d20.5 hole  (BOUGHT -- STEP for reference)
+  PadHub / PadLeg: v1 parts, unchanged (v1 report [1]-[3] still apply)
+  PASS -- StopPost is a closed solid
+
+[2] plate and post seating
+  plate d20.5 hole over the d20.0 spigot (0.25 radial), on the d44 column top Z 59
+  plate top Z 61.0; spigot 2.0 mm proud -> post stands on the SPIGOT (Z 63),
+  never on the plate, so the plate carries only its own weight and the jet.
+  post footprint on the spigot top: 289 mm2
+  PASS -- post bears on the spigot, plate is captured under it
+
+[3] assembly -- pad parts, every pair
+  PadHub      x PadLeg_0       113.8 mm3  v1 tenon squeeze
+  PadHub      x PadLeg_1       113.8 mm3  v1 tenon squeeze
+  PadHub      x PadLeg_2       113.8 mm3  v1 tenon squeeze
+  PASS -- only the v1 tenon squeeze overlaps
+
+[4] the stop -- where the rocket hangs, and what the lug sits on
+  StopPost top Z 280.5 = lug aft end (station 187.5)
+  cap aft face Z 111.0 -> 50 mm above the plate top (nozzle standoff)
+  lug + web end face 30.3 mm2, of which 16.7 mm2 lands on the post (55 %)
+  rocket 274 g = 2.69 N -> 0.16 MPa bearing; x5 for a dropped load: 0.80 MPa
+  (the groove side opens toward the body -- the web's root and the lug's
+   body-side arc overhang the U; that is the cap-rib clearance, see [6])
+  PASS -- lug lands on solid post top, stress trivial
+
+[5] lean on the lug slop -- where does the cap end up?
+  lug bore d4.4 on d4.0 over 35 mm -> up to 0.65 deg of lean
+  the CG is 26 mm off the rod, so the rocket DOES lean: its foot swings toward
+  the rod by up to 1.9 mm at the cap -- more than the 1.0 mm rib-to-rod gap.
+  So it leans until the cap ribs touch the ROD (normal force ~0.41 N, friction
+  ~0.12 N along the rod -- negligible).  The post is cut back to CRADLE_R 24.25 so
+  the cap touches the rod, never the post: checked in [6] at full lean.
+  NOTE for the airframe: this is a property of the D9aft lug, not of the pad.
+
+[6] LOADING -- the rocket slides down the rod past the post
+  cap ribs (r 22.75) swept Z 111..281, upright:          0.000 mm3
+  same, leaning 1.0 mm onto the rod (worst, [5]):        0.000 mm3
+  radial clearance cap ribs -> cradle, upright: 1.50 mm
+  fins swept from rest up past the post top:             0.000 mm3
+  PASS -- the rocket loads past the post, even leaning
+
+[7] ROTATION KEY -- swing the rocket about the rod until it hits the post
+  at rest (0 deg): rocket vs post 0.000 mm3, vs plate/hub 0.000 mm3
+   +6.5 deg: first contact is the cap against the post
+   -6.5 deg: first contact is the cap against the post
+  -> rocket keyed to +-6.5 deg; nozzle wanders <= 2.9 mm (cap hole r 7.5)
+  PASS -- keyed by cap/body on the horns; fins never touch the post
+
+[8] FUSE CLIP
+  clip: d2.2 bore (Klima fuse d2.0), snap-in throat 1.5 opening outward, 14 mm tall
+  clip 14 mm off the nozzle axis; bore TILTED 18.0 deg so the fuse, pushed straight
+  up through it, crosses the cap face 1.6 mm off the nozzle axis (opening r 7.5)
+  and is 5 mm inside the cap on the axis.  Clip top Z 80, cap face Z 111.
+  with the +-6.5 deg key the fuse still lands 2.9 mm inside the opening edge
+  nearest clip/arm material to the nozzle axis: 10.0 mm (jet core r 7.5).
+  It is ABS in the plume's edge for the ~0.2 s before the rocket clears:
+  expect soot and some surface melt -- inspect each flight, reprint if soft.
+  PASS -- fuse reaches the nozzle, clip outside the jet core
+
+[9] blast plate coverage
+  nozzle at r 25.95 from the rod -> 51.5 mm of plate on the near-edge side,
+  at ANY rotation (plate is round and centred on the rod).  Jet lands on alu,
+  50 mm below the nozzle, beyond the d44 column (plate overhang there 3.9 mm).
+  No vent holes: the plate is open all round, gas leaves sideways.
+  PASS -- > 40 mm of plate round the nozzle
+
+[10] GUIDED ROD LENGTH (v1 [6] convention: lug FULLY off the rod)
+  lug Z 280.5..315.5 at rest
+  rod   1000 mm -> guided    684 mm   light >=1000 SHORT   payload >=1200 SHORT
+  rod   1300 mm -> guided    984 mm   light >=1000 SHORT   payload >=1200 SHORT
+  rod   1400 mm -> guided   1084 mm   light >=1000 ok   payload >=1200 SHORT
+  rod   1500 mm -> guided   1184 mm   light >=1000 ok   payload >=1200 SHORT
+  BUY >= 1316 mm of rod (light) / >= 1516 mm (payload).
+  OPEN -- the 274 g D9aft with its e-bay is closer to the PAYLOAD line than the
+  light one.  Set the .ork rail length to the guided figure for the rod you buy
+  and read rail-exit speed (>= 15 m/s, DESIGN 4.4) before calling it.
+
+[11] TIP-OVER (v1 [5] method, v2 masses)
+  rocket tip Z 563, CG Z 315; system 756 g; tip line 85 mm
+    5.0 m/s calm  bare              restoring   630 / overturning   262 = 2.40 x
+    5.0 m/s calm  1.0 kg tie-down   restoring  1464 / overturning   262 = 5.58 x
+   10.0 m/s LIMIT bare              restoring   630 / overturning   840 = 0.75 x
+   10.0 m/s LIMIT 1.0 kg tie-down   restoring  1464 / overturning   840 = 1.74 x
+  bare pad tips at 8.5 m/s.
+  FAIL at the 10 m/s limit is REAL and deliberate, as in v1: PEG THE FEET
+  (d6.5 holes) and/or hang 1 kg on the d7 tie-down.  Staking is primary.
+
+[12] printability
+  StopPost prints LYING ON ITS FLAT BACK (the -x face): the U-channel opens
+  upward, the rod bore and fuse hole run horizontal (d4.2 / d2.2 bridges),
+  the arm rises as a 8 x 14 tower.  No supports.
+  Bed footprint 218 x 36, 39 tall.  Ream the bore with a 4 mm bit.
+  overhang audit (print pose, >45 deg ceilings above the bed):
+    small horizontal bores (d4.2 rod, d2.2 fuse): 242.9 mm2 -- bridge, fine
+    anything else: 0.00 mm2
+  rod groove: lips >= 0.8 mm from 63 deg off the body side -> wraps 234 deg;
+    the opening chord 3.83 vs the d4.0 rod: a locating GROOVE, not a snap.
+  the top is located by the 40 mm base bore only: it can lean 1.0 mm off the
+    rod; the lug then still lands on 10.0 mm2 of post (vs 16.7 upright).
+  PASS -- no supports needed, lug still bears with the top leaning
+  Fuse throat 1.5 is a SNAP: if the fuse won't go in, open it with a knife;
+  if it falls out, tape it.
+
+[13] non-vacuity
+  post cradle                   106294.6 mm3  ok
+  post bore                        554.2 mm3  ok
+  rod groove                      1288.8 mm3  ok
+  fuse hole                         53.2 mm3  ok
+  plate hole                       660.1 mm3  ok
+  probe post solid behind the rod    ok
+  probe cradle empty in front of rod ok
+  probe rod bore open                ok
+  probe fuse hole open               ok
+  probe clip present                 ok
+  PASS -- every feature is really there
+
+[14] export
+  StopPost   -> Models/PhoenixABS40-43_StopPost_v2.step + .stl
+  BlastPlate -> Models/PhoenixABS40-43_BlastPlate_v2.step  (bought)
+  assembly -> Models/PhoenixABS40-43_launchpad_ASSEMBLY_v2.stl
+  FCStd -> Models/PhoenixABS40-43_launchpad_v2.FCStd (rocket envelope hidden)
+  print pose: bed 218 x 36, 39 tall; first-layer contact 6055 mm2
+  -> Print Files/Launch Pad/(Ready to Print/)PhoenixABS40-43_StopPost_v2.stl
+  PadLeg (v1 geometry, pose FIXED): bed 163 x 26, 14.7 tall; blade on the bed
+    over x 30..120: 2002 mm2 of first layer (blade section starts at z -0.00)
+    overhang audit: d6.5 peg-hole roof 55 mm2 (bridge), tenon-slot roof 293 mm2
+    (a 12 mm bridge, web at the tip), anything else 0.00 mm2
+    AFTER PRINTING: cut the 0.6 mm web at the tenon tip (knife / razor saw) so the
+    two cheeks can flex -- the v1 [3] interference fit needs them free.
+  -> Ready to Print/PhoenixABS40-43_PadLeg_v2.stl  (DO NOT print PadLeg_v1.stl: blade floats)
+
+SUMMARY
+  * Print: StopPost v2 (new), PadHub v1 STL, 3 x PadLeg_v2.stl (v1 leg, pose fixed,
+    0.6 mm print web closing the tenon slot -- CUT IT before assembly).
+  * Buy: alu disc d155 x 2.0, drill ONE d20.5 centre hole (step bit).
+  * Assemble: legs into hub, plate over the spigot, StopPost over the ROD's
+    bottom end, rod down the hub bore to the ground, post sitting on the spigot.
+  * Load: turn the post so the fuse arm points the way the body will hang, slide
+    the rocket down until the lug sits on the post top (Z 280).  Snap the fuse
+    sideways into the clip's throat and slide it up the tilted bore, through the
+    cap opening, into the motor core.
+  * Rocket keyed to +-6.5 deg; nozzle 50 mm above the plate.
+  * Rod: >= 1316 mm (light) / >= 1516 mm (payload rule) -- OPEN until the .ork
+    gives rail-exit speed at that length ([10]).
+  * FAIL [11]: bare pad tips at 8.5 m/s -- peg the feet / ballast the hub.
+  * Fuse: Klima d2.0, 80-110 s/m -> cut 375 mm for ~30 s to walk away
+    (30 s at the fast end), plus what goes into the motor and through the clip.
+  * ASSUMED: plate 2.0 mm.  UNPRINTED and UNFLOWN.
+  RESULT v2: FAIL 11 (bare pad, deliberate: stake it); OPEN 10

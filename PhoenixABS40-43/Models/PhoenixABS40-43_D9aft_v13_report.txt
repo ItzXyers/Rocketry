@@ -1,0 +1,55 @@
+== Phoenix ABS 40-43 -- D9aft_v13: +30 mm screw-in EXTENSION RING (FwdTube -> ring -> nose), sled v21; airframe as built ==
+Frame z = 313.5 - station; station 0 = the as-built FwdTube mouth; NEW nose base / ring top at station -30.0.
+
+STATION TABLE (new tip = old tip - 30)
+     -95.0 -    -30.0  nose v6 (as built), screws into the ring
+     -30.0 -    -20.5  ring female thread (= the FwdTube's), nose shoulder in it
+     -19.5 -    -14.6  EbayCap (as built, +30 on the sled v21 post)
+     -14.6 -      9.5  sled v21 ZONE C (ADXL slot + figure-8 cleat horns); ring spigot st -0.3..9.5 in the FwdTube mouth
+       0.0 -     83.6  FwdTube as built: e-bay, sled v21 on the seat ring (all v19 Z)
+     104.6 -    254.6  chute bay 150 (as built)
+
+PASS ring valid (fuse + fix): True, 1 solid(s), station -30.00..9.50, Rmax 21.50, volume 7678 mm3 = 8.1 g ABS
+PASS ring OD flush with the tube: Rmax 21.50 vs 21.50
+PASS ring probes 6/6 
+PASS threads: ring x FwdTube 0.000 mm3, nose(+30) x ring 0.000 mm3 vs the AS-BUILT nose x FwdTube 0.000 mm3 (must match: same thread, same phase)
+PASS NEGATIVE CONTROL: ring half a pitch out of phase x FwdTube = 224.52 mm3 (must be >> 0.000)
+PASS ring unscrew sweep (rotate + advance 3.0 mm/turn) x FwdTube: [(90.0, 0.0), (180.0, 0.0), (360.0, 0.0)]
+NOTE thread booleans 113 s
+PASS ring body seats on the tube mouth face (annulus r 20.45..21.50 at st 0): ring fills 100 % of it; dropped 0.3 -> 48.4 mm3 (must be > 0)
+PASS EbayCap underside st -14.60 over the lip top st -0.30: gap 14.30 mm
+PASS nose shoulder end vs EbayCap top (incl. pull loop): -13.00 mm (as built -13.00): same spring / foam preload
+PASS nose x EbayCap (spring bumps) 2.18 mm3 = as built 2.18
+PASS e-bay vs FwdTube / ring / EbayCap / nose: no contact
+PASS EbayCap on the sled post: overlap 0.000 mm3 (contact only)
+PASS sled top st -14.60 = EbayCap underside st -14.60 (the W M2x10 clamps the cap to the post)
+PASS sled KEY clocks the sled in the tube groove: seated 0; sled turned 4 deg -> 1.58 mm3 into the groove wall (must be > 0)
+PASS ring screwed on OVER the e-bay: nothing at R >= 17.95 above st 9.5 (any ring pose on the way down): clear
+PASS LOCK: seated cap key in the ring slot (+-15 deg): ring turned (deg, mm3 into the key) [(-17.0, 2.645), (-10.0, 0.0), (0.0, 0.0), (10.0, 0.0), (17.0, 2.467)] -> free within +-10, blocked at +-17
+NOTE slot costs 8 % of the ring's female thread band (as-built tube groove: 2 %)
+PASS EbayCap seated (0) and lifting straight out of the ring mouth (2..20 mm): clear
+PASS sled (key in the groove) lifts out of the tube once the ring is off: clear 0.5..90
+PASS sound / static ports: in the as-built FwdTube, sled v21 parts at their v19 Z (piezo on the sound port: sled report [D9])
+
+MASS & CG (v10 report items; ring / sled from CAD x ABS 1.05).  NEW tip distance = station + 30 + 65
+  Nose cone v6                                     nose        14.6 g  st   -51.2  tip   43.8
+  EXTENSION RING v13                               airframe     8.1 g  st    -8.9  tip   86.1
+  FwdTube (as built)                               airframe    27.1 g  st    62.4  tip  157.4
+  AftTube v9/v11 (as built)                        airframe    36.1 g  st   173.8  tip  268.8
+  EbayCap (+30 fwd)                                e-bay        6.3 g  st   -18.0  tip   77.0
+  M2x10 (W only)                                   e-bay        0.4 g  st   -16.3  tip   78.7
+  ElectronicsSled v21                              e-bay       17.9 g  st    46.9  tip  141.9
+  Electronics (v10 38.5 - 3.5; v21: ADXL 45 fwd)   e-bay       35.0 g  st    45.2  tip  140.2
+  Jumper slack on the v21 horns (ASSUMED)          e-bay        2.0 g  st    -5.2  tip   89.8
+  Canopy d500 + harness                            recovery    16.0 g  st   149.6  tip  244.6
+  5 mm retention line 1.5 m (ASSUMED)              recovery    18.0 g  st   194.6  tip  289.6
+  Nomex                                            recovery     4.0 g  st   218.5  tip  313.5
+  Fin can + fins + epoxy                           aft         52.4 g  st   284.0  tip  379.0
+  MotorRetainerCap v1                              aft          9.0 g  st   324.3  tip  419.3
+  Klima D9-5 loaded                                motor       27.1 g  st   292.6  tip  387.6
+  Liftoff 274.0 g, CG 248.1 mm from the NEW tip (v10: 262.6 g, 228.0 from the old tip); dry 246.9 g, CG 232.7
+OPENROCKET: NOSE_G=14.6 NOSE_CG=43.8 NS_BODY_G=232.3 NS_BODY_LEN=343.5 NS_BODY_CGX=179.6   (body = ring + tubes + everything but nose & motor, from the new nose base)
+NOTE the 226 gate was 1.5 cal on the OLD CP (290.9 from the old tip): it does not carry over -- re-derive from the v13 OpenRocket CP.
+
+EXPORT PhoenixABS40-43_D9aft_v13_ExtensionRing.step (v10 frame)  +  PhoenixABS40-43_D9aft_v13_ExtensionRing.stl (print pose: spigot end down, like the nose's shoulder)
+RESULT v13: ALL PASS (0 FAIL)  [215 s]
