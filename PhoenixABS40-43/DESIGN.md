@@ -1017,6 +1017,9 @@ ground tests.
 
 ## 11. Pre‑flight & flight‑ops checklist
 
+> ⛔ **Superseded 2026‑10‑29 by `PRE_LAUNCH_CHECKLIST.md`**, which covers the current D9aft v13 / sled v21
+> build. The list below is for the retired spring‑ejector design and is kept as history.
+
 **Build acceptance**
 - [ ] Stability re‑verified on the *current* geometry: ≥ 1.0 cal on every motor, ≥ 1.5 cal on B4‑4 (§4).
 - [ ] Measured CG matches the model within ±5 mm (mark the CG on the airframe).
