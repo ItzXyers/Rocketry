@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phoenix Launch Checklist</title>
+<style>
+  @page { size: A4; margin: 12mm 13mm 14mm 13mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 9.3pt; line-height: 1.28; color: #000; margin: 0; }
+  h1 { font-size: 17pt; margin: 0 0 1mm; }
+  h2 { font-size: 11.5pt; margin: 4.5mm 0 1.5mm; padding: 1mm 2mm; background: #000; color: #fff; break-after: avoid; }
+  h3 { font-size: 10pt; margin: 2.5mm 0 1mm; break-after: avoid; }
+  .sub { font-size: 9pt; color: #333; margin-bottom: 2mm; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5mm 5mm; margin: 2mm 0 1mm; }
+  .fields div { border-bottom: 1px solid #000; padding-top: 4mm; font-size: 8.5pt; }
+  ul.cl { list-style: none; padding: 0; margin: 0; }
+  ul.cl > li { position: relative; padding: 0.9mm 0 0.9mm 7mm; border-bottom: 0.5px solid #ccc; break-inside: avoid; }
+  ul.cl > li::before { content: ""; position: absolute; left: 0; top: 1.3mm; width: 3.6mm; height: 3.6mm; border: 1.2px solid #000; }
+  ol.cl { padding-left: 0; margin: 0; list-style: none; counter-reset: s; }
+  ol.cl > li { counter-increment: s; position: relative; padding: 0.9mm 0 0.9mm 13mm; border-bottom: 0.5px solid #ccc; break-inside: avoid; }
+  ol.cl > li::before { content: ""; position: absolute; left: 0; top: 1.3mm; width: 3.6mm; height: 3.6mm; border: 1.2px solid #000; }
+  ol.cl > li::after { content: counter(s) "."; position: absolute; left: 5.5mm; top: 0.9mm; font-weight: bold; }
+  .warn { border: 2px solid #000; padding: 1.8mm 2.5mm; margin: 2mm 0; break-inside: avoid; }
+  .warn b:first-child { text-transform: uppercase; }
+  .note { font-size: 8.5pt; color: #333; }
+  code { font-family: "DejaVu Sans Mono", monospace; font-size: 8.6pt; background: #eee; padding: 0 0.6mm; }
+  table { border-collapse: collapse; width: 100%; font-size: 8.8pt; break-inside: avoid; }
+  th, td { border: 1px solid #000; padding: 1mm 1.5mm; text-align: left; vertical-align: top; }
+  th { background: #ddd; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .pb { break-before: page; }
+  .log td { height: 11mm; }
+  footer { font-size: 7.5pt; color: #444; margin-top: 3mm; }
+</style>
+</head>
+<body>
+
+<h1>Phoenix ABS 40-43 · Launch-Day Checklist</h1>
+<div class="sub">Klima D9-5 · aft deploy on motor ejection · flight computer is a logging altimeter (fires nothing) · LaunchControl Pi for the igniter. Tick each box in order. If something is unclear, stand down.</div>
+<div class="fields">
+  <div>Date:</div><div>Site:</div><div>Range Safety Officer:</div>
+  <div>LaunchControl operator:</div><div>Wind (m/s) / direction:</div><div>Fire-ban status checked at:</div>
+</div>
+
+<div class="warn"><b>Readiness gate.</b> Fly only with a live igniter if all of these are true. If any is false, run the whole sheet as a <b>dry rehearsal</b> with a dummy load and no live igniter.
+<ul class="cl" style="margin-top:1mm">
+  <li>Igniter firing circuit is built, and <code>FIRE_PIN</code> / <code>ARM_SENSE_PIN</code> / <code>CONTINUITY_PIN</code> are confirmed against it (LaunchControl README, "Hardware contract").</li>
+  <li><code>ignition.py</code> arm/fire/cutoff has been bench-tested against a dummy load (LED + resistor), with cutoff timing measured.</li>
+  <li>Wi-Fi name/password changed from the defaults on both the flight computer (<code>config.h</code>) and the Pi (<code>config.py</code>, <code>network/*.conf</code>).</li>
+  <li>Built rocket balanced: CG ≤ <b>226 mm from the tip</b>, measured with a loaded D9, the bay packed and the line installed. Add ballast to the EbayCap if needed (~0.6 mm per g).</li>
+</ul></div>
+
+<h2>0 · Go / No-Go: morning of the launch</h2>
+<ul class="cl">
+  <li><b>Fire ban (eldningsförbud)</b> checked for the municipality today (kommun website, Länsstyrelsen, or the brandrisk / MSB app). A ban means no launch.</li>
+  <li>Wind forecast <b>≤ 3–4 m/s</b>. Leaving the 1 m rod at about 11 m/s is below the 15 m/s target, so fly on calm days only. Drift under the canopy is about 5 m/s.</li>
+  <li>Site confirmed: club launch day (SMRK Högsäter), or written landowner OK. If within 10 km of Landvetter or Säve, the airport has been called and has agreed.</li>
+</ul>
+
+<h2>1 · Before leaving for the range</h2>
+<ul class="cl">
+  <li>LaunchControl fired-latch cleared with <code>scripts/clear_fired_latch.py</code>, and no "latch already set" warning in the Pi's boot log. <b>Re-check after any bench test today</b>: a dummy-load test sets the latch.</li>
+  <li>C1 is fitted on <i>this</i> sled (or the transient was bench-verified). Check it, don't rely on memory.</li>
+  <li>Flight-computer LiPo charged, and Pi power source charged.</li>
+  <li>Flight-computer flash has <b>≥ 5 MB free</b> (<code>LOGS</code> over USB or <code>GET /logs</code>). Old logs pulled and backed up, then deleted. Below 5 MB the self-test fails on purpose.</li>
+  <li>Flight-computer battery <b>unplugged for transport</b>. There is no power switch, so plugging in the battery powers the bay.</li>
+</ul>
+
+<h3>Pack list</h3>
+<div class="two">
+<ul class="cl">
+  <li>Rocket: nose, FwdTube/AftTube with sled, fin can, motor cap</li>
+  <li>Klima <b>D9-5</b> motors (D9-3 is too early and D9-7 too late; don't swap)</li>
+  <li>Igniters for the D9</li>
+  <li>Canopy ⌀500, 5 mm retention line, Nomex blanket / wadding</li>
+  <li>Tape (one wrap on each motor casing)</li>
+  <li>Hex keys for M5 nose screws and M3 bay screws, spare screws</li>
+  <li>Scale + balance edge for the CG check, ballast</li>
+</ul>
+<ul class="cl">
+  <li>Launch pad: hub, 3 legs + hinge pins, thumbscrew, deflector</li>
+  <li>⌀4 mm steel rod, 1000 mm</li>
+  <li>Blast plate / board, if the ground is not bare</li>
+  <li>Water + fire extinguisher</li>
+  <li>LaunchControl Pi, firing box, leads, arm switch / key</li>
+  <li>Phone for the webapp; laptop + USB-C cable (serial console / log pull)</li>
+  <li>This checklist, pen, spare batteries</li>
+</ul>
+</div>
+
+<h2 class="pb">2 · At the range: prep area</h2>
+<h3>Ground station</h3>
+<ul class="cl">
+  <li>LaunchControl Pi powered, phone joined to its hotspot, webapp loads.</li>
+  <li>AP+STA concurrency (<code>iw phy0 info</code>) has been confirmed at least once for this Pi/kernel.</li>
+</ul>
+<h3>Aft section: recovery + motor</h3>
+<ol class="cl">
+  <li>Line, canopy and Nomex all fit in the bay by hand. The line runs through the bulkhead eyelet and the fin-can staple lug (no Kevlar leaders).</li>
+  <li>Pack <b>forward to aft</b>: canopy against the bulkhead, then the line, then the <b>Nomex/wadding over the fin-can gas port</b>. Nomex is <b>mandatory</b>: the charge blows straight into the bay. A nylon/polyester line needs a Nomex sleeve at the staple end.</li>
+  <li>Motor: <b>one wrap of tape</b> on the D9-5 casing (seals the gap that lets gas leak past to the nozzle), push it in against the thrust ring, then screw on the cap <b>hand-tight + witness mark</b>. The cap carries the ejection load.</li>
+  <li>Fin can: push in, turn until the <b>tab drops into the notch</b>, push until <b>2 clicks</b>. Pull gently to check it holds.</li>
+  <li><b>About a 5 mm gap at the joint = wrong clocking. Do not fly.</b> No clicks = do not fly. Never tape over the latch tongues (they vent the bay).</li>
+</ol>
+<h3>Forward section: avionics</h3>
+<ol class="cl">
+  <li>Nose off. Plug in the flight-computer battery. Listen for the <b>self-test pass tone</b>. A fail tone means stand down and check over USB with <code>STATE</code>.</li>
+  <li>Nose back on with the 3 × M5 screws. From here on, <b>handle gently</b>: a jolt above <b>3 g held for 100 ms</b> counts as a launch.</li>
+  <li>LaunchControl status view shows the flight computer as reachable (<code>/status</code>: <code>logger_ready</code> true, <code>log_free_bytes</code> OK).</li>
+</ol>
+
+<h2>3 · Pad setup + igniter</h2>
+<ol class="cl">
+  <li>Pad on bare soil, gravel or a blast plate, never dry grass. Water + extinguisher at the pad. Spectators and cars upwind.</li>
+  <li>Rod in the hub: clamp <b>snug, not over-tight</b>, rod square to the hub (1° of tilt is ~17.5 mm of wander at the tip). Deflector fitted.</li>
+  <li>Carry the rocket to the pad and slide the lug onto the rod. It must slide freely.</li>
+  <li>Rocket vertical, undisturbed.</li>
+  <li>Igniter installed per Klima instructions, with the <b>firing-circuit arm switch OPEN</b>.</li>
+  <li>Webapp <b>continuity reads OK</b>. If it doesn't, check the igniter connection. <b>Never bypass the continuity gate.</b></li>
+  <li>Webapp <b>arm-sense reads OPEN</b> while the switch is open. A wrong reading means the UI can't be trusted: stand down.</li>
+  <li><b>Do not handle, bump or jar the rocket from here on.</b></li>
+</ol>
+
+<div class="warn"><b>Stand-down / reset.</b> If the rocket is bumped hard, comes off the rod, or the result of <code>/arm</code> is genuinely unclear: open the arm switch, remove the igniter, <b>power-cycle the sled</b> (unplug and re-plug the battery, listen for the pass tone), then restart from §3 step 3.</div>
+
+<h2 class="pb">4 · Wireless arm (re-zero the flight computer)</h2>
+<ol class="cl">
+  <li>Rocket has been vertical and undisturbed since §3 step 4. <code>/arm</code> takes a new pad zero (baro + accel baseline), so the rocket must be in its final position.</li>
+  <li>Trigger <b>/arm</b> from the LaunchControl webapp.</li>
+  <li>Expect the connection to <b>drop about 0.5 s after success</b>. An "ambiguous" result plus a dropped connection most likely means it <b>worked</b>.</li>
+  <li><b>Do not retry /arm.</b> A successful arm turns the radio off until the next power-cycle. If the outcome is genuinely unclear, use the stand-down box above.</li>
+  <li>Confirm arm success from the last status the webapp captured. Don't proceed on "probably fine".</li>
+</ol>
+
+<h2>5 · Final arm + fire (igniter channel)</h2>
+<ol class="cl">
+  <li>All personnel at the range's safe distance. RSO gives the range clear.</li>
+  <li>Designated operator only closes the <b>physical arm switch</b>.</li>
+  <li>Webapp <b>arm</b> succeeds (needs arm-sense closed <b>and</b> continuity OK). If it fails, stand down and fix the igniter circuit. Never fire on a failed arm.</li>
+  <li><b>Arm window is 15 s.</b> If the hold runs longer, <b>re-arm</b>. Don't just press fire again.</li>
+  <li>Countdown per range procedure, then <b>FIRE</b>.</li>
+  <li>No ignition within a few seconds = <b>misfire</b>. The fire channel is one-shot. Open the arm switch and follow the range misfire wait before approaching the pad.</li>
+</ol>
+
+<h2>6 · Flight, recovery + data</h2>
+<ol class="cl">
+  <li>Watch the flight. Note the apogee time and when ejection happens (video if possible).</li>
+  <li>Recover. Check the motor is cool. Note damage to the fin can, latches, line and canopy.</li>
+  <li>Open the arm switch on the firing box. The LaunchControl fired-latch now reads "set". <b>That is expected.</b> Clear it (<code>scripts/clear_fired_latch.py</code>) only before the next flight.</li>
+  <li><b>Pull the log.</b> Power-cycle the sled (the Wi-Fi turned itself off at launch). <b>The restart starts a new, empty log, so the flight is usually the <u>second-highest</u> number.</b></li>
+  <li>Wi-Fi: join the flight computer's network, <code>curl http://192.168.4.1/logs</code>, then <code>curl -OJ "http://192.168.4.1/log?n=NN"</code>. Or USB: <code>LOGS</code>, then <code>DUMP NN</code> (save what's between BEGIN/END).</li>
+  <li>Back up the CSV <b>in two places</b> (laptop + phone/cloud) and check that it opens. Only then free the space with <code>DEL NN</code>.</li>
+  <li>In the CSV, find <code>APOGEE_CONFIRMED</code> / <code>APOGEE_TIMEOUT</code> and the ejection accel spike. Expected: ejection <b>~0.5 s after apogee</b>. A large gap means the motor delay is wrong for this rocket. Fix it before the next flight.</li>
+  <li>Unplug the flight-computer battery before transport.</li>
+</ol>
+
+<h2>Quick reference</h2>
+<div class="two">
+<table>
+  <tr><th colspan="2">Flight computer</th></tr>
+  <tr><td>Address</td><td><code>http://192.168.4.1</code></td></tr>
+  <tr><td>Wi-Fi</td><td><code>WIFI_AP_SSID</code> / <code>…PASSWORD</code> in <code>config.h</code>; 1 client max</td></tr>
+  <tr><td>HTTP</td><td><code>/status</code> <code>/config</code> <code>/logs</code> <code>/log?n=</code> · POST <code>/arm</code></td></tr>
+  <tr><td>USB serial</td><td>115200 · <code>STATE</code> <code>LOGS</code> <code>DUMP n</code> <code>DEL n</code> <code>FORMAT YES</code> (wipes all)</td></tr>
+  <tr><td>Launch detect</td><td>3.0 g held 100 ms; turns Wi-Fi off</td></tr>
+  <tr><td>Log file</td><td><code>FLIGHTnnn.CSV</code>, one per power-on</td></tr>
+  <tr><td>Firmware</td><td><code>pio run -t upload</code> keeps logs; <code>-t erase</code> wipes them</td></tr>
+</table>
+<table>
+  <tr><th colspan="2">Expected flight (OpenRocket, D9-5, no wind)</th></tr>
+  <tr><td>Liftoff mass</td><td>≈ 263 g</td></tr>
+  <tr><td>Stability</td><td>1.92 cal liftoff / 2.14 burnout</td></tr>
+  <tr><td>Apogee</td><td>≈ 172 m at 6.8 s</td></tr>
+  <tr><td>Max velocity</td><td>≈ 50 m/s</td></tr>
+  <tr><td>Ejection</td><td>+0.47 s after apogee, 4.6 m/s</td></tr>
+  <tr><td>Descent</td><td>≈ 5.2 m/s on ⌀500 canopy</td></tr>
+  <tr><td>Igniter arm window</td><td>15 s</td></tr>
+</table>
+</div>
+
+<h2>Flight log</h2>
+<table class="log">
+  <tr><th style="width:6%">#</th><th style="width:9%">Time</th><th style="width:10%">Motor</th><th style="width:11%">Wind m/s</th><th style="width:10%">Log file n</th><th style="width:14%">Ejection vs apogee</th><th>Notes / damage</th></tr>
+  <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+
+<footer>Compiled from <code>Electronics/LaunchControl/pad_checklist.md</code>, <code>Electronics/Avionics/avionics_build_checklist.md</code>, <code>PhoenixABS40-43/Models/AFT_DEPLOY_D9_*.md</code> (v1–v11), <code>LAUNCH_SITE.md</code>, <code>LaunchPad/Design-Notes-LaunchPad.md</code>. CO2 / burn-wire steps omitted: Phoenix has no CO2 module (2026-10-19). If this sheet and those documents disagree, the documents win.</footer>
+</body>
+</html>
