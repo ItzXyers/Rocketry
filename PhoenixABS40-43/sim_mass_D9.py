@@ -13,7 +13,9 @@ Stability is NOT simulated (1-D).  It is estimated from OpenRocket's v11 CP (290
 shifted for the +30 mm body with Barrowman's fin/nose normal-force split, and from the v13 CAD mass
 rollup CG.  Treat it as an estimate until OrStab.java / VerifyD9v2.java is re-run on the patched .ork.
 
-Usage:  python3 sim_mass_D9.py [dry_g ...]        (dry = everything except the motor; default 230)
+Usage:  python3 sim_mass_D9.py [--liftoff] [mass_g ...]
+        mass = dry mass (everything except the motor; default 230), or with --liftoff the liftoff mass
+        incl. the loaded D9 (dry = liftoff - D9 launch mass).
         env PLOT=out.png to also plot the first mass case vs the as-built v13 mass.
 """
 import math
@@ -161,7 +163,10 @@ def stability(dry_g, dry_cg):
 
 
 def main():
-    dry_list = [float(x) for x in sys.argv[1:]] or [230.0]
+    args = sys.argv[1:]
+    liftoff = "--liftoff" in args
+    vals = [float(x) for x in args if x != "--liftoff"] or [230.0]
+    dry_list = [round(g - MOTOR_LAUNCH_KG * 1e3, 1) if liftoff else g for g in vals]
     print("== Phoenix ABS 40-43 D9aft -- Klima D9 mass-case simulation (1-D RK4, calibrated on OpenRocket 24.12) ==")
     print(f"motor: Klima D9 launch {MOTOR_LAUNCH_KG*1e3:.1f} g burnout {MOTOR_BURNOUT_KG*1e3:.1f} g, burn {t_bo:.2f} s "
           f"(OpenRocket thrust curve, {len(THR_T)} pts); Cd coast {min(CD_C):.3f}..{max(CD_C):.3f}; chute CdA {CDA_CHUTE:.4f} m2")
@@ -175,7 +180,8 @@ def main():
     print(f"v13 Cd length correction x{1 + CD_LEN_PER_M*(V13_LEN_M-V11_LEN_M):.3f};  CP v13 est. {CP_V13:.1f} mm "
           f"(v11 OR {CP_V11} + 30 mm x CNfin {CN_FIN:.2f}/(2+CNfin))")
     print()
-    cases = [(V13_DRY_G, "v13 as built (reference)")] + [(g, f"{g:g} g dry") for g in dry_list]
+    cases = [(V13_DRY_G, "v13 as built (reference)")] + [(g, f"{v:g} g LIFTOFF incl. D9" if liftoff else f"{g:g} g dry")
+                                                    for g, v in zip(dry_list, vals)]
     results = {}
     for dry_g, label in cases:
         print(f"--- {label}: dry {dry_g:.1f} g, liftoff {dry_g + MOTOR_LAUNCH_KG*1e3:.1f} g on a D9, v13 airframe {V13_LEN_M*1e3:.1f} mm ---")
