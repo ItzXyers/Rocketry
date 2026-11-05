@@ -1,0 +1,33 @@
+== Phoenix ABS 40-43 D9aft -- Klima D9 mass-case simulation (1-D RK4, calibrated on OpenRocket 24.12) ==
+motor: Klima D9 launch 27.0 g burnout 11.0 g, burn 2.24 s (OpenRocket thrust curve, 378 pts); Cd coast 0.391..0.511; chute CdA 0.1572 m2
+CALIBRATION v11 D9-5 1.5 m rod  OpenRocket: apogee 188.9 m @ 7.06 s, vmax 53.1, ground hit 5.03, flight 44.7 s
+                               this sim:   apogee 188.5 m @ 7.01 s, vmax 53.1, ground hit 5.03, flight 44.7 s   (apogee error -0.2 %)
+v13 Cd length correction x1.031;  CP v13 est. 315.4 mm (v11 OR 290.9 + 30 mm x CNfin 9.00/(2+CNfin))
+
+--- v13 as built (reference): dry 246.9 g, liftoff 273.9 g on a D9, v13 airframe 408.5 mm ---
+SIM D9-3 rod 1.0 m | apogee  166.8 m @ 5.90 s | vmax 50.6 m/s | rod exit 11.2 m/s | eject t=5.24 alt  163.7 m v 15.7 m/s | optimum delay 3.66 s | ground hit 5.13 m/s | flight 38.7 s
+SIM D9-3 rod 1.5 m | apogee  166.8 m @ 5.90 s | vmax 50.6 m/s | rod exit 12.9 m/s | eject t=5.24 alt  163.7 m v 15.7 m/s | optimum delay 3.66 s | ground hit 5.13 m/s | flight 38.7 s
+SIM D9-3 rod 2.0 m | apogee  166.8 m @ 5.90 s | vmax 50.6 m/s | rod exit 14.0 m/s | eject t=5.24 alt  163.7 m v 15.7 m/s | optimum delay 3.66 s | ground hit 5.13 m/s | flight 38.7 s
+SIM D9-5 rod 1.0 m | apogee  176.0 m @ 6.83 s | vmax 50.6 m/s | rod exit 11.2 m/s | eject t=7.24 alt  175.2 m v  4.1 m/s | optimum delay 4.58 s | ground hit 5.13 m/s | flight 41.3 s
+SIM D9-5 rod 1.5 m | apogee  176.0 m @ 6.83 s | vmax 50.6 m/s | rod exit 12.9 m/s | eject t=7.24 alt  175.2 m v  4.1 m/s | optimum delay 4.58 s | ground hit 5.13 m/s | flight 41.3 s
+SIM D9-5 rod 2.0 m | apogee  176.0 m @ 6.83 s | vmax 50.6 m/s | rod exit 14.0 m/s | eject t=7.24 alt  175.2 m v  4.1 m/s | optimum delay 4.58 s | ground hit 5.13 m/s | flight 41.3 s
+SIM D9-7 rod 1.0 m | apogee  176.0 m @ 6.83 s | vmax 50.6 m/s | rod exit 11.2 m/s | eject t=9.24 alt  147.7 m v 23.1 m/s | optimum delay 4.58 s | ground hit 5.13 m/s | flight 37.4 s
+SIM D9-7 rod 1.5 m | apogee  176.0 m @ 6.83 s | vmax 50.6 m/s | rod exit 12.9 m/s | eject t=9.24 alt  147.7 m v 23.1 m/s | optimum delay 4.58 s | ground hit 5.13 m/s | flight 37.4 s
+SIM D9-7 rod 2.0 m | apogee  176.0 m @ 6.83 s | vmax 50.6 m/s | rod exit 14.0 m/s | eject t=9.24 alt  147.7 m v 23.1 m/s | optimum delay 4.58 s | ground hit 5.13 m/s | flight 37.4 s
+STAB (mass removed/added uniformly, dry CG 232.7 kept): CG liftoff 248.0 burnout 239.3 mm | margin liftoff 1.57 burnout 1.77 cal
+
+--- 230 g dry: dry 230.0 g, liftoff 257.0 g on a D9, v13 airframe 408.5 mm ---
+SIM D9-3 rod 1.0 m | apogee  182.8 m @ 5.91 s | vmax 54.8 m/s | rod exit 11.6 m/s | eject t=5.24 alt  179.3 m v 18.5 m/s | optimum delay 3.67 s | ground hit 4.95 m/s | flight 43.0 s
+SIM D9-3 rod 1.5 m | apogee  182.8 m @ 5.91 s | vmax 54.8 m/s | rod exit 13.5 m/s | eject t=5.24 alt  179.3 m v 18.5 m/s | optimum delay 3.67 s | ground hit 4.95 m/s | flight 43.0 s
+SIM D9-3 rod 2.0 m | apogee  182.8 m @ 5.91 s | vmax 54.8 m/s | rod exit 14.8 m/s | eject t=5.24 alt  179.3 m v 18.5 m/s | optimum delay 3.67 s | ground hit 4.95 m/s | flight 43.0 s
+SIM D9-5 rod 1.0 m | apogee  196.4 m @ 7.10 s | vmax 54.8 m/s | rod exit 11.6 m/s | eject t=7.24 alt  196.3 m v  1.4 m/s | optimum delay 4.86 s | ground hit 4.95 m/s | flight 46.9 s
+SIM D9-5 rod 1.5 m | apogee  196.4 m @ 7.10 s | vmax 54.8 m/s | rod exit 13.5 m/s | eject t=7.24 alt  196.3 m v  1.4 m/s | optimum delay 4.86 s | ground hit 4.95 m/s | flight 46.9 s
+SIM D9-5 rod 2.0 m | apogee  196.4 m @ 7.10 s | vmax 54.8 m/s | rod exit 14.8 m/s | eject t=7.24 alt  196.3 m v  1.4 m/s | optimum delay 4.86 s | ground hit 4.95 m/s | flight 46.9 s
+SIM D9-7 rod 1.0 m | apogee  196.4 m @ 7.10 s | vmax 54.8 m/s | rod exit 11.6 m/s | eject t=9.24 alt  174.1 m v 20.6 m/s | optimum delay 4.86 s | ground hit 4.95 m/s | flight 43.8 s
+SIM D9-7 rod 1.5 m | apogee  196.4 m @ 7.10 s | vmax 54.8 m/s | rod exit 13.5 m/s | eject t=9.24 alt  174.1 m v 20.6 m/s | optimum delay 4.86 s | ground hit 4.95 m/s | flight 43.8 s
+SIM D9-7 rod 2.0 m | apogee  196.4 m @ 7.10 s | vmax 54.8 m/s | rod exit 14.8 m/s | eject t=9.24 alt  174.1 m v 20.6 m/s | optimum delay 4.86 s | ground hit 4.95 m/s | flight 43.8 s
+STAB (mass removed/added uniformly, dry CG 232.7 kept): CG liftoff 249.0 burnout 239.8 mm | margin liftoff 1.55 burnout 1.76 cal
+STAB if the -16.9 g is all at the e-bay (st ~140 from tip): dry CG 239.5 | margin liftoff 1.40 burnout 1.61 cal
+STAB if the -16.9 g is all at the fin can (st ~379): dry CG 222.0 | margin liftoff 1.77 burnout 2.00 cal
+
+PLOT PhoenixABS40-43_D9aft_v13_230g_D9-5_sim.png
