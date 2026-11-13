@@ -1,6 +1,8 @@
 #include "wireless.h"
 #include "config.h"
 #include "battery.h"
+#include "buzzer.h"
+#include "phone_page_html.h"
 
 
 #include "flight_state.h"
@@ -136,11 +138,9 @@ void buildConfigJson() {
   }
 }
 
-void handleIndex() {
-  g_server.send(200, "application/json",
-                 "{\"device\":\"flight-computer\",\"role\":\"ground-interface\","
-                 "\"firmware_version\":\"" FIRMWARE_VERSION "\"}");
-}
+// The phone control page (flight_computer_phone_v1.html, embedded by
+// tools/embed_phone_page.sh): join the AP, open http://192.168.4.1/.
+void handleIndex() { g_server.send(200, "text/html", PHONE_PAGE_HTML); }
 
 void handleStatus() {
   SensorSample s = flight_state_lastSample();
@@ -238,6 +238,9 @@ void handleArm() {
     return;
   }
   if (!sensors_selfTest()) {
+    // Only this refusal beeps: wrong_flight_state means ERROR (fail tone
+    // already looping) or post-launch (beacon), and neither may be overridden.
+    buzzer_setPattern(BuzzerPattern::ARM_FAIL);
     g_server.send(409, "application/json", "{\"ok\":false,\"reason\":\"self_test_failed\"}");
     return;
   }
@@ -264,6 +267,9 @@ void handleArm() {
   SensorSample fresh = sensors_read();
   logger_logEvent("WIRELESS_ARM", buildLogRecord(fresh));
   g_lastArmSucceeded = true;
+  // After the blocking recaptures above: the pattern is stepped from loop(),
+  // so starting it earlier would hold the first beep on for ~4-5 s.
+  buzzer_setPattern(BuzzerPattern::ARM_OK);
 
   char buf[192];
   snprintf(buf, sizeof(buf),
@@ -300,6 +306,73 @@ void handleLog() {
   f.close();
 }
 
+// Log deletion over Wi-Fi. Belt and braces: the AP is already latched off
+// from BOOST on, but refuse in any in-flight state anyway (flash erases
+// stall the CPU). ERROR is allowed on purpose -- a too-full flash fails the
+// boot self-test, and this is how you free space without a USB cable.
+// Freeing space does NOT re-run the self-test: power-cycle afterwards.
+bool logEditAllowed() {
+  switch (flight_state_current()) {
+  case FlightState::BOOST:
+  case FlightState::COAST:
+  case FlightState::APOGEE:
+  case FlightState::DESCENT:
+    g_server.send(409, "application/json", "{\"ok\":false,\"reason\":\"in_flight\"}");
+    return false;
+  default:
+    return true;
+  }
+}
+
+void sendLogEditOk() {
+  char buf[160];
+  snprintf(buf, sizeof(buf),
+           "{\"ok\":true,\"log_free_bytes\":%lu,\"log_total_bytes\":%lu,\"power_cycle_needed\":%s}",
+           static_cast<unsigned long>(logger_freeBytes()),
+           static_cast<unsigned long>(logger_totalBytes()),
+           flight_state_current() == FlightState::ERROR ? "true" : "false");
+  g_server.send(200, "application/json", buf);
+}
+
+// POST /delete?n=7 -> removes FLIGHT007.CSV. Refuses this boot's open file.
+void handleDelete() {
+  if (!logEditAllowed()) {
+    return;
+  }
+  long n = g_server.hasArg("n") ? g_server.arg("n").toInt() : 0;
+  if (n <= 0 || n > 999) {
+    g_server.send(400, "application/json", "{\"ok\":false,\"reason\":\"bad_log_number\"}");
+    return;
+  }
+  if (static_cast<uint16_t>(n) == logger_currentFileNumber()) {
+    g_server.send(409, "application/json", "{\"ok\":false,\"reason\":\"is_this_boots_file\"}");
+    return;
+  }
+  if (!logger_delete(static_cast<uint16_t>(n))) {
+    g_server.send(404, "application/json", "{\"ok\":false,\"reason\":\"no_such_log\"}");
+    return;
+  }
+  logger_logEvent("LOG_DELETED", buildLogRecord(flight_state_lastSample()));
+  sendLogEditOk();
+}
+
+// POST /format?confirm=YES -> erases EVERY log (same as serial FORMAT YES)
+// and starts a fresh FLIGHT001.CSV for this boot.
+void handleFormat() {
+  if (!logEditAllowed()) {
+    return;
+  }
+  if (!g_server.hasArg("confirm") || g_server.arg("confirm") != "YES") {
+    g_server.send(400, "application/json", "{\"ok\":false,\"reason\":\"confirm_YES_required\"}");
+    return;
+  }
+  if (!logger_format()) {
+    g_server.send(500, "application/json", "{\"ok\":false,\"reason\":\"format_failed\"}");
+    return;
+  }
+  sendLogEditOk();
+}
+
 void handleNotFound() {
   g_server.send(404, "application/json", "{\"ok\":false,\"reason\":\"not_found\"}");
 }
@@ -309,12 +382,20 @@ void handleNotFound() {
 void wireless_init() {
   buildConfigJson();
 
+  // Access-Control-Allow-Origin: * on every response, so the standalone
+  // phone page (Electronics/Avionics/flight_computer_phone_v1.html, opened
+  // as a local file = a different origin) can read the replies. The AP is
+  // WPA2 and only exists on the pad; there is nothing else on this network.
+  g_server.enableCORS(true);
+
   g_server.on("/", HTTP_GET, handleIndex);
   g_server.on("/status", HTTP_GET, handleStatus);
   g_server.on("/config", HTTP_GET, handleConfig);
   g_server.on("/arm", HTTP_POST, handleArm);
   g_server.on("/logs", HTTP_GET, handleLogs);
   g_server.on("/log", HTTP_GET, handleLog);
+  g_server.on("/delete", HTTP_POST, handleDelete);
+  g_server.on("/format", HTTP_POST, handleFormat);
   g_server.onNotFound(handleNotFound);
 
   // The radio comes up on the first wireless_update(), i.e. only after

@@ -13,6 +13,10 @@ struct Step {
 const Step SELF_TEST_PASS_STEPS[] = {{true, 100}, {false, 100}, {true, 100}};
 const Step SELF_TEST_FAIL_STEPS[] = {{true, 150}, {false, 150}};
 const Step RECOVERY_BEACON_STEPS[] = {{true, 120}, {false, 2880}};
+// Active buzzer = on/off only, so the arm tones differ from the boot
+// double-beep (2 x 100 ms) by rhythm: OK ends on a long tone, FAIL is all long.
+const Step ARM_OK_STEPS[] = {{true, 100}, {false, 100}, {true, 100}, {false, 100}, {true, 700}};
+const Step ARM_FAIL_STEPS[] = {{true, 500}, {false, 250}, {true, 500}, {false, 250}, {true, 500}};
 
 struct PatternDef {
   const Step *steps;
@@ -25,6 +29,8 @@ const PatternDef PATTERNS[] = {
     /* SELF_TEST_PASS  */ {SELF_TEST_PASS_STEPS, 3, false},
     /* SELF_TEST_FAIL  */ {SELF_TEST_FAIL_STEPS, 2, true},
     /* RECOVERY_BEACON */ {RECOVERY_BEACON_STEPS, 2, true},
+    /* ARM_OK          */ {ARM_OK_STEPS, 5, false},
+    /* ARM_FAIL        */ {ARM_FAIL_STEPS, 5, false},
 };
 
 BuzzerPattern g_pattern = BuzzerPattern::OFF;
@@ -44,7 +50,7 @@ void buzzer_init() {
 }
 
 void buzzer_setPattern(BuzzerPattern pattern) {
-  if (pattern == g_pattern) {
+  if (pattern == g_pattern && !g_finished) {
     return;
   }
   g_pattern = pattern;

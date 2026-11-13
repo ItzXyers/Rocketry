@@ -6,7 +6,7 @@
 //   pio run -e buzzer_bench -t upload
 //   pio device monitor
 //
-// Serial commands: PASS, FAIL, BEACON, OFF
+// Serial commands: PASS, FAIL, BEACON, ARMOK, ARMFAIL, OFF
 
 #include "buzzer.h"
 #include "config.h"
@@ -27,11 +27,17 @@ void handleCommand(String cmd) {
   } else if (cmd == "BEACON") {
     buzzer_setPattern(BuzzerPattern::RECOVERY_BEACON);
     Serial.println(F("[bench] RECOVERY_BEACON - slow low-duty chirp"));
+  } else if (cmd == "ARMOK") {
+    buzzer_setPattern(BuzzerPattern::ARM_OK);
+    Serial.println(F("[bench] ARM_OK - beep-beep-beeeep, once"));
+  } else if (cmd == "ARMFAIL") {
+    buzzer_setPattern(BuzzerPattern::ARM_FAIL);
+    Serial.println(F("[bench] ARM_FAIL - three long buzzes, once"));
   } else if (cmd == "OFF") {
     buzzer_setPattern(BuzzerPattern::OFF);
     Serial.println(F("[bench] OFF"));
   } else if (cmd.length() > 0) {
-    Serial.println(F("[bench] unknown command. Available: PASS, FAIL, BEACON, OFF"));
+    Serial.println(F("[bench] unknown command. Available: PASS, FAIL, BEACON, ARMOK, ARMFAIL, OFF"));
   }
 }
 
@@ -56,7 +62,7 @@ void setup() {
   buzzer_init();
   Serial.begin(115200);
   delay(200);
-  Serial.println(F("[bench] buzzer bring-up ready. Commands: PASS, FAIL, BEACON, OFF"));
+  Serial.println(F("[bench] buzzer bring-up ready. Commands: PASS, FAIL, BEACON, ARMOK, ARMFAIL, OFF"));
 }
 
 void loop() {

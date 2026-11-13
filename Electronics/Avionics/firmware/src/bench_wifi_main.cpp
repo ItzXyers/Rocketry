@@ -202,11 +202,17 @@ void cmdBuzzer(Print &out, const String &arg) {
   } else if (arg == "BEACON") {
     buzzer_setPattern(BuzzerPattern::RECOVERY_BEACON);
     out.println(F("[bench] buzzer: RECOVERY_BEACON (slow chirp)"));
+  } else if (arg == "ARMOK") {
+    buzzer_setPattern(BuzzerPattern::ARM_OK);
+    out.println(F("[bench] buzzer: ARM_OK (beep-beep-beeeep, once)"));
+  } else if (arg == "ARMFAIL") {
+    buzzer_setPattern(BuzzerPattern::ARM_FAIL);
+    out.println(F("[bench] buzzer: ARM_FAIL (three long buzzes, once)"));
   } else if (arg == "OFF") {
     buzzer_setPattern(BuzzerPattern::OFF);
     out.println(F("[bench] buzzer: OFF"));
   } else {
-    out.println(F("[bench] usage: BUZZER PASS|FAIL|BEACON|OFF"));
+    out.println(F("[bench] usage: BUZZER PASS|FAIL|BEACON|ARMOK|ARMFAIL|OFF"));
   }
 }
 
@@ -260,7 +266,7 @@ void cmdHelp(Print &out) {
   out.println(F("[bench]   FLASH                       mount internal flash + write a test record"));
   out.println(F("[bench]   LOGS                        list flight logs in internal flash"));
   out.println(F("[bench]   FORMAT YES                  erase every log (formats a new board)"));
-  out.println(F("[bench]   BUZZER PASS|FAIL|BEACON|OFF  play a buzzer pattern"));
+  out.println(F("[bench]   BUZZER PASS|FAIL|BEACON|ARMOK|ARMFAIL|OFF  play a buzzer pattern"));
   out.println(F("[bench]   BATT                        battery voltage (A0 divider)"));
   out.println(F("[bench]   PINS                        print the pin map"));
   out.println(F("[bench]   WIFI                        AP name / IP / connected clients"));

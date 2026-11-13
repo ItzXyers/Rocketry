@@ -25,7 +25,7 @@
 //   FLASH                       mount internal flash, open a FLIGHTnnn.CSV, write a test record
 //   LOGS                        list the FLIGHTnnn.CSV files in internal flash
 //   FORMAT YES                  erase every log (also formats a brand-new board)
-//   BUZZER PASS|FAIL|BEACON|OFF play a buzzer pattern
+//   BUZZER PASS|FAIL|BEACON|ARMOK|ARMFAIL|OFF play a buzzer pattern
 //   BATT                        battery voltage + raw sense-pin reading (A0)
 //   PINS                        print the pin map
 //   HELP                        this list
@@ -182,11 +182,17 @@ void cmdBuzzer(const String &arg) {
   } else if (arg == "BEACON") {
     buzzer_setPattern(BuzzerPattern::RECOVERY_BEACON);
     Serial.println(F("[bench] buzzer: RECOVERY_BEACON (slow chirp)"));
+  } else if (arg == "ARMOK") {
+    buzzer_setPattern(BuzzerPattern::ARM_OK);
+    Serial.println(F("[bench] buzzer: ARM_OK (beep-beep-beeeep, once)"));
+  } else if (arg == "ARMFAIL") {
+    buzzer_setPattern(BuzzerPattern::ARM_FAIL);
+    Serial.println(F("[bench] buzzer: ARM_FAIL (three long buzzes, once)"));
   } else if (arg == "OFF") {
     buzzer_setPattern(BuzzerPattern::OFF);
     Serial.println(F("[bench] buzzer: OFF"));
   } else {
-    Serial.println(F("[bench] usage: BUZZER PASS|FAIL|BEACON|OFF"));
+    Serial.println(F("[bench] usage: BUZZER PASS|FAIL|BEACON|ARMOK|ARMFAIL|OFF"));
   }
 }
 
@@ -231,7 +237,7 @@ void cmdHelp() {
   Serial.println(F("[bench]   FLASH                       mount internal flash + write a test record"));
   Serial.println(F("[bench]   LOGS                        list flight logs in internal flash"));
   Serial.println(F("[bench]   FORMAT YES                  erase every log (formats a new board)"));
-  Serial.println(F("[bench]   BUZZER PASS|FAIL|BEACON|OFF  play a buzzer pattern"));
+  Serial.println(F("[bench]   BUZZER PASS|FAIL|BEACON|ARMOK|ARMFAIL|OFF  play a buzzer pattern"));
   Serial.println(F("[bench]   BATT                        battery voltage (A0 divider)"));
   Serial.println(F("[bench]   PINS                        print the pin map"));
 

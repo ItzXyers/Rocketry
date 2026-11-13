@@ -144,4 +144,4 @@ static_assert(LOG_HOLD_RECORDS >= 2UL * MAX_TIME_TO_APOGEE_MS * 1000UL / ASCENT_
 #define WIFI_AP_MAX_CONNECTIONS 1            // deliberately capped so a stray device can't also join
 #define WIFI_AP_HTTP_PORT 80
 #define WIFI_ARM_SHUTDOWN_GRACE_MS 500UL     // STARTING DEFAULT — verify on bench this is enough for the Pi to see the full /arm response before the AP drops
-#define FIRMWARE_VERSION "0.2.3"             // bump manually per notable firmware change; surfaced read-only via GET /config
+#define FIRMWARE_VERSION "0.2.4"             // bump manually per notable firmware change; surfaced read-only via GET /config

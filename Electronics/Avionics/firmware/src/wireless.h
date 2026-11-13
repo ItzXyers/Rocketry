@@ -2,15 +2,17 @@
 
 // Owns the WiFi AP + HTTP status/arm interface used by a ground-support
 // Raspberry Pi to check status, perform the wireless-arm step, and download
-// flight logs from internal flash. Read-only except for the single, gated
-// /arm action. The board fires nothing (no deploy channel since 2026-10-19).
+// flight logs from internal flash. Writes: the gated /arm action, plus
+// ground-only log deletion (/delete, /format). The board fires nothing (no
+// deploy channel since 2026-10-19).
 //
 // No interlock switch any more (SW2 dropped 2026-10-19): the AP comes up on
 // every boot and stays up until a successful /arm or a confirmed BOOST
 // (flight_state.cpp) latches it off for the rest of this power cycle.
 //
-// Routes: GET / , /status , /config , /logs (plain-text list),
-// /log?n=<nnn> (FLIGHTnnn.CSV download); POST /arm.
+// Routes: GET / (phone control page) , /status , /config , /logs (plain-text list),
+// /log?n=<nnn> (FLIGHTnnn.CSV download); POST /arm , /delete?n=<nnn> ,
+// /format?confirm=YES (erase every log).
 
 // Registers HTTP routes and builds the static /config JSON payload. Does
 // NOT bring up the radio -- the first wireless_update() does, so the AP
