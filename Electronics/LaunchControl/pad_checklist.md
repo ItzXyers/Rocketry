@@ -114,7 +114,7 @@ some point before today — this doc doesn't re-derive that.
 
 **Why this order:** `flight_state_init()` puts the sled into `IDLE_ARMED`
 automatically at boot, right after self-test passes — there is no separate
-"arm" step in the firmware at that point. Launch detection is a 3.0 g bump
+"arm" step in the firmware at that point. Launch detection is a 2.0 g bump
 sustained 100 ms (`LAUNCH_ACCEL_THRESHOLD_G` / `LAUNCH_ACCEL_CONFIRM_MS`).
 The flight computer fires nothing (no deploy channel since 2026-10-19), so a
 false launch can't deploy anything — but it does latch the Wi-Fi AP off and

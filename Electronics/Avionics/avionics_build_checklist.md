@@ -164,6 +164,8 @@ separately verify, per motor/flight:
       against expected handling/rail-bump accelerations vs. real liftoff.
 - [ ] `BURNOUT_ACCEL_THRESHOLD_G` — verify against the actual motor's
       thrust curve, not just the placeholder.
+- [ ] `BOOST_MAX_TIME_MS` — backup BOOST -> COAST timer; must exceed the
+      real motor's burn time, per-motor.
 - [ ] `MIN_COAST_TIME_MS` — must exceed the real motor's burn time with
       margin, per-motor.
 - [ ] `MAX_TIME_TO_APOGEE_MS` — must exceed the OpenRocket-simulated
