@@ -1,7 +1,7 @@
 // Standalone bench tool: find which pin the battery-sense divider is wired to.
 //
 // Use it when PIN_BATT_SENSE in config.h no longer matches the harness. It
-// scans every ADC-capable header pin on the Nano ESP32 and scores each one
+// scans the analog header pins A0-A7 on the Nano ESP32 and scores each one
 // against what the R11/R12 10k/10k divider looks like electrically:
 //
 //   1. Voltage: the divider midpoint sits at half the cell voltage, so a
@@ -15,9 +15,10 @@
 // A pin that passes all three is reported as the battery sense, along with the
 // line to put in config.h.
 //
-// The board must run on the battery (a USB-only board reads ~0 V on the
-// divider). With USB also connected you can type WATCH, then unplug and
-// replug the battery: the pin that follows it is the divider.
+// The battery must be plugged in: the divider measures the cell, so with USB
+// alone it reads ~0 V. USB can be plugged in as well (you need it for the
+// serial monitor anyway). With both in, type WATCH, then unplug and replug
+// the battery: the pin that follows it is the divider.
 //
 // Build/flash/monitor:
 //   pio run -e battfind_bench -t upload
@@ -31,8 +32,7 @@
 //
 // It writes no outputs. It only reads pins and turns the internal pulls on and
 // off for a few milliseconds per pin. It doesn't start I2C, so the sensors
-// aren't touched. The buzzer pin (D9) is read as an input. Its 10k base
-// pulldown keeps the buzzer silent.
+// aren't touched. Digital pins (including the buzzer on D9) aren't touched.
 
 #include <Arduino.h>
 #include <driver/gpio.h>
@@ -46,10 +46,10 @@ struct ScanPin {
   const char *note;
 };
 
-// Every Nano ESP32 header pin with an ADC channel. D10-D13 (GPIO21/38/47/48)
-// have no ADC and can't be the battery sense. D0/D1 are the UART and B0/B1
-// are boot straps, so they're left out.
-// Arduino label -> GPIO from the Nano ESP32 (ABX00083) pinout.
+// The analog header pins A0-A7 (Nano ESP32 / ABX00083 pinout). The divider
+// is known to be on one of these. All are ADC1, so they read fine with the
+// Wi-Fi AP up. A4/A5 are the I2C bus and will show "held high" from its
+// pull-ups.
 const ScanPin kPins[] = {
     {"A0", A0, GPIO_NUM_1, "config.h PIN_BATT_SENSE"},
     {"A1", A1, GPIO_NUM_2, ""},
@@ -59,14 +59,6 @@ const ScanPin kPins[] = {
     {"A5", A5, GPIO_NUM_12, "I2C SCL"},
     {"A6", A6, GPIO_NUM_13, ""},
     {"A7", A7, GPIO_NUM_14, ""},
-    {"D2", D2, GPIO_NUM_5, "reserved GPS"},
-    {"D3", D3, GPIO_NUM_6, "reserved GPS"},
-    {"D4", D4, GPIO_NUM_7, ""},
-    {"D5", D5, GPIO_NUM_8, ""},
-    {"D6", D6, GPIO_NUM_9, ""},
-    {"D7", D7, GPIO_NUM_10, ""},
-    {"D8", D8, GPIO_NUM_17, "ADC2"},
-    {"D9", D9, GPIO_NUM_18, "buzzer, ADC2"},
 };
 constexpr size_t kPinCount = sizeof(kPins) / sizeof(kPins[0]);
 
@@ -235,14 +227,10 @@ void runScan() {
     Serial.println(F(" V before BATT_CAL_GAIN)."));
     Serial.print(F("[find]   config.h:  #define PIN_BATT_SENSE "));
     Serial.println(kPins[best].label);
-    if (kPins[best].gpio == GPIO_NUM_17 || kPins[best].gpio == GPIO_NUM_18) {
-      Serial.println(F("[find]   WARNING: that pin is on ADC2, which the ESP32-S3 can't read while the"));
-      Serial.println(F("[find]   Wi-Fi AP is up. Move the divider to an ADC1 pin (A0-A7, D2-D7)."));
-    }
   } else if (candidates == 0) {
-    Serial.println(F("[find] RESULT: no pin looks like the divider. Check that the board is on the battery"));
-    Serial.println(F("[find]   (USB alone reads ~0 V), that R11/R12 are fitted, and that the divider goes to a"));
-    Serial.println(F("[find]   pin in the table (D10-D13 have no ADC). WATCH + unplugging the battery helps."));
+    Serial.println(F("[find] RESULT: no pin looks like the divider. Check that the battery is plugged in"));
+    Serial.println(F("[find]   (USB alone reads ~0 V), that R11/R12 are fitted, and that the divider goes to"));
+    Serial.println(F("[find]   one of A0-A7. WATCH + unplugging the battery (USB in) helps."));
   } else {
     Serial.print(F("[find] RESULT: "));
     Serial.print(candidates);
@@ -289,7 +277,7 @@ void watchTick() {
 }
 
 void printHelp() {
-  Serial.println(F("[find] SCAN   scan every ADC pin for the battery divider"));
+  Serial.println(F("[find] SCAN   scan A0-A7 for the battery divider"));
   Serial.println(F("[find] WATCH  toggle a live 1 Hz voltage table (unplug the battery to see which pin follows)"));
   Serial.println(F("[find] HELP   this list"));
 }
@@ -328,7 +316,7 @@ void setup() {
   delay(300);
 
   analogReadResolution(12);
-  Serial.println(F("[find] battery-sense pin finder: scanning every ADC-capable pin"));
+  Serial.println(F("[find] battery-sense pin finder: scanning A0-A7"));
   runScan();
 }
 
