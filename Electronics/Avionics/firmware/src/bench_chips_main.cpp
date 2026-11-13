@@ -25,7 +25,7 @@
 //   FLASH                       mount internal flash, open a FLIGHTnnn.CSV, write a test record
 //   LOGS                        list the FLIGHTnnn.CSV files in internal flash
 //   FORMAT YES                  erase every log (also formats a brand-new board)
-//   BUZZER PASS|FAIL|BEACON|OFF play a buzzer pattern
+//   BUZZER PASS|FAIL|BEACON|ARM|ARMED|REJECT|OFF
 //   BATT                        battery voltage + raw sense-pin reading (A0)
 //   PINS                        print the pin map
 //   HELP                        this list
@@ -182,11 +182,20 @@ void cmdBuzzer(const String &arg) {
   } else if (arg == "BEACON") {
     buzzer_setPattern(BuzzerPattern::RECOVERY_BEACON);
     Serial.println(F("[bench] buzzer: RECOVERY_BEACON (slow chirp)"));
+  } else if (arg == "ARM") {
+    buzzer_setPattern(BuzzerPattern::ARM_CONFIRM);
+    Serial.println(F("[bench] buzzer: ARM_CONFIRM (beep-beep-beeeep, then ARMED reminder)"));
+  } else if (arg == "ARMED") {
+    buzzer_setPattern(BuzzerPattern::ARMED_REMINDER);
+    Serial.println(F("[bench] buzzer: ARMED_REMINDER (double chirp every ~4 s)"));
+  } else if (arg == "REJECT") {
+    buzzer_setPattern(BuzzerPattern::ARM_REJECTED);
+    Serial.println(F("[bench] buzzer: ARM_REJECTED (five fast blips)"));
   } else if (arg == "OFF") {
     buzzer_setPattern(BuzzerPattern::OFF);
     Serial.println(F("[bench] buzzer: OFF"));
   } else {
-    Serial.println(F("[bench] usage: BUZZER PASS|FAIL|BEACON|OFF"));
+    Serial.println(F("[bench] usage: BUZZER PASS|FAIL|BEACON|ARM|ARMED|REJECT|OFF"));
   }
 }
 
@@ -231,7 +240,7 @@ void cmdHelp() {
   Serial.println(F("[bench]   FLASH                       mount internal flash + write a test record"));
   Serial.println(F("[bench]   LOGS                        list flight logs in internal flash"));
   Serial.println(F("[bench]   FORMAT YES                  erase every log (formats a new board)"));
-  Serial.println(F("[bench]   BUZZER PASS|FAIL|BEACON|OFF  play a buzzer pattern"));
+  Serial.println(F("[bench]   BUZZER PASS|FAIL|BEACON|ARM|ARMED|REJECT|OFF  play a buzzer pattern"));
   Serial.println(F("[bench]   BATT                        battery voltage (A0 divider)"));
   Serial.println(F("[bench]   PINS                        print the pin map"));
 

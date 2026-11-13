@@ -117,6 +117,13 @@ the rest of that power cycle.
 - [ ] After boot, serial prints `[wireless] AP up` and `WIFI_AP_SSID` from
       `config.h` is visible on a phone/laptop within a few seconds.
 - [ ] `GET /status` answers, and `log_free_bytes` / `logger_ready` look right.
+- [ ] `http://192.168.4.1/` opens the console on a phone: status updates
+      every second, the Logs card lists files, Download saves a CSV, and
+      Delete removes an old log (the "this boot" file has no Delete).
+- [ ] Arm sounds (bench: `BUZZER ARM`, `BUZZER ARMED`, `BUZZER REJECT` in
+      chips_bench, or `ARM`/`ARMED`/`REJECT` in buzzer_bench) are each
+      clearly distinguishable from the boot pass/fail tones and the recovery
+      beacon, and audible through the closed bay.
 - [ ] `POST /arm` succeeds, and the AP disappears ~0.5 s later. It stays
       down until the next power cycle.
 

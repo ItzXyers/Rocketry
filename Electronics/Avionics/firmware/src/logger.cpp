@@ -295,6 +295,39 @@ void logger_list(Print &out) {
   out.println(F(" KB free"));
 }
 
+void logger_listJson(Print &out) {
+  out.print(F("{\"logs\":["));
+  if (g_mounted) {
+    drainAll(); // so this boot's file shows its real size
+    File root = FFat.open("/");
+    bool first = true;
+    for (File f = root.openNextFile(); f; f = root.openNextFile()) {
+      uint16_t n = f.isDirectory() ? 0 : parseFlightNumber(f.name());
+      if (n == 0) {
+        continue;
+      }
+      out.print(first ? F("{\"n\":") : F(",{\"n\":"));
+      first = false;
+      out.print(n);
+      out.print(F(",\"name\":\""));
+      out.print(f.name()[0] == '/' ? f.name() + 1 : f.name());
+      out.print(F("\",\"bytes\":"));
+      out.print(static_cast<unsigned long>(f.size()));
+      out.print(F(",\"current\":"));
+      out.print(n == g_fileNumber ? F("true}") : F("false}"));
+    }
+  }
+  out.print(F("],\"mounted\":"));
+  out.print(g_mounted ? F("true") : F("false"));
+  out.print(F(",\"free_bytes\":"));
+  out.print(logger_freeBytes());
+  out.print(F(",\"total_bytes\":"));
+  out.print(logger_totalBytes());
+  out.print(F(",\"current\":"));
+  out.print(g_fileNumber);
+  out.print('}');
+}
+
 fs::File logger_openForRead(uint16_t n) {
   if (!g_mounted || n == 0) {
     return File();

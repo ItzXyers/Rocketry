@@ -114,6 +114,9 @@ FlightState flight_state_update(const SensorSample &sample) {
       g_launchTimestamp = sample.timestamp_ms;
       g_state = FlightState::BOOST;
       logTransition("BOOST");
+      // Stop the post-arm ARMED_REMINDER chirp: silent in flight, the
+      // recovery beacon takes over at LANDED.
+      buzzer_setPattern(BuzzerPattern::OFF);
 
       // Force the wireless ground-support radio off the instant a real
       // launch is confirmed -- independent of the wireless-arm step
