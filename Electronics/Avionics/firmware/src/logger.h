@@ -96,6 +96,11 @@ uint32_t logger_maxFlushUs(); // longest logger_flush() so far this boot
 // Prints "FLIGHTnnn.CSV <bytes>" per log file, then free/total bytes.
 void logger_list(Print &out);
 
+// Same listing as JSON, for the web console:
+// {"logs":[{"n":3,"name":"FLIGHT003.CSV","bytes":12345,"current":false},...],
+//  "free_bytes":...,"total_bytes":...,"current":n}
+void logger_listJson(Print &out);
+
 // Opens /FLIGHTnnn.CSV for reading (flushing first if it is this boot's
 // file). Returns an invalid File if it doesn't exist.
 fs::File logger_openForRead(uint16_t n);

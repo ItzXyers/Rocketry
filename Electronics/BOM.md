@@ -50,7 +50,7 @@ Quantities are **per vehicle** (or per ground station). Buy spares of anything m
 | C1 | 1 | Electrolytic 220 µF, ≥10 V, low-ESR (**Phoenix build: 470 µF 16 V from stock**, 2026-10-08) | 5 V bulk | ⌀8 × 12 mm radial (check the 470 µF can: ⌀10 won't fit sled v8) | 1.5 g | Specified | Wiring doc 2 / AV power note 3. **Mandatory before using the Wi-Fi ground interface near a loaded vehicle.** |
 | ~~SW1~~ | 0 | ~~Magnetic reed switch (KY-021)~~ | — | — | — | **Dropped 2026-10-19** | AV-13. No power switch: the bay powers up when the battery's JST lead is plugged in, and powers down when it is unplugged. |
 | ~~Q3, R6~~ | 0 | ~~G75P04T P-MOSFET high-side switch + 100 kΩ gate pull-up~~ | — | — | — | **Dropped 2026-10-19** | Went with SW1. BATT+ now feeds U2 and the R11/R12 divider directly. |
-| R11, R12 | 2 | Resistor 10 kΩ, 1 % | battery-sense divider, BATT+ → A0 → GND | axial | — | Candidate | **New 2026-10-08.** Halves the cell voltage for the ADC (4.2 V → 2.1 V). 5 kΩ source, so no ADC filter cap is needed. Draws ~0.2 mA whenever the battery is plugged in (no switch ahead of it), so unplug the battery for storage. |
+| R11, R12 | 2 | Resistor 10 kΩ, 1 % | battery-sense divider, BATT+ → A7 → GND | axial | — | Candidate | **New 2026-10-08.** Halves the cell voltage for the ADC (4.2 V → 2.1 V). 5 kΩ source, so no ADC filter cap is needed. Draws ~0.2 mA whenever the battery is plugged in (no switch ahead of it), so unplug the battery for storage. |
 | ~~SW2, R3~~ | 0 | ~~Wireless-arm push button + 10 kΩ D7 pulldown~~ | — | — | — | **Dropped 2026-10-19** | Firmware 0.2.1+ brings the Wi-Fi AP up at boot; it still latches off after `/arm` or confirmed launch. D7 is free. |
 | — | 2 | Qwiic / STEMMA QT cable, JST-SH 4-pin, 50–100 mm | — | — | ~1 g | Specified | AV-12. Nano → BMP388 → ADXL375 daisy chain. |
 | — | 1 lot | JST-PH 2-pin leads, 26–28 AWG silicone wire, heat-shrink, pin headers | — | — | 3–5 g | Specified | AV-12 |
@@ -70,7 +70,7 @@ Quantities are **per vehicle** (or per ground station). Buy spares of anything m
 | D9 | `PIN_BUZZER` | R1 → Q1 | A, B |
 | D6 | free (was `PIN_DEPLOY`; deploy channel removed from firmware 2026-10-19) | — | — |
 | D7 | free (was `PIN_ARM_INTERLOCK`, SW2) | — | — |
-| A0 | `PIN_BATT_SENSE` | R11/R12 divider | Phoenix (firmware 0.2.0) |
+| A7 | `PIN_BATT_SENSE` | R11/R12 divider (ADC2: sampled only with Wi-Fi off) | Phoenix (firmware 0.3.0) |
 | D4 / D5 (proposed) | servo PWM | M1 | B — **not yet in `config.h`** |
 | D2 / D3 | Serial1 (reserved) | future GPS | — |
 

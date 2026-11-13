@@ -1,12 +1,12 @@
 #include "wireless.h"
 #include "config.h"
 #include "battery.h"
-
-
+#include "buzzer.h"
 #include "flight_state.h"
 #include "logger.h"
 #include "sensors.h"
 #include "velocity_estimator.h"
+#include "web_ui.h"
 
 #include <Arduino.h>
 #include <StreamString.h>
@@ -37,6 +37,7 @@ bool g_lastArmSucceeded = false; // this session's wireless-arm outcome
 char g_configJson[1536];
 
 void bringApUp() {
+  battery_setRadioOn(true); // fresh read first: PIN_BATT_SENSE is on ADC2, shared with Wi-Fi
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(IPAddress(192, 168, 4, 1), IPAddress(192, 168, 4, 1), IPAddress(255, 255, 255, 0));
   WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PASSWORD, WIFI_AP_CHANNEL, /*hidden=*/0, WIFI_AP_MAX_CONNECTIONS);
@@ -50,6 +51,7 @@ void bringRadioDown() {
   WiFi.mode(WIFI_OFF);
   btStop();
   g_radioActive = false;
+  battery_setRadioOn(false); // ADC2 is free again -- battery sampling resumes
   Serial.println(F("[wireless] radio disabled"));
 }
 
@@ -136,10 +138,21 @@ void buildConfigJson() {
   }
 }
 
-void handleIndex() {
+// GET / -> the browser ground console (web_ui.h).
+void handleIndex() { g_server.send(200, "text/html", WEB_UI_HTML); }
+
+// GET /info -> the small identity JSON that used to live at "/".
+void handleInfo() {
   g_server.send(200, "application/json",
                  "{\"device\":\"flight-computer\",\"role\":\"ground-interface\","
                  "\"firmware_version\":\"" FIRMWARE_VERSION "\"}");
+}
+
+// Log management touches flash and can block -- ground states only. The
+// radio is latched off from BOOST on, so this is belt-and-braces.
+bool logAccessAllowed() {
+  FlightState st = flight_state_current();
+  return st == FlightState::IDLE_ARMED || st == FlightState::LANDED || st == FlightState::ERROR;
 }
 
 void handleStatus() {
@@ -177,7 +190,9 @@ void handleStatus() {
       "\"batt_valid\":%s,"
       "\"batt_voltage_v\":%.3f,"
       "\"batt_percent\":%u,"
-      "\"batt_low\":%s"
+      "\"batt_low\":%s,"
+      "\"batt_held\":%s,"
+      "\"batt_age_ms\":%lu"
       "}",
       static_cast<unsigned long>(millis()),
       static_cast<unsigned long>(ESP.getFreeHeap()),
@@ -206,7 +221,9 @@ void handleStatus() {
       battery_valid() ? "true" : "false",
       static_cast<double>(battery_voltage()),
       static_cast<unsigned>(battery_percent()),
-      battery_low() ? "true" : "false");
+      battery_low() ? "true" : "false",
+      battery_held() ? "true" : "false",
+      static_cast<unsigned long>(battery_ageMs()));
 
   if (n < 0 || static_cast<size_t>(n) >= sizeof(buf)) {
     g_server.send(500, "application/json", "{\"ok\":false,\"reason\":\"status_json_truncated\"}");
@@ -230,6 +247,7 @@ void handleConfig() {
 // state change on any failure.
 void handleArm() {
   if (flight_state_current() != FlightState::IDLE_ARMED) {
+    buzzer_setPattern(BuzzerPattern::ARM_REJECTED);
     char buf[128];
     snprintf(buf, sizeof(buf),
              "{\"ok\":false,\"reason\":\"wrong_flight_state\",\"flight_state\":\"%s\"}",
@@ -238,6 +256,7 @@ void handleArm() {
     return;
   }
   if (!sensors_selfTest()) {
+    buzzer_setPattern(BuzzerPattern::ARM_REJECTED);
     g_server.send(409, "application/json", "{\"ok\":false,\"reason\":\"self_test_failed\"}");
     return;
   }
@@ -247,6 +266,9 @@ void handleArm() {
   // samples for this duration (launch detection is blind), which is
   // acceptable for a deliberate ground action: /arm is only reachable in
   // IDLE_ARMED, i.e. on the pad.
+  // Audible "got it, calibrating" before the blocking re-zero below, during
+  // which buzzer_update() can't run (so no pattern may be mid-beep).
+  buzzer_chirpBlocking(60);
   sensors_capturePadBaseline();
   // Re-run alongside the baro re-zero above, adding roughly another
   // ~1.5-2s to this handler (same accepted-blocking reasoning as above):
@@ -264,6 +286,9 @@ void handleArm() {
   SensorSample fresh = sensors_read();
   logger_logEvent("WIRELESS_ARM", buildLogRecord(fresh));
   g_lastArmSucceeded = true;
+  // beep-beep-beeeep, once -- the only "armed" indication once the radio
+  // is down.
+  buzzer_setPattern(BuzzerPattern::ARM_CONFIRM);
 
   char buf[192];
   snprintf(buf, sizeof(buf),
@@ -281,12 +306,52 @@ void handleLogs() {
   g_server.send(200, "text/plain", body);
 }
 
+// GET /logs.json -> same listing as JSON, for the web console.
+void handleLogsJson() {
+  if (!logAccessAllowed()) {
+    g_server.send(409, "application/json", "{\"ok\":false,\"reason\":\"in_flight\"}");
+    return;
+  }
+  StreamString body;
+  logger_listJson(body);
+  g_server.send(200, "application/json", body);
+}
+
+// POST /log/delete?n=7 -> removes FLIGHT007.CSV. Refuses this boot's file
+// (logger_delete() does), and anything outside ground states.
+void handleLogDelete() {
+  if (!logAccessAllowed()) {
+    g_server.send(409, "application/json", "{\"ok\":false,\"reason\":\"in_flight\"}");
+    return;
+  }
+  long n = g_server.hasArg("n") ? g_server.arg("n").toInt() : 0;
+  if (n <= 0 || n > 999) {
+    g_server.send(400, "application/json", "{\"ok\":false,\"reason\":\"bad_log_number\"}");
+    return;
+  }
+  if (n == logger_currentFileNumber()) {
+    g_server.send(409, "application/json", "{\"ok\":false,\"reason\":\"current_log\"}");
+    return;
+  }
+  if (!logger_delete(static_cast<uint16_t>(n))) {
+    g_server.send(404, "application/json", "{\"ok\":false,\"reason\":\"no_such_log\"}");
+    return;
+  }
+  Serial.print(F("[wireless] deleted FLIGHT"));
+  Serial.println(n);
+  g_server.send(200, "application/json", "{\"ok\":true}");
+}
+
 // GET /log?n=7 -> FLIGHT007.CSV as a download. Blocks loop() for the whole
 // transfer (seconds for a big file), so launch detection is blind meanwhile
 // -- fine for a ground action, and the radio is latched off from BOOST on
 // anyway, so this is never reachable in flight. After landing, power-cycle
 // and download from the fresh boot.
 void handleLog() {
+  if (!logAccessAllowed()) {
+    g_server.send(409, "application/json", "{\"ok\":false,\"reason\":\"in_flight\"}");
+    return;
+  }
   long n = g_server.hasArg("n") ? g_server.arg("n").toInt() : 0;
   File f = (n > 0 && n <= 999) ? logger_openForRead(static_cast<uint16_t>(n)) : File();
   if (!f) {
@@ -310,11 +375,14 @@ void wireless_init() {
   buildConfigJson();
 
   g_server.on("/", HTTP_GET, handleIndex);
+  g_server.on("/info", HTTP_GET, handleInfo);
   g_server.on("/status", HTTP_GET, handleStatus);
   g_server.on("/config", HTTP_GET, handleConfig);
   g_server.on("/arm", HTTP_POST, handleArm);
   g_server.on("/logs", HTTP_GET, handleLogs);
+  g_server.on("/logs.json", HTTP_GET, handleLogsJson);
   g_server.on("/log", HTTP_GET, handleLog);
+  g_server.on("/log/delete", HTTP_POST, handleLogDelete);
   g_server.onNotFound(handleNotFound);
 
   // The radio comes up on the first wireless_update(), i.e. only after

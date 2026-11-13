@@ -68,9 +68,9 @@ some point before today — this doc doesn't re-derive that.
       today, not just once this morning — an `ignition.py` dummy-load test
       sets it.
 - [ ] Flight computer flash has room: `LOGS` on the USB console (or
-      `GET /logs` over Wi-Fi) shows at least 5 MB free. Old logs pulled
-      (`DUMP n` / `GET /log?n=`) and backed up, then deleted (`DEL n`, or
-      `FORMAT YES` to erase all). Below 5 MB free the boot self-test fails.
+      the Logs card at `http://192.168.4.1/`) shows at least 5 MB free. Old
+      logs pulled (`DUMP n`, or Download on the page) and backed up, then
+      deleted (`DEL n`, Delete on the page, or `FORMAT YES` to erase all). Below 5 MB free the boot self-test fails.
 - [ ] Recovery hardware (parachute, shock cord, CO2 module's *fresh* line
       and inspected coil per `co2_assembly_checklist.md` §2) packed
       separately from the pre-armed state — the reload procedure happens
@@ -146,7 +146,9 @@ firmware path no longer exists.)
       — `/arm` re-captures the pad baro/accel baseline
       (`sensors_capturePadBaseline()`), so arming before the vehicle is in
       its final launch attitude re-zeros against the wrong baseline.
-- [ ] Trigger `/arm` from the LaunchControl webapp.
+- [ ] Trigger `/arm` from the LaunchControl webapp, or from a phone on the
+      flight computer's own console at `http://192.168.4.1/` (ARM button).
+      The AP takes one client at a time, so use one or the other.
 - [ ] **Expect the connection to drop ~500ms after a successful response.**
       `fc_client.post_arm()` reports this as `ambiguous=True`, not a
       failure — the AP is designed to drop shortly after `/arm` succeeds.
@@ -157,9 +159,13 @@ firmware path no longer exists.)
       genuinely unclear (not just the expected drop), the only recovery is
       a full stand-down: disconnect the burn-wire leads, power-cycle the
       sled, and restart from §4 step 1.
-- [ ] Confirm via whatever last status the webapp captured (or a visual/audio
-      cue from the sled, if defined) that arm succeeded before proceeding —
-      don't proceed on "probably fine."
+- [ ] Confirm by ear that arm succeeded before proceeding — don't proceed
+      on "probably fine." Sled buzzer (firmware 0.3.0+):
+      - one short chirp right away = `/arm` received, re-zeroing (keep still ~5 s)
+      - **beep-beep-beeeep**, once = ARMED (then silent until landing)
+      - **five fast blips** = arm REFUSED (wrong state or sensor self-test
+        failed); nothing changed, the AP stays up — read the reason on the
+        page and fix before retrying
 
 ## 6. Final arm and fire (LaunchControl, igniter channel)
 

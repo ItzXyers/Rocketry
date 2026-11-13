@@ -13,28 +13,47 @@ struct Step {
 const Step SELF_TEST_PASS_STEPS[] = {{true, 100}, {false, 100}, {true, 100}};
 const Step SELF_TEST_FAIL_STEPS[] = {{true, 150}, {false, 150}};
 const Step RECOVERY_BEACON_STEPS[] = {{true, 120}, {false, 2880}};
+// Rising "beep-beep-beeeep", once: unmistakably different from the boot
+// double-beep.
+const Step ARM_CONFIRM_STEPS[] = {{true, 80}, {false, 120}, {true, 80}, {false, 120}, {true, 600}};
+const Step ARM_REJECTED_STEPS[] = {{true, 60}, {false, 60}, {true, 60}, {false, 60}, {true, 60},
+                                   {false, 60}, {true, 60}, {false, 60}, {true, 60}, {false, 600}};
+
+// What a one-shot pattern does after its last step.
+enum class After : uint8_t { SILENCE, NEXT, RESUME };
 
 struct PatternDef {
   const Step *steps;
   uint8_t count;
-  bool loop; // false = hold silent after the last step (one-shot)
+  bool loop;          // true = repeat forever; `after` is ignored
+  After after;        // one-shot only
+  BuzzerPattern next; // used when after == NEXT
 };
 
+#define STEPS(a) a, static_cast<uint8_t>(sizeof(a) / sizeof(a[0]))
+
+// Indexed by BuzzerPattern -- keep in enum order.
 const PatternDef PATTERNS[] = {
-    /* OFF             */ {nullptr, 0, false},
-    /* SELF_TEST_PASS  */ {SELF_TEST_PASS_STEPS, 3, false},
-    /* SELF_TEST_FAIL  */ {SELF_TEST_FAIL_STEPS, 2, true},
-    /* RECOVERY_BEACON */ {RECOVERY_BEACON_STEPS, 2, true},
+    /* OFF             */ {nullptr, 0, false, After::SILENCE, BuzzerPattern::OFF},
+    /* SELF_TEST_PASS  */ {STEPS(SELF_TEST_PASS_STEPS), false, After::SILENCE, BuzzerPattern::OFF},
+    /* SELF_TEST_FAIL  */ {STEPS(SELF_TEST_FAIL_STEPS), true, After::SILENCE, BuzzerPattern::OFF},
+    /* RECOVERY_BEACON */ {STEPS(RECOVERY_BEACON_STEPS), true, After::SILENCE, BuzzerPattern::OFF},
+    /* ARM_CONFIRM     */ {STEPS(ARM_CONFIRM_STEPS), false, After::SILENCE, BuzzerPattern::OFF},
+    /* ARM_REJECTED    */ {STEPS(ARM_REJECTED_STEPS), false, After::RESUME, BuzzerPattern::OFF},
 };
+static_assert(sizeof(PATTERNS) / sizeof(PATTERNS[0]) ==
+                  static_cast<uint8_t>(BuzzerPattern::ARM_REJECTED) + 1,
+              "PATTERNS must have one entry per BuzzerPattern, in enum order");
 
 BuzzerPattern g_pattern = BuzzerPattern::OFF;
+BuzzerPattern g_resume = BuzzerPattern::OFF; // last looping pattern, for After::RESUME
 uint8_t g_stepIndex = 0;
 uint32_t g_stepStart = 0;
 bool g_finished = true;
 
 void setGate(bool on) { digitalWrite(PIN_BUZZER, on ? HIGH : LOW); }
 
-const PatternDef &currentDef() { return PATTERNS[static_cast<uint8_t>(g_pattern)]; }
+const PatternDef &defOf(BuzzerPattern p) { return PATTERNS[static_cast<uint8_t>(p)]; }
 
 } // namespace
 
@@ -47,11 +66,17 @@ void buzzer_setPattern(BuzzerPattern pattern) {
   if (pattern == g_pattern) {
     return;
   }
+  // ARM_REJECTED resumes what was looping before it, so a rejected arm
+  // never silences e.g. the SELF_TEST_FAIL "do not fly" alarm for good.
+  if (pattern == BuzzerPattern::ARM_REJECTED) {
+    g_resume = defOf(g_pattern).loop ? g_pattern : BuzzerPattern::OFF;
+  }
+
   g_pattern = pattern;
   g_stepIndex = 0;
   g_stepStart = millis();
 
-  const PatternDef &def = currentDef();
+  const PatternDef &def = defOf(pattern);
   if (def.count == 0) {
     g_finished = true;
     setGate(false);
@@ -61,12 +86,27 @@ void buzzer_setPattern(BuzzerPattern pattern) {
   }
 }
 
+BuzzerPattern buzzer_currentPattern() { return g_pattern; }
+
+void buzzer_chirpBlocking(uint16_t duration_ms) {
+  // What to restart afterwards: a looping pattern restarts, an in-progress
+  // one-shot is dropped (or, for ARM_REJECTED, its resume target restarts).
+  BuzzerPattern after = defOf(g_pattern).loop ? g_pattern
+                        : (g_pattern == BuzzerPattern::ARM_REJECTED ? g_resume : BuzzerPattern::OFF);
+  g_finished = true;
+  setGate(true);
+  delay(duration_ms);
+  setGate(false);
+  g_pattern = BuzzerPattern::OFF;
+  buzzer_setPattern(after);
+}
+
 void buzzer_update() {
   if (g_finished) {
     return;
   }
 
-  const PatternDef &def = currentDef();
+  const PatternDef &def = defOf(g_pattern);
   uint32_t now = millis();
   if (now - g_stepStart < def.steps[g_stepIndex].duration_ms) {
     return;
@@ -77,6 +117,13 @@ void buzzer_update() {
     if (!def.loop) {
       setGate(false);
       g_finished = true;
+      if (def.after == After::NEXT) {
+        buzzer_setPattern(def.next);
+      } else if (def.after == After::RESUME) {
+        BuzzerPattern resume = g_resume;
+        g_pattern = BuzzerPattern::OFF; // so setPattern doesn't no-op
+        buzzer_setPattern(resume);
+      }
       return;
     }
     g_stepIndex = 0;

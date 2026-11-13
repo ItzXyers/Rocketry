@@ -51,14 +51,14 @@ struct ScanPin {
 // Wi-Fi AP up. A4/A5 are the I2C bus and will show "held high" from its
 // pull-ups.
 const ScanPin kPins[] = {
-    {"A0", A0, GPIO_NUM_1, "config.h PIN_BATT_SENSE"},
+    {"A0", A0, GPIO_NUM_1, ""},
     {"A1", A1, GPIO_NUM_2, ""},
     {"A2", A2, GPIO_NUM_3, ""},
     {"A3", A3, GPIO_NUM_4, ""},
     {"A4", A4, GPIO_NUM_11, "I2C SDA"},
     {"A5", A5, GPIO_NUM_12, "I2C SCL"},
     {"A6", A6, GPIO_NUM_13, ""},
-    {"A7", A7, GPIO_NUM_14, ""},
+    {"A7", A7, GPIO_NUM_14, "config.h PIN_BATT_SENSE"},
 };
 constexpr size_t kPinCount = sizeof(kPins) / sizeof(kPins[0]);
 
