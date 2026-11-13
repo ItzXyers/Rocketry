@@ -66,15 +66,16 @@
 // ---------------------------------------------------------------------------
 
 // -- Launch detection (ADXL375) --
-#define LAUNCH_ACCEL_THRESHOLD_G 3.0f      // STARTING DEFAULT — verify on bench, not a real spec
+#define LAUNCH_ACCEL_THRESHOLD_G 2.0f      // STARTING DEFAULT — was 3.0: the Klima D9 sustains only ~3.0-3.4 g on Phoenix (8.9 N / 0.25-0.28 kg), inside the ADXL375's +/-0.4 g offset error. LAUNCH_ACCEL_CONFIRM_MS is what rejects pad handling
 #define LAUNCH_ACCEL_CONFIRM_MS 100UL      // STARTING DEFAULT — verify on bench, not a real spec
 
 // -- Boost/burnout (ADXL375) --
 #define BOOST_MIN_TIME_MS 250UL            // STARTING DEFAULT — floor before burnout is even checked, rejects single-sample noise
 #define BURNOUT_ACCEL_THRESHOLD_G 1.5f     // STARTING DEFAULT — "accel fell back toward ~1g" heuristic, verify against real motor thrust curve
+#define BOOST_MAX_TIME_MS 5000UL           // STARTING DEFAULT — backup: forces BOOST -> COAST if accel never drops below the burnout threshold (stuck/offset accel), so the apogee timer below still runs. Must exceed the longest motor burn (D9: ~2.2 s)
 
 // -- Apogee window (barometric altitude, AGL) --
-#define MIN_COAST_TIME_MS 2000UL           // STARTING DEFAULT — must exceed the real motor's burn time + margin
+#define MIN_COAST_TIME_MS 3000UL           // STARTING DEFAULT — must exceed the real motor's burn time + margin (D9: ~2.2 s; was 2000)
 #define MAX_TIME_TO_APOGEE_MS 20000UL      // STARTING DEFAULT — must exceed simulated time-to-apogee (see ../../OpenRocket Designs/) with margin
 #define ALTITUDE_FILTER_ALPHA 0.3f         // STARTING DEFAULT — verify on bench, not a real spec
 #define APOGEE_DROP_THRESHOLD_M 3.0f       // STARTING DEFAULT — must clear the real baro noise floor
@@ -102,6 +103,8 @@
 // -- Sampling --
 #define SENSOR_SAMPLE_INTERVAL_MS 20UL     // STARTING DEFAULT — 50 Hz flight-logic tick (baro + accel -> flight_state, velocity_estimator). ALTITUDE_FILTER_ALPHA and APOGEE_CONFIRM_SAMPLES count samples at THIS rate -- to log faster, change ASCENT_ACCEL_INTERVAL_US, not this
 #define ASCENT_ACCEL_INTERVAL_US 5000UL    // STARTING DEFAULT — 200 Hz accel-only log rows between ticks in BOOST/COAST (+ pad over launch threshold). Baro columns repeat the last tick's reading. Go faster only after the bench logger_maxFlushUs check -- every flush stall is a gap
+static_assert(BOOST_MIN_TIME_MS < BOOST_MAX_TIME_MS && BOOST_MAX_TIME_MS < MAX_TIME_TO_APOGEE_MS,
+              "BOOST_MAX_TIME_MS must sit between the boost floor and the apogee backup timer");
 static_assert((SENSOR_SAMPLE_INTERVAL_MS * 1000UL) % ASCENT_ACCEL_INTERVAL_US == 0,
               "ASCENT_ACCEL_INTERVAL_US must divide the flight-logic tick evenly");
 static_assert(LOG_HOLD_RECORDS >= 2UL * MAX_TIME_TO_APOGEE_MS * 1000UL / ASCENT_ACCEL_INTERVAL_US,
@@ -147,4 +150,4 @@ static_assert(LOG_HOLD_RECORDS >= 2UL * MAX_TIME_TO_APOGEE_MS * 1000UL / ASCENT_
 #define WIFI_AP_MAX_CONNECTIONS 1            // deliberately capped so a stray device can't also join
 #define WIFI_AP_HTTP_PORT 80
 #define WIFI_ARM_SHUTDOWN_GRACE_MS 500UL     // STARTING DEFAULT — verify on bench this is enough for the Pi to see the full /arm response before the AP drops
-#define FIRMWARE_VERSION "0.3.0"             // bump manually per notable firmware change; surfaced read-only via GET /config
+#define FIRMWARE_VERSION "0.3.1"             // bump manually per notable firmware change; surfaced read-only via GET /config

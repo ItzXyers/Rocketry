@@ -143,10 +143,13 @@ FlightState flight_state_update(const SensorSample &sample) {
     // "can't confirm thrust is still on" and allowed through to COAST,
     // where the barometric apogee logic and backup timer take over.
     bool burnoutLike = !sample.accel_valid || sample.accel_mag_g <= BURNOUT_ACCEL_THRESHOLD_G;
-    if (burnoutLike) {
+    // Backup ceiling: an accel stuck above the burnout threshold must not
+    // hold BOOST forever -- COAST owns the apogee detector and its timer.
+    bool boostTimedOut = sinceLaunch >= BOOST_MAX_TIME_MS;
+    if (burnoutLike || boostTimedOut) {
       resetApogeeDetector();
       g_state = FlightState::COAST;
-      logTransition("COAST");
+      logTransition(burnoutLike ? "COAST" : "COAST_TIMEOUT");
     }
     break;
   }

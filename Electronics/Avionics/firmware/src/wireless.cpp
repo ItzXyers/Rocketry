@@ -92,6 +92,7 @@ void buildConfigJson() {
       "\"thr_launch_accel_confirm_ms\":%lu,"
       "\"thr_boost_min_time_ms\":%lu,"
       "\"thr_burnout_accel_g\":%.2f,"
+      "\"thr_boost_max_time_ms\":%lu,"
       "\"thr_min_coast_time_ms\":%lu,"
       "\"thr_max_time_to_apogee_ms\":%lu,"
       "\"thr_altitude_filter_alpha\":%.2f,"
@@ -116,6 +117,7 @@ void buildConfigJson() {
       static_cast<unsigned long>(LAUNCH_ACCEL_CONFIRM_MS),
       static_cast<unsigned long>(BOOST_MIN_TIME_MS),
       static_cast<double>(BURNOUT_ACCEL_THRESHOLD_G),
+      static_cast<unsigned long>(BOOST_MAX_TIME_MS),
       static_cast<unsigned long>(MIN_COAST_TIME_MS),
       static_cast<unsigned long>(MAX_TIME_TO_APOGEE_MS),
       static_cast<double>(ALTITUDE_FILTER_ALPHA),
