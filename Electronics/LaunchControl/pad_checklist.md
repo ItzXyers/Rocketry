@@ -162,8 +162,7 @@ firmware path no longer exists.)
 - [ ] Confirm by ear that arm succeeded before proceeding — don't proceed
       on "probably fine." Sled buzzer (firmware 0.3.0+):
       - one short chirp right away = `/arm` received, re-zeroing (keep still ~5 s)
-      - **beep-beep-beeeep**, then a **quick double chirp every ~4 s** = ARMED
-        (the chirp continues until launch is detected)
+      - **beep-beep-beeeep**, once = ARMED (then silent until landing)
       - **five fast blips** = arm REFUSED (wrong state or sensor self-test
         failed); nothing changed, the AP stays up — read the reason on the
         page and fix before retrying

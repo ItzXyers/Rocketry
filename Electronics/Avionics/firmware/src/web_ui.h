@@ -62,7 +62,7 @@ ul{margin:6px 0 0;padding:0;list-style:none}li{margin:2px 0}
 <h2>Arm</h2>
 <ul id="checks"></ul>
 <button id="arm" disabled>ARM</button>
-<p class="note">Arming re-zeros the altimeter to the pad, then turns Wi-Fi off for the rest of this power cycle. Do it on the rail, last thing before you walk away. You'll hear <b>beep-beep-beeeep</b>, then a quick double chirp every 4&nbsp;s until launch. Five fast blips = arm refused.</p>
+<p class="note">Arming re-zeros the altimeter to the pad, then turns Wi-Fi off for the rest of this power cycle. Do it on the rail, last thing before you walk away. You'll hear <b>beep-beep-beeeep</b> once. Five fast blips = arm refused. After landing the buzzer chirps every 3&nbsp;s to help you find it.</p>
 </section>
 
 <section class="card">
@@ -98,7 +98,7 @@ function render(s){
  st=s;
  const bad=s.flight_state==='ERROR',good=s.flight_state==='IDLE_ARMED';
  $('state').textContent=s.flight_state;$('state').style.color=bad?'var(--bad)':good?'var(--ok)':'';
- if(s.batt_valid){$('batt').textContent=s.batt_percent+'%';$('battv').textContent=s.batt_voltage_v.toFixed(2)+' V'+(s.batt_low?' — LOW':'');$('batt').style.color=s.batt_low?'var(--bad)':'';$('battbar').style.width=s.batt_percent+'%'}
+ if(s.batt_valid){$('batt').textContent=s.batt_percent+'%';$('battv').textContent=s.batt_voltage_v.toFixed(2)+' V'+(s.batt_low?' — LOW':'')+(s.batt_held?' · read '+fmtUp(s.batt_age_ms)+' ago, before Wi-Fi on':'');$('batt').style.color=s.batt_low?'var(--bad)':'';$('battbar').style.width=s.batt_percent+'%'}
  else{$('batt').textContent='–';$('battv').textContent='no reading';$('battbar').style.width='0'}
  $('selftest').textContent=s.boot_self_test_passed?'passed':'FAILED';$('selftest').style.color=s.boot_self_test_passed?'var(--ok)':'var(--bad)';
  $('sensors').textContent='baro '+(s.baro_valid?'✓':'✗')+'  accel '+(s.accel_valid?'✓':'✗');
@@ -155,10 +155,10 @@ $('arm').onclick=async()=>{
  try{
   const r=await j('/arm',{method:'POST'},20000);
   if(r.d.ok){armed=true;render(st);pill($('link'),'Wi-Fi off','');
-   banner('ARMED. Pad baseline '+(r.d.pad_baseline_pressure_pa/100).toFixed(1)+' hPa. Wi-Fi is now off — listen for the double chirp every 4 s.','ok');return}
+   banner('ARMED. Pad baseline '+(r.d.pad_baseline_pressure_pa/100).toFixed(1)+' hPa. Wi-Fi is now off.','ok');return}
   banner('Arm refused: '+(r.d.reason||('HTTP '+r.status))+(r.d.flight_state?' ('+r.d.flight_state+')':''),'bad');
  }catch(e){
-  banner('No reply — the board may have armed and dropped Wi-Fi. Listen: beep-beep-beeeep then a double chirp every 4 s = armed. Five fast blips = refused.','warn');
+  banner('No reply — the board may have armed and dropped Wi-Fi. Listen: beep-beep-beeeep = armed. Five fast blips = refused.','warn');
  }
  busy=false;if(st)render(st);
 };

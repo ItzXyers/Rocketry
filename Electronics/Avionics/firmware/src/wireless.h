@@ -17,7 +17,7 @@
 //   GET  /log?n=<nnn>  FLIGHTnnn.CSV download
 //   POST /log/delete?n=<nnn>  delete a log (never this boot's file)
 //   POST /arm          re-zero + latch the radio off; buzzer plays
-//                      ARM_CONFIRM -> ARMED_REMINDER, or ARM_REJECTED
+//                      ARM_CONFIRM once, or ARM_REJECTED
 //
 // Join WIFI_AP_SSID from a phone/laptop and open http://192.168.4.1/
 

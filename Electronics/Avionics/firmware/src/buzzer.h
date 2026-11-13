@@ -9,8 +9,7 @@ enum class BuzzerPattern : uint8_t {
   SELF_TEST_PASS,   // short double-beep, once — "safe to arm" confirmation
   SELF_TEST_FAIL,   // fast continuous repeat — deliberately insistent "do not fly" signal
   RECOVERY_BEACON,  // slow, low-duty chirp — battery-conscious for a multi-hour search
-  ARM_CONFIRM,      // beep-beep-beeeep, once, then hands over to ARMED_REMINDER
-  ARMED_REMINDER,   // quick double chirp every ~4 s while armed on the pad; silenced at BOOST
+  ARM_CONFIRM,      // beep-beep-beeeep, once, then silence
   ARM_REJECTED,     // five fast blips, once, then resumes whatever looped before (e.g. SELF_TEST_FAIL)
 };
 

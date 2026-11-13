@@ -13,13 +13,9 @@ struct Step {
 const Step SELF_TEST_PASS_STEPS[] = {{true, 100}, {false, 100}, {true, 100}};
 const Step SELF_TEST_FAIL_STEPS[] = {{true, 150}, {false, 150}};
 const Step RECOVERY_BEACON_STEPS[] = {{true, 120}, {false, 2880}};
-// Rising "beep-beep-beeeep": unmistakably different from the boot double-beep.
-// The trailing silence separates it from the first ARMED_REMINDER chirp.
-const Step ARM_CONFIRM_STEPS[] = {{true, 80},  {false, 120}, {true, 80},
-                                  {false, 120}, {true, 600},  {false, 1500}};
-// ~2.5 % duty: cheap on the battery for a long wait on the pad, and a
-// different rhythm (double, ~4 s) from the recovery beacon (single, 3 s).
-const Step ARMED_REMINDER_STEPS[] = {{true, 40}, {false, 80}, {true, 40}, {false, 3840}};
+// Rising "beep-beep-beeeep", once: unmistakably different from the boot
+// double-beep.
+const Step ARM_CONFIRM_STEPS[] = {{true, 80}, {false, 120}, {true, 80}, {false, 120}, {true, 600}};
 const Step ARM_REJECTED_STEPS[] = {{true, 60}, {false, 60}, {true, 60}, {false, 60}, {true, 60},
                                    {false, 60}, {true, 60}, {false, 60}, {true, 60}, {false, 600}};
 
@@ -42,8 +38,7 @@ const PatternDef PATTERNS[] = {
     /* SELF_TEST_PASS  */ {STEPS(SELF_TEST_PASS_STEPS), false, After::SILENCE, BuzzerPattern::OFF},
     /* SELF_TEST_FAIL  */ {STEPS(SELF_TEST_FAIL_STEPS), true, After::SILENCE, BuzzerPattern::OFF},
     /* RECOVERY_BEACON */ {STEPS(RECOVERY_BEACON_STEPS), true, After::SILENCE, BuzzerPattern::OFF},
-    /* ARM_CONFIRM     */ {STEPS(ARM_CONFIRM_STEPS), false, After::NEXT, BuzzerPattern::ARMED_REMINDER},
-    /* ARMED_REMINDER  */ {STEPS(ARMED_REMINDER_STEPS), true, After::SILENCE, BuzzerPattern::OFF},
+    /* ARM_CONFIRM     */ {STEPS(ARM_CONFIRM_STEPS), false, After::SILENCE, BuzzerPattern::OFF},
     /* ARM_REJECTED    */ {STEPS(ARM_REJECTED_STEPS), false, After::RESUME, BuzzerPattern::OFF},
 };
 static_assert(sizeof(PATTERNS) / sizeof(PATTERNS[0]) ==

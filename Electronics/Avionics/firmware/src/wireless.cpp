@@ -37,6 +37,7 @@ bool g_lastArmSucceeded = false; // this session's wireless-arm outcome
 char g_configJson[1536];
 
 void bringApUp() {
+  battery_setRadioOn(true); // fresh read first: PIN_BATT_SENSE is on ADC2, shared with Wi-Fi
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(IPAddress(192, 168, 4, 1), IPAddress(192, 168, 4, 1), IPAddress(255, 255, 255, 0));
   WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PASSWORD, WIFI_AP_CHANNEL, /*hidden=*/0, WIFI_AP_MAX_CONNECTIONS);
@@ -50,6 +51,7 @@ void bringRadioDown() {
   WiFi.mode(WIFI_OFF);
   btStop();
   g_radioActive = false;
+  battery_setRadioOn(false); // ADC2 is free again -- battery sampling resumes
   Serial.println(F("[wireless] radio disabled"));
 }
 
@@ -188,7 +190,9 @@ void handleStatus() {
       "\"batt_valid\":%s,"
       "\"batt_voltage_v\":%.3f,"
       "\"batt_percent\":%u,"
-      "\"batt_low\":%s"
+      "\"batt_low\":%s,"
+      "\"batt_held\":%s,"
+      "\"batt_age_ms\":%lu"
       "}",
       static_cast<unsigned long>(millis()),
       static_cast<unsigned long>(ESP.getFreeHeap()),
@@ -217,7 +221,9 @@ void handleStatus() {
       battery_valid() ? "true" : "false",
       static_cast<double>(battery_voltage()),
       static_cast<unsigned>(battery_percent()),
-      battery_low() ? "true" : "false");
+      battery_low() ? "true" : "false",
+      battery_held() ? "true" : "false",
+      static_cast<unsigned long>(battery_ageMs()));
 
   if (n < 0 || static_cast<size_t>(n) >= sizeof(buf)) {
     g_server.send(500, "application/json", "{\"ok\":false,\"reason\":\"status_json_truncated\"}");
@@ -280,9 +286,8 @@ void handleArm() {
   SensorSample fresh = sensors_read();
   logger_logEvent("WIRELESS_ARM", buildLogRecord(fresh));
   g_lastArmSucceeded = true;
-  // beep-beep-beeeep, then the ARMED_REMINDER chirp every ~4 s until BOOST
-  // (flight_state.cpp silences it) -- the only "armed" indication once the
-  // radio is down.
+  // beep-beep-beeeep, once -- the only "armed" indication once the radio
+  // is down.
   buzzer_setPattern(BuzzerPattern::ARM_CONFIRM);
 
   char buf[192];

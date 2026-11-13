@@ -212,7 +212,7 @@ void cmdBuzzer(Print &out, const String &arg) {
 
 void cmdBatt(Print &out) {
   uint32_t pinMv = analogReadMilliVolts(PIN_BATT_SENSE);
-  out.print(F("[bench] BATT sense (A0) pin = "));
+  out.print(F("[bench] BATT sense (A7) pin = "));
   out.print(pinMv);
   out.print(F(" mV  -> cell = "));
   out.print(battery_voltage(), 3);
@@ -229,7 +229,7 @@ void cmdPins(Print &out) {
   out.print(F("[bench]   I2C   SDA=A4("));   out.print(PIN_I2C_SDA);
   out.print(F(")  SCL=A5("));                out.print(PIN_I2C_SCL);   out.println(')');
   out.print(F("[bench]   BUZZER=D9("));      out.print(PIN_BUZZER);     out.println(')');
-  out.print(F("[bench]   BATT_SENSE=A0("));  out.print(PIN_BATT_SENSE); out.println(')');
+  out.print(F("[bench]   BATT_SENSE=A7("));  out.print(PIN_BATT_SENSE); out.println(')');
 
   out.print(F("[bench]   BMP388 addr (flight, pinned) = "));
   printHex8(out, BMP388_I2C_ADDR);
@@ -261,7 +261,7 @@ void cmdHelp(Print &out) {
   out.println(F("[bench]   LOGS                        list flight logs in internal flash"));
   out.println(F("[bench]   FORMAT YES                  erase every log (formats a new board)"));
   out.println(F("[bench]   BUZZER PASS|FAIL|BEACON|OFF  play a buzzer pattern"));
-  out.println(F("[bench]   BATT                        battery voltage (A0 divider)"));
+  out.println(F("[bench]   BATT                        battery voltage (A7 divider)"));
   out.println(F("[bench]   PINS                        print the pin map"));
   out.println(F("[bench]   WIFI                        AP name / IP / connected clients"));
 
@@ -537,6 +537,9 @@ void setup() {
   logger_mount();
 
   // Radio last, after the sensor/flash init window — as main.cpp does.
+  // The battery sense (A7) is on ADC2, which Wi-Fi takes over: take the
+  // reading now and hold it. BATT over Wi-Fi shows this boot-time value.
+  battery_setRadioOn(true);
   bringApUp();
   buzzer_setPattern(g_sensorsUp ? BuzzerPattern::SELF_TEST_PASS : BuzzerPattern::SELF_TEST_FAIL);
   Serial.println(F("[bench] join the AP and open http://192.168.4.1/  — or type HELP here."));

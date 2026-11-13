@@ -47,14 +47,17 @@
 // dropped 2026-10-19. SW1 was never firmware-readable; without SW2 the
 // ground-support AP comes up at boot (see wireless.h). D7 is free.
 
-// Battery voltage sense: BATT+ -> R11 10k -> A0 -> R12 10k -> GND. The 5k
+// Battery voltage sense: BATT+ -> R11 10k -> A7 -> R12 10k -> GND. The 5k
 // source impedance is low enough for the ADC without a filter cap; the
-// divider draws ~0.2 mA whenever the battery is connected. A0 =
-// GPIO1 = ADC1_CH0: ADC1 keeps working while the Wi-Fi AP is up (ADC2 is
-// shared with the radio on the ESP32-S3). Not a strapping pin.
+// divider draws ~0.2 mA whenever the battery is connected.
+// A7 = GPIO14 = ADC2_CH3. ADC2 is shared with the Wi-Fi radio on the
+// ESP32-S3, so readings are unreliable (or fail) while the AP is up:
+// battery.cpp only samples with the radio off -- at boot, right before the
+// AP comes up, and again once the radio is latched off (arm / BOOST). While
+// the AP is up, the last radio-off reading is held. Not a strapping pin.
 // BATT_CAL_GAIN absorbs resistor tolerance and any series drop.
 // See ../../avionics_bay_schematic_phoenix40.html.
-#define PIN_BATT_SENSE A0
+#define PIN_BATT_SENSE A7
 
 // ---------------------------------------------------------------------------
 // Tunables — STARTING DEFAULTS for bench tuning, not asserted specs.
