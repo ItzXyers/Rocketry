@@ -47,18 +47,19 @@ struct ScanPin {
 };
 
 // The analog header pins A0-A7 (Nano ESP32 / ABX00083 pinout). The divider
-// is known to be on one of these. All are ADC1, so they read fine with the
-// Wi-Fi AP up. A4/A5 are the I2C bus and will show "held high" from its
-// pull-ups.
+// is known to be on one of these. A0-A3 (GPIO1-4) are ADC1. A4-A7 (GPIO11-14)
+// are ADC2, which the ESP32-S3 can't read reliably while the Wi-Fi AP is up,
+// so the scan finds the divider there but warns. A4/A5 are the I2C bus and
+// will show "held high" from its pull-ups.
 const ScanPin kPins[] = {
     {"A0", A0, GPIO_NUM_1, "config.h PIN_BATT_SENSE"},
     {"A1", A1, GPIO_NUM_2, ""},
     {"A2", A2, GPIO_NUM_3, ""},
     {"A3", A3, GPIO_NUM_4, ""},
-    {"A4", A4, GPIO_NUM_11, "I2C SDA"},
-    {"A5", A5, GPIO_NUM_12, "I2C SCL"},
-    {"A6", A6, GPIO_NUM_13, ""},
-    {"A7", A7, GPIO_NUM_14, ""},
+    {"A4", A4, GPIO_NUM_11, "I2C SDA, ADC2"},
+    {"A5", A5, GPIO_NUM_12, "I2C SCL, ADC2"},
+    {"A6", A6, GPIO_NUM_13, "ADC2"},
+    {"A7", A7, GPIO_NUM_14, "ADC2"},
 };
 constexpr size_t kPinCount = sizeof(kPins) / sizeof(kPins[0]);
 
@@ -227,6 +228,11 @@ void runScan() {
     Serial.println(F(" V before BATT_CAL_GAIN)."));
     Serial.print(F("[find]   config.h:  #define PIN_BATT_SENSE "));
     Serial.println(kPins[best].label);
+    if (kPins[best].gpio >= GPIO_NUM_11) {
+      Serial.println(F("[find]   WARNING: that pin is on ADC2. The ESP32-S3 can't read ADC2 reliably while"));
+      Serial.println(F("[find]   the Wi-Fi AP is up, which is the whole time on the pad. Move the divider"));
+      Serial.println(F("[find]   to A0-A3 (ADC1)."));
+    }
   } else if (candidates == 0) {
     Serial.println(F("[find] RESULT: no pin looks like the divider. Check that the battery is plugged in"));
     Serial.println(F("[find]   (USB alone reads ~0 V), that R11/R12 are fitted, and that the divider goes to"));
