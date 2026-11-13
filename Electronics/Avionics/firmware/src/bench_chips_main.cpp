@@ -26,7 +26,7 @@
 //   LOGS                        list the FLIGHTnnn.CSV files in internal flash
 //   FORMAT YES                  erase every log (also formats a brand-new board)
 //   BUZZER PASS|FAIL|BEACON|OFF play a buzzer pattern
-//   BATT                        battery voltage + raw sense-pin reading (A0)
+//   BATT                        battery voltage + raw sense-pin reading (A7)
 //   PINS                        print the pin map
 //   HELP                        this list
 
@@ -194,7 +194,7 @@ void cmdBatt() {
   // Raw pin millivolts as well as the scaled value, so BATT_CAL_GAIN can be
   // set from a multimeter reading at the cell: gain = meter V / reported V.
   uint32_t pinMv = analogReadMilliVolts(PIN_BATT_SENSE);
-  Serial.print(F("[bench] BATT sense (A0) pin = "));
+  Serial.print(F("[bench] BATT sense (" PIN_BATT_SENSE_NAME ") pin = "));
   Serial.print(pinMv);
   Serial.print(F(" mV  -> cell = "));
   Serial.print(battery_voltage(), 3);
@@ -211,7 +211,7 @@ void cmdPins() {
   Serial.print(F("[bench]   I2C   SDA=A4("));   Serial.print(PIN_I2C_SDA);
   Serial.print(F(")  SCL=A5("));                Serial.print(PIN_I2C_SCL);   Serial.println(')');
   Serial.print(F("[bench]   BUZZER=D9("));      Serial.print(PIN_BUZZER);     Serial.println(')');
-  Serial.print(F("[bench]   BATT_SENSE=A0("));  Serial.print(PIN_BATT_SENSE); Serial.println(')');
+  Serial.print(F("[bench]   BATT_SENSE=" PIN_BATT_SENSE_NAME "("));  Serial.print(PIN_BATT_SENSE); Serial.println(')');
 
   Serial.print(F("[bench]   BMP388 addr (flight, pinned) = "));
   printHex8(BMP388_I2C_ADDR);
@@ -232,7 +232,7 @@ void cmdHelp() {
   Serial.println(F("[bench]   LOGS                        list flight logs in internal flash"));
   Serial.println(F("[bench]   FORMAT YES                  erase every log (formats a new board)"));
   Serial.println(F("[bench]   BUZZER PASS|FAIL|BEACON|OFF  play a buzzer pattern"));
-  Serial.println(F("[bench]   BATT                        battery voltage (A0 divider)"));
+  Serial.println(F("[bench]   BATT                        battery voltage (" PIN_BATT_SENSE_NAME " divider)"));
   Serial.println(F("[bench]   PINS                        print the pin map"));
 
 }

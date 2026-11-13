@@ -47,14 +47,21 @@
 // dropped 2026-10-19. SW1 was never firmware-readable; without SW2 the
 // ground-support AP comes up at boot (see wireless.h). D7 is free.
 
-// Battery voltage sense: BATT+ -> R11 10k -> A0 -> R12 10k -> GND. The 5k
+// Battery voltage sense: BATT+ -> R11 10k -> A7 -> R12 10k -> GND. The 5k
 // source impedance is low enough for the ADC without a filter cap; the
-// divider draws ~0.2 mA whenever the battery is connected. A0 =
-// GPIO1 = ADC1_CH0: ADC1 keeps working while the Wi-Fi AP is up (ADC2 is
-// shared with the radio on the ESP32-S3). Not a strapping pin.
+// divider draws ~0.2 mA whenever the battery is connected.
+// Moved from A0 to A7 on the harness (found 2026-11-13 with the
+// battfind_bench env); the lead can't go back to A0.
+// A7 = GPIO14 = ADC2_CH3. The ESP32-S3's Wi-Fi radio also uses ADC2, so a
+// read while the AP is up can fail and come back as ~0 mV. battery.cpp
+// drops those samples and holds the last good value; after BATT_STALE_MS
+// with no good sample the reading goes invalid ("no reading"). Bench-check
+// this with the AP up (wifi_bench env, BATT) before relying on the pad
+// readout. A0-A3 (ADC1) don't have this problem. Not a strapping pin.
 // BATT_CAL_GAIN absorbs resistor tolerance and any series drop.
 // See ../../avionics_bay_schematic_phoenix40.html.
-#define PIN_BATT_SENSE A0
+#define PIN_BATT_SENSE A7
+#define PIN_BATT_SENSE_NAME "A7"           // for console output only
 
 // ---------------------------------------------------------------------------
 // Tunables — STARTING DEFAULTS for bench tuning, not asserted specs.
@@ -131,6 +138,8 @@ static_assert(LOG_HOLD_RECORDS >= 2UL * MAX_TIME_TO_APOGEE_MS * 1000UL / ASCENT_
 #define BATT_SAMPLE_INTERVAL_MS 500UL      // 2 Hz -- the cell voltage moves slowly
 #define BATT_FILTER_ALPHA 0.2f             // EMA on top of the averaging -- smooths flash-write / Wi-Fi TX sag
 #define BATT_PRESENT_MIN_V 2.5f            // below this the reading is "no battery" (divider missing, or USB-only bench power)
+#define BATT_SAMPLE_MIN_MV 100             // a single pin read below this is discarded: a failed ADC2 read (Wi-Fi holds ADC2) returns ~0 mV. A real cell is >= ~1250 mV at the pin
+#define BATT_STALE_MS 10000UL              // no good sample for this long -> battery_valid() goes false. Also how "battery unplugged" shows up, since that reads ~0 mV too
 #define BATT_LOW_V 3.70f                   // STARTING DEFAULT -- ~15 % on the generic curve; don't fly below this. Pad go/no-go only, never a flight-logic input
 
 
@@ -144,4 +153,4 @@ static_assert(LOG_HOLD_RECORDS >= 2UL * MAX_TIME_TO_APOGEE_MS * 1000UL / ASCENT_
 #define WIFI_AP_MAX_CONNECTIONS 1            // deliberately capped so a stray device can't also join
 #define WIFI_AP_HTTP_PORT 80
 #define WIFI_ARM_SHUTDOWN_GRACE_MS 500UL     // STARTING DEFAULT — verify on bench this is enough for the Pi to see the full /arm response before the AP drops
-#define FIRMWARE_VERSION "0.2.3"             // bump manually per notable firmware change; surfaced read-only via GET /config
+#define FIRMWARE_VERSION "0.2.4"             // bump manually per notable firmware change; surfaced read-only via GET /config

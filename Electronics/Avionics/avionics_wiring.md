@@ -5,7 +5,7 @@ Companion to [`avionics_bom.md`](avionics_bom.md). Two variants: the full build 
 > **2026-10-08 — superseded for the Phoenix ABS 40-43 bay (D9aft v10 + sled v8).** Use the rev C schematic
 > [`avionics_bay_schematic_phoenix40.html`](avionics_bay_schematic_phoenix40.html)
 > (rendered: https://claude.ai/artifact/Euva6DDNWa6VnT3Dv4fMjK). It drops the charger, GPS and deploy channels. It adds SW1 reed → Q3 G75P04T P-FET
-> high-side power switching (rev D), an R11/R12 battery-voltage divider on A0, and the SW2 push button/R3 interlock on D7, and lists 8 open items. The diagrams below remain the reference for the 30 mm CO2 bay.
+> high-side power switching (rev D), an R11/R12 battery-voltage divider on A0 (moved to A7 on 2026-11-13, see firmware `config.h`), and the SW2 push button/R3 interlock on D7, and lists 8 open items. The diagrams below remain the reference for the 30 mm CO2 bay.
 >
 > **2026-10-19 — Phoenix harness as soldered:** SW1 (reed), Q3/R6, SW2/R3 and the microSD reader are all gone. The bay
 > powers up when the battery is plugged in, the Wi-Fi AP comes up at boot, and the log is on internal flash. The burn
